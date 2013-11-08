@@ -2,7 +2,7 @@ cenny.js
 ========
 
 ###A realtime backend for web apps.
-Cenny.js is a plug 'n play backend. 
+Cenny.js is a plug 'n play, simple, and open backend for web apps of all shapes and sizes. 
 
   **What can I do with a backend?** 
       A backend is used to store data to be accessed across multible clients. For instance, Facebook, Youtube,
@@ -17,4 +17,12 @@ ___
 
 ##Cenny.js Documentation
 
-... loading soon ...
+Cenny.js is object based, so you'll first need to create a fresh instance of the Cenny object.
+
+
+```javascript
+   var backend = new Cenny(); 
+```
+
+   *All data stored, transfered, and retrieved with Cenny is object based, so instead of storing "hello world", it should
+   be stored as {name: "hello world"}.*
