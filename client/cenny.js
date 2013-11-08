@@ -1,5 +1,6 @@
 function Cenny(userObject) {
-
+    this.isOnline = true;
+    
 	this.url = "http://loadfive.com/cenny/back/cenny.php";
 	this.userObject = {group:'default', key:'default'};
 
@@ -18,6 +19,8 @@ function Cenny(userObject) {
 
 	}
 	}
+    
+    
 
 	
 	this.user = {};
@@ -214,13 +217,6 @@ function Cenny(userObject) {
 						data = JSON.stringify(data);
 						
 						
-						if(data.length > 30000) {
-							console.log("Uploads over 30000 characters in length not allowed.");
-				//			return 0;
-						}
-						
-						
-						
 						
 						
 						//AJAX
@@ -241,17 +237,7 @@ function Cenny(userObject) {
 			} else {
 			
 			data = JSON.stringify(data);
-			
-			
-			if(data.length > 30000) {
-				console.log("Uploads over 30000 characters in length not allowed.");
-	//			return 0;
-			}
-			
-			
-			
-			
-			
+
 			//AJAX
 			var xmlhttp;
 			xmlhttp=new XMLHttpRequest();
@@ -397,25 +383,7 @@ function Cenny(userObject) {
 		}
 	
 	};
-	
-	this.whisperServer = function() {
-	
-		//AJAX
-		var xmlhttp;
-		xmlhttp=new XMLHttpRequest();
-		xmlhttp.onreadystatechange=function(){
-			if (xmlhttp.readyState==4 && xmlhttp.status==200) { 
-			}
-				 
-		};
-		
-		xmlhttp.open("POST",that.url,true);
-		xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-		xmlhttp.send("act=pageview");
-		//END AJAX
-	
-	
-	};
+
 	this.checkForChangeFunction = function(d){};
 	this.checkForChangeEnabled = false;
 	this.checkForChangeLast = "";
@@ -460,10 +428,17 @@ function Cenny(userObject) {
  	that.update({cennyStatus:'x'});
  	});
  }
- 
-
- 
- that.whisperServer();
+    
+    setInterval(function() {
+        
+        if (navigator.onLine) {
+            that.isOnline = true;
+        } else {
+            that.isOnline = false;
+        }
+        
+        
+    }, 300);
 
  
 };

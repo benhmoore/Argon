@@ -73,7 +73,7 @@
 			if ($readableX !== "false") {
 				if (file_exists("backend/$user/$location.txt")) {
 				
-						$dataToEcho = openFile("backend/$user/$location.txt", 510000);
+						$dataToEcho = openFile("backend/$user/$location.txt", 550000);
 						
 						echo $dataToEcho;
 				
@@ -86,7 +86,7 @@
 				
 				if (file_exists("backend/$user/$location.txt")) {
 			
-					$dataToEcho = openFile("backend/$user/$location.txt", 510000);
+					$dataToEcho = openFile("backend/$user/$location.txt", 550000);
 					
 					echo $dataToEcho;
 			
@@ -170,7 +170,9 @@
 				$accounts = openFile("backend/info/accounts.txt", 5000);
 					saveFile("backend/info/accounts.txt", $accounts - 1);
 					echo "Group removed.";
-				}
+				} else {
+				    echo "Group key incorrect.";
+                }
 		}
 				
 		//ANALYTICS FOR REQUESTS~~~~~~~~~~~~~~~~~
