@@ -178,12 +178,7 @@
 		//ANALYTICS FOR REQUESTS~~~~~~~~~~~~~~~~~
 		plusNum("backend/info/requests.txt", 1);
 		
-	} else if ($action === "pageview") {
-	
-		//ANALYTICS FOR PAGEVIEWS~~~~~~~~~~~~~~~~~
-		plusNum("backend/info/pageviews.txt", 1);
-	
-	}//end actions.
+	} //end actions
 	
 	} else { //end DOMAINBLOCK	
 		echo json_encode("Domain locked.");
