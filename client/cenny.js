@@ -9,6 +9,15 @@ function Cenny(userObject) {
 	if (userObject['url'] !== undefined) {
 	this.url = userObject.url;
 	}
+        
+    //run pre-load plugins
+    if (userObject['plugin'] !== undefined) {
+
+         var strFun = userObject['plugin'];  
+         var fn = window[strFun];
+         fn();   
+        
+    }
     
 	if (userObject['group'] !== undefined && userObject['key'] !== undefined) {
 	
