@@ -377,21 +377,17 @@ function Cenny(userObject) {
 	};
 	
 	
-	this.on = function(event, functionName, objectX) {
-	
-		if (event === "modified" || event === "Modified") {
+	this.modified = function(functionName, objectX) {
 			if (that.checkForChangeEnabled === false) {
 				that.checkForChangeFunction = functionName;
 				if (objectX instanceof Array) {
 				that.arrayForChangeFunction = objectX;
 				} else if (objectX !== undefined){
-					alert("Third parameter of .on() should be an Array.");
+					console.log("Second parameter of .modified() should be an Array.");
 				} 
 				setInterval(that.checkForChange, 1100);
 				that.checkForChangeEnabled === true;
 			}
-		}
-	
 	};
 
 	this.checkForChangeFunction = function(d){};
