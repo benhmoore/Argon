@@ -1,441 +1,215 @@
-function Cenny(userObject) {
-    this.isOnline = true;
-    
+//BRAID.JS IMPLEMENTATION
+var braid={};braid.vnumber=.02;braid.version=function(){console.log(braid.vnumber)};braid.search=function(e,t,n,r){if(n!==undefined){if(n===false){t=t.toLowerCase();e=e.toLowerCase();if(r!==false){t=braid.replace(t,"aeiouyAEIOUY@wa@");e=braid.replace(e,"aeiouyAEIOUY@wa@")}}}var i=[];var t=t.split("");var e=e.split("");var s;var o=0;for(var u=0;u<t.length;u++){if(t[u]===e[0]){for(var a=0;a<e.length;a++){s=u+a;if(t[s]===e[a]){if(a===e.length-1){var f=s-e.length+1;i.push(f);o++}}}}}if(o===0){return false}else{return i}};braid.replace=function(e,t){var n=t;var t={};t.full=n;var r=false,i=false;t.groups=t.full.split("@n@");if(e instanceof Array){var s=[];r=true;for(var o=0;o<e.length;o++){var u=e[o];if(u===parseInt(u)){u=u.toString();i=true}for(var a=0;a<t.groups.length;a++){var f=t.groups[a];var l=braid.search("@wa@",f,true);if(l===false){var c=f.split("@w@");var h=c[0];var p=c[1];u=deiwo3replace(h,p,u)}else{var c=f.split("@wa@");var h=c[0];if(braid.search("!NUM!",h,true)!==false){h="12345678910"}if(braid.search("!VOWEL!",h,true)!==false){h="aeiouyAEIOUY"}if(braid.search("!SPECIAL!",h,true)!==false){h="~`@#$%^&*()_+-={}|[]:;<>"}h=h.split("");var p=c[1];for(var d=0;d<h.length;d++){u=deiwo3replace(h[d],p,u)}}}if(i===true){u=parseInt(u)}s.push(u);i=false}}else{if(e===parseInt(e)){e=e.toString();i=true}for(var a=0;a<t.groups.length;a++){var f=t.groups[a];var l=braid.search("@wa@",f,true);if(l===false){var c=f.split("@w@");var h=c[0];var p=c[1];e=deiwo3replace(h,p,e)}else{var c=f.split("@wa@");var h=c[0];if(braid.search("!NUM!",h,true)!==false){h="12345678910"}if(braid.search("!VOWEL!",h,true)!==false){h="aeiouyAEIOUY"}h=h.split("");var p=c[1];for(var d=0;d<h.length;d++){e=deiwo3replace(h[d],p,e)}}}if(i===true){e=parseInt(e)}}if(r===false){return e}else{return s}};var deiwo3replace=function(e,t,n){return n.replace(new RegExp(e,"g"),t)};braid.help=function(e){if(!e){console.log('Incorrect santex. Make sure to use the first parameter as a keyword. Example: braid.help("braid.replace"). \n|TIP: You can use this function in the console for quick help.')}else{if(braid.search("replace",e,false)!==false){console.log("*SANTEX FOR braid.replace()*\n\n"+"|RETURNS: braid.replace() will return the output after completing actions on the string.\n"+"|SANTEX: var VARIABLE = braid.replace('this is a test','this@w@that@n@is@w@was');\n"+"|OUTPUT: 'that was a test'\n"+"|NOTE: Using the parameter 'key' (second parameter), '@w@' is used as 'with', so 'apple@w@grape' means 'replace apple with grape'.\n"+"| '@n@ is used as 'next.' It is used to seperate instructions, as follows, 'apple@w@grape@n@cherry@w@bannana'.\n"+"| You can use '@wa@' instead of '@w@' to replace all instances of each character with another, like so, 'aeiouy@wa@#'\n"+"| If the string were 'abcdefghijklmnopqrstuvwxyz', this would output '#bcd#fgh#jklmn#pqrst#vwx#z'.\n"+"| *Input can be an Array, Integer, or String.\n")}else if(braid.search("search",e,false)!==false){console.log("*SANTEX FOR braid.search()*\n\n"+"|RETURNS: if braid.search() finds a match to query, it will return the positions of all matches in an array.\n"+"| If it does not find a match, it will return *false*.\n"+"|SANTEX: var VARIABLE = braid.search('query','complete string',false,false);\n"+"|OUTPUT: *false*\n"+"|NOTE: The third (3) parameter should be *true* or *false*, if *true* the search will be case sensitive, if *false* the search will not.\n| Setting this to false will also search by just consonants, instead of both consonants and vowels.\n"+"| The fourth (4) parameter can be set to *false* to disable the removal of vowels when searching with the third (3) parameter equal to *true*.\n")}else{console.log("~No help available on this topic. Please make sure to check your spelling.\nSANTEX: braid.help('braid.complementary'), etc.\n    ")}}}
+
+
+
+
+function Cenny(mainObject) {
+	
+	//****
+		this.user = {};
+		this.group = {};
+		this.deamon = {};
+		this.isOnline = navigator.onLine;
+	//****
+
+	this.groupObject = {};
+	
+	//group stuff
+	this.groupObject.group = "default";
+	this.groupObject.key = "default";
+	
+	this.userObject = {};
+	
+	//user stuff
+	this.userObject.user = "default";
+	this.userObject.pass = "default";
+	
+	
+	
+	
+	
+	//url to backend
 	this.url = document.URL + "cenny.php";
-	this.userObject = {group:'default', key:'default'};
-
-	if (userObject !== undefined) {
 	
-	if (userObject['url'] !== undefined) {
-	this.url = userObject.url;
-	}
-        
-    //run pre-load plugins
-    if (userObject['plugin'] !== undefined) {
-
-         var strFun = userObject['plugin'];  
-         var fn = window[strFun];
-         fn();   
-        
-    }
-    
-	if (userObject['group'] !== undefined && userObject['key'] !== undefined) {
-	
-		 this.userObject.group = userObject.group; 
-		 this.userObject.key = userObject.key;
-		 if (userObject['read'] !== undefined) {
-		 	this.userObject.read = userObject.read;
-		 }
-
-	}
-	}
-    
-    
-
-	
-	this.user = {};
-	
-	this.group = {};
-	
-	this.defaultLocation = 'main';
-	
-	this.user.remove = function() {
-		
-			that.get(function(d) {
+	//#######################################################################################################################################################
+	//######################################################## SET UP MAIN OBJECT STUFF #####################################################################
+	//#######################################################################################################################################################
+	if (mainObject instanceof Object) {
+		if (mainObject['group'] !== undefined && mainObject['group'] instanceof Array) {
 			
-			if (that.defaultLocation !== "main") {
-				delete d[that.defaultLocation];
-			that.set(d, 6);
+			this.groupObject.group = braid.replace(mainObject['group'][0], " @w@");
+			this.groupObject.key = braid.replace(mainObject['group'][1], " @w@");
 			
-			that.defaultLocation = "main";
-			}
-			}, "x324" + "bgx");
+		} 
+		if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
 			
-		
-				
-		
+			this.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
+			this.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
 			
-			return "Removing...";
-
-		
-	
-	};
-	
-	this.user.remember = function() {
-		
-		localStorage.cennyUser = that.defaultLocation;
-	
-	};
-	
-	this.user.forget = function() {
-		
-		localStorage.cennyUser = "main";
-	
-	};
-	
-	this.user.remSignin = function() {
-		if (localStorage.cennyUser !== "" || localStorage.cennyUser !== "main") {
-			that.defaultLocation = localStorage.cennyUser;
-			return "logged in";
 		} else {
-			return "Last user not available";
-		}
-	}
-
-	this.user.signin = function(objectX, callbackFunction) {
-		
-		if (objectX['user'] !== undefined && objectX['pass'] !== undefined) {
-		if (objectX['user'].length < 15) {
-		if (objectX['pass'].length < 15) {
-		
-			var password = objectX['user'] + '{-=pass=x}' + objectX['pass'];
-			that.get(function(d) {
-			var status = "beginning";
-			for (key in d) {
-				var defaultUsername = password.split('{-=pass=x}');
-				defaultUsername = defaultUsername[0];
-				var username = key.split('{-=pass=x}');
-				username = username[0];
-				
-				//------
-				
-				if (username === defaultUsername && password !== key) {
-					status = 2;
-					break;
-				} else if (username === defaultUsername){
-					
-					status = 4;
-					break;
-				} else if (username !== defaultUsername && password !== key) {
-					status = 3;
-					
+			
+			var x = localStorage['cenny'];
+			if (x !== undefined) {
+				x = JSON.parse(x);
+				if (x['user'] !== undefined) {
+					this.userObject.user = x['user'];
+					this.userObject.pass = x['pass'];
 				}
+				
 			}
 			
-			//4 === correct 3 === user does not exist 2 === incorrect pass;
-			
-			if (status === 3 || status === 4) {
-				that.defaultLocation = password;
-			}
-			if (status === 2) {
-				var statusX = "Incorrect password";
-			} else if (status === 3) {
-				var statusX = "User added to queue. Waiting for data to be written.";
-			} else if (status === 4) {
-				var statusX = "User logged in.";
-			}
-			if (callbackFunction !== undefined) {
-				callbackFunction({info:statusX, code: status});
-			}
-			
-			},"x324b" + "gx"); 
-			
-			return "Signing in...";
-		} else {
-			return "Pass string over 15 characters";
 		}
-		} else {
-			return "User string over 15 characters";
+
+		if (mainObject['url'] !== undefined) {
+			this.url = mainObject['url'];
 		}
-		}
+	} else {
+		console.log("mainObject should be an Object.");
+		return undefined;
+	}
+	
+	//#######################################################################################################################################################
+	//############################################# USED FOR ALL PLUGIN AJAX REQUESTS (& .GET() / .SET())####################################################
+	//#######################################################################################################################################################
+	
+	this.aj = function(sendData, action, callback) {
 		
-	
-	
-	};
-	
-	this.user.signout = function() {
-			that.defaultLocation = 'main';
-	};
-	
-	this.group.auth = function(userObject, functionName) {
-		
-		if (userObject['read'] === undefined) {
-			userObject['read'] = "false";
-		}
-		if (userObject['read'] === false) {
-			userObject['read'] = "false";
-		} else if (userObject['read'] === true) {
-			userObject['read'] = "true";
-		}
-		
-		//AJAX
 		var xmlhttp;
 		xmlhttp=new XMLHttpRequest();
 		xmlhttp.onreadystatechange=function(){
 			if (xmlhttp.readyState==4 && xmlhttp.status==200) {
 				var data = xmlhttp.responseText;
-				if (functionName !== undefined) {
-					functionName(data);			  
+				if (callback !== undefined) {
+					callback(JSON.parse(data));			  
 				}		  
 			}
 				 
 		};
 		xmlhttp.open("POST",that.url,true);
 		xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-		xmlhttp.send("act=auth" + "&user=" + userObject['group'] + "&pass=" + userObject['key'] + "&readAccess=" + userObject['read']);
-		//END AJAX
+		xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass);
 	
-	}
-	
-	this.group.deauth = function(userObject, functionName) {
-	
-		//AJAX
-		var xmlhttp;
-		xmlhttp=new XMLHttpRequest();
-		xmlhttp.onreadystatechange=function(){
-			if (xmlhttp.readyState==4 && xmlhttp.status==200) {
-				var data = xmlhttp.responseText;
-				if (functionName !== undefined) {
-					functionName(data);			  
-				}
-			}
-				 
-		};
-		xmlhttp.open("POST",that.url,true);
-		xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-		xmlhttp.send("act=deauth" + "&user=" + userObject['group'] + "&pass=" + userObject['key']);
-		
-		//END AJAX
-	
-	}
-	
-	this.set = function(data, option) {
-		
-			
-		
-			//REGULAR CHECKUP
-			if (data instanceof Object) {
-			data['containerCenny'] = "obj";
-			} else {
-				var raw = data;
-				var data = {};
-				data['containerCenny'] = "obj";
-				data['default'] = raw;
-				console.log("Data must be contained in a valid Object. CHANGED TO OBJECT.");
-			}
-			
-			if (option !== 6 || option === undefined) {
-			
-			that.get(function(x) {
-				if (x === false) {
-					x = {};
-				}
-				x[that.defaultLocation] = data;
-				data = x;
-				
-				
-						data = JSON.stringify(data);
-						
-						
-						
-						
-						//AJAX
-						var xmlhttp;
-						xmlhttp=new XMLHttpRequest();
-						xmlhttp.onreadystatechange=function(){
-							if (xmlhttp.readyState==4 && xmlhttp.status==200) {
-								var data = xmlhttp.responseText;		  
-							}
-								 
-						};
-						
-						xmlhttp.open("POST",that.url,true);
-						xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-						xmlhttp.send("data=" + encodeURI(data) + "&act=save" + "&user=" + that.userObject['group'] + "&pass=" + that.userObject['key']);
-						
-			}, "x324bg" + "x");
-			} else {
-			
-			data = JSON.stringify(data);
-
-			//AJAX
-			var xmlhttp;
-			xmlhttp=new XMLHttpRequest();
-			xmlhttp.onreadystatechange=function(){
-				if (xmlhttp.readyState==4 && xmlhttp.status==200) {
-					var data = xmlhttp.responseText;		  
-				}
-					 
-			};
-			
-			xmlhttp.open("POST",that.url,true);
-			xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-			xmlhttp.send("data=" + encodeURI(data) + "&act=save" + "&user=" + that.userObject['group'] + "&pass=" + that.userObject['key']);
-			
-			//END AJAX
-			}
-			
-		
 	};
 	
+	//#######################################################################################################################################################
+	//######################################################### GET DATA FROM BACKEND #######################################################################
+	//#######################################################################################################################################################
 	
-		
-	this.get = function(functionName, objectX) {
-	
-		
-		
-		
-		//AJAX
-		var xmlhttp;
-		xmlhttp=new XMLHttpRequest();
-		xmlhttp.onreadystatechange=function(){
-			if (xmlhttp.readyState==4 && xmlhttp.status==200) {
-				var data = xmlhttp.responseText;
-				data = JSON.parse(data);
-				if (data !== "Register this domain at http://loadfive.com/cenny.") {
-				if (objectX !== undefined && objectX instanceof Array) {
-					var raw = data[that.defaultLocation];
-					data = {};
-					
-					for (var i = 0; i < objectX.length; i++) {
-						var x = objectX[i];
-						if (raw !== undefined && raw[x] !== undefined && raw[x] !== null) {
-							
-							data[x] = raw[x];
-						} else {
-							data[x] === "";
-						}
-					}
-				} else if (objectX !== "x" + 324 + "bg" + "x") {
-					var raw = data;
-					data = {};
-					var x = "default";
-					data[x] = raw[x];
-				}
-				
-				
-				functionName(data);	
-				
-				} else {
-					console.log(data);
-				}	  
-			}
-				 
-		};
-		
-		xmlhttp.open("POST",that.url,true);
-		xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-		xmlhttp.send("act=get" + "&user=" + that.userObject['group'] + "&pass=" + that.userObject['key']);
-		//END AJAX
-		
-
+	this.get = function(callback) {
+		that.aj("", "get", callback);
 	};
 	
+	this.set = function(object, callback) {
+		that.aj("&data=" + JSON.stringify(object), "set", callback);
+	};
 	
-	this.pushData;
-	this.pushName;
-	this.update = function(data) {
-		that.pushData = data;
-		
+	this.update = function(object) {
 		that.get(function(d) {
-			d = d[that.defaultLocation];
-			var data = d;
-			if (data instanceof Object) {
-				if (data['containerCenny'] !== undefined) {
-					var output = data;
-					for (key in that.pushData) {
-						if (key === "DELETE") {
-						if (that.pushData[key] instanceof Array) {
-							for (var i = 0; i < that.pushData[key].length; i++) {
-								if (that.pushData[key][i] !== "containerCenny") {
-								delete output[that.pushData[key][i]];
-								}
-							}
-						} else {
-							if (that.pushData[key] !== "containerCenny") {
-								delete output[that.pushData[key]];
-							}
-						}
-						} else {
-						output[key]=that.pushData[key];
-						}
+		if (object instanceof Object) {
+			
+			for (key in object) {
+				if (key === "DELETE" && object[key] instanceof Array) {
+					for (var i = 0; i < object[key].length; i++) {
+						delete d[object[key][i]];
 					}
 				} else {
-					var output = {};
-					output['containerCenny'] = "obj";
-					for (key in that.pushData) {
-						output[key]=that.pushData[key];
-					}
-					output['default'] = data;
-					
+					d[key] = object[key];
 				}
-			} else {
-				
-				var output = {};
-				output['containerCenny'] = "obj";
-				for (key in that.pushData) {
-					output[key]=that.pushData[key];
-				}
-				output['default'] = data;
 			}
 			
-			that.set(output);
-			
-		}, "x" + "324" + "b" + "gx" + "");
-	
+			that.set(d);
+		
+		} else {
+			console.log("first parameter of .update() must be an Object.");
+		}
+		
+		});
 	
 	};
 	
 	
-	this.modified = function(functionName, objectX) {
-			if (that.checkForChangeEnabled === false) {
-				that.checkForChangeFunction = functionName;
-				if (objectX instanceof Array) {
-				that.arrayForChangeFunction = objectX;
-				} else if (objectX !== undefined){
-					console.log("Second parameter of .modified() should be an Array.");
-				} 
-				setInterval(that.checkForChange, 1100);
-				that.checkForChangeEnabled === true;
-			}
+	//USER STUFF
+	
+	this.user.remove = function(callback) {
+		that.aj("", "removeUser", callback);
+		that.userObject.user = "default";
+		that.userObject.pass = "default";
 	};
+	
+	
+	this.user.remember = function() {
+		var x = localStorage['cenny'];
+		if (x === undefined) {
+			x = {};
+		} else {
+			x = JSON.parse(x);
+		}
+		x['user'] = that.userObject.user;
+		x['pass'] = that.userObject.pass;
+		x = JSON.stringify(x);
+		
+		localStorage['cenny'] = x;
+		
+	};
+	
+	this.user.forget = function() {
+		var x = localStorage['cenny'];
+		if (x === undefined) {
+			x = {};
+		} else {
+			x = JSON.parse(x);
+		}
+		delete x['user'];
+		delete x['pass'];
+		x = JSON.stringify(x);
+		
+		localStorage['cenny'] = x;
+		
+	};
+	
+	this.user.switch = function(mainObject) {
+		if (mainObject instanceof Object) {
+			if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
+				that.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
+				that.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
+			}
+		} else {
+			console.log("mainObject should be an Object.");
+		}
 
-	this.checkForChangeFunction = function(d){};
-	this.checkForChangeEnabled = false;
-	this.checkForChangeLast = "";
-	this.checkForChange = function(functionName) {
-	if (that.arrayForChangeFunction === undefined) {
-		that.arrayForChangeFunction = ['default'];
-	} 
-		that.get(function(data) {
-			data = data[that.defaultLocation];
-			if (that.arrayForChangeFunction !== undefined) {
-			if (data !== undefined) {
-				var raw = data;
-				
-				data = {};
-				for (var i = 0; i < that.arrayForChangeFunction.length; i++) {
-					var x = that.arrayForChangeFunction[i];
-					if (raw[x] !== undefined) {
-					if (raw !== undefined || raw !== null) {
-					data[x] = raw[x];
-					} else {
-						data[x] = "";
-					}
-					}
-				}
-			}
-			var dataX = JSON.stringify(data);
-			if (dataX !== that.checkForChangeLast) {
-				that.checkForChangeFunction(data);
-				
-			}
-			}
-			that.checkForChangeLast = dataX;
-			
-		}, "x324bgx");
-	
 	};
 	
 	
- var that = this;
- if (that.userObject instanceof Object) {
- 	that.group.auth(that.userObject, function(d) {
- 	that.update({cennyStatus:'x'});
- 	});
- }
-    
-    setInterval(function() {
+	//END USER STUFF
+	
+	this.modified = function(callback, pArray) {
+		setInterval(function() {
+			that.get(function(d){
+			var output = {};
+				if (pArray !== undefined) {
+					for (var i = 0; i < pArray.length; i++) {
+						output[pArray[i]] = d[pArray[i]];
+					}
+				} else {
+					output = d;
+				}
+				
+				var vexput = JSON.stringify(output); //for comparing.
+				
+				if (vexput !== that.deamon.lastData) {
+					callback(output);	
+					that.deamon.lastData = JSON.stringify(output);
+				}
+			});
+		}, 1500);
+		
+	};
+	
+	
+	var that = this;
+	
+	setInterval(function() {
         
         if (navigator.onLine) {
             that.isOnline = true;
@@ -446,5 +220,4 @@ function Cenny(userObject) {
         
     }, 300);
 
- 
 };
