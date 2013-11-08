@@ -1,17 +1,14 @@
 function Cenny(userObject) {
     this.isOnline = true;
     
-	
+	this.url = document.URL + "cenny.php";
 	this.userObject = {group:'default', key:'default'};
 
 	if (userObject !== undefined) {
 	
 	if (userObject['url'] !== undefined) {
 	this.url = userObject.url;
-	} else  {
-        this.url = document.URL + "cenny.php";
-        console.log("Url not provided, using " + this.url + " instead.");
-    }
+	}
     
 	if (userObject['group'] !== undefined && userObject['key'] !== undefined) {
 	
