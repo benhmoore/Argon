@@ -150,7 +150,7 @@
                   
         } else if ($action === "getEmail") {
             $emailbyuser = $_POS['getEmailOfUser'];
-            if (!empty($emailbyuser)) {
+            if ($emailbyuser !== "" || $emailbyuser !== null) {
                 $openedEmail = openFile("$directory/$groupName/$emailbyuser/email.txt", 1000);
             } else {
                 $openedEmail = openFile("$directory/$groupName/$userName/email.txt", 1000);
