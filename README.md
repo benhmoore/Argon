@@ -166,6 +166,6 @@ x.user.remove();
 
 Switch user.
 ```javascript
-x.user.switch( {user:[‘username’, ‘password’]} );
+x.user.switch( {user:['username', 'password']} );
 ```
 
