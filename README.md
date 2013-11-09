@@ -5,7 +5,7 @@ cenny.js
 Cenny.js is a plug 'n play, simple, and open backend for web apps of all shapes and sizes. 
 
   **What can I do with a backend?** 
-      A backend is used to store data to be accessed across multible clients. For instance, Facebook, Youtube,
+      A backend is used to store data to be accessed across multiple clients. For instance, Facebook, Youtube,
       and Wordpress all use a backend to store user data.
       
   **Why Cenny.js?**
@@ -17,7 +17,7 @@ ___
 
 ##Setup
 
-First, you'll need to add **cenny.php** (inside server directory) to your server, this is what **cenny.js** will comunicate with
+First, you'll need to add **cenny.php** (inside server directory) to your server, this is what **cenny.js** will communicate with
 and where it will store data generated with cenny.js.
 
 Second, add **cenny.js** to the ```<head>``` just like any other JS script.
@@ -32,14 +32,14 @@ Cenny.js is object based, so you'll first need to create a fresh instance of the
 ```
 *The first parameter is an object containing the property 'url', this is the url referring to cenny.php on your server.*
 
-   *All data stored, transfered, and retrieved with Cenny is object based, so instead of storing "hello world", it should
+   *All data stored, transferred, and retrieved with Cenny is object based, so instead of storing "hello world", it should
    be stored as {name: "hello world"}.*
    
 Anyways, from here, let's set some data to our backend.
 ```javascript
    backend.set({sky: 'is high.'});
 ```
-*This method connects to cenny.php and saves the data.*
+
 
 Yay! Now let's retrieve that data.
 ```javascript
@@ -47,11 +47,12 @@ Yay! Now let's retrieve that data.
            console.log(returnedData); //outputs {sky: 'is high.'}
    });
 ```
-*This method connects to cenny.php and retrives the data.*
+*This method connects to cenny.php and retrieves the data, then passes it to the callback function.*
 
 Great, but ```.set()``` replaces existing data. Let's keep the data we already have stored and just add to it.
 ```javascript
    backend.update({another: [1,2,3]}); //the data is now {sky: 'is high.', another: [1,2,3]}
+   backend.update( {DELETE: ['another', 'etc']} ); //removes properties
 ```
 *This method uses .get() and .set() to update, but not replace data.*
 
@@ -62,6 +63,7 @@ the new data when it changes?
            console.log(returnedData);  
    });
 ```
+Optionally, the second parameter can be an array of specific properties to watch, instead of all data.
 *The callback function (first parameter) will be passed the data only when it is edited.*
 
 
@@ -79,7 +81,7 @@ var fresh = new Cenny( {url: 'url.to/cenny', user: ['username', 'password']} );
 ```
 *Since this user does not exist, it will be created. If the user had already existed, it would be logged in.*
 
-Now that we're signed in, we'll probubly want to remeber that complicated password and username.
+Now that we're signed in, we'll probably want to remember that complicated password and username.
 ```javascript
 fresh.user.remember();
 ```
@@ -96,7 +98,7 @@ fresh.user.remove();
 ```
 *You MUST be signed in to do this, but be careful, no going back from here.*
 
-Let's say you're a multitasking business pro, and have multible users, you'll want to be able to switch between them easily, right?
+Let's say you're a multitasking business pro, and have multiple users, you'll want to be able to switch between them easily, right?
 ```javascript
 fresh.user.switch( { user:['businessPro', 'hardPassword']} );
 ```
@@ -105,7 +107,7 @@ ___
 
 ###Groups
 
-Groups can be used to seperate groups of users, or multible web apps.
+Groups can be used to separate groups of users, or multiple web apps.
 
 By default, when a new instance of Cenny is created, the group "default" with the key "default" is used. *All users are stored in groups.*
 To create a new group, or access an existing one, we'll need to create a new instance of the Cenny object.
@@ -118,7 +120,33 @@ var fresh = new Cenny( {url: 'url.to/cenny', group: ['groupName', 'secretKey']} 
 
 Groups cannot be removed from cenny.js, if you would like to remove a group, you'll need to remove the directory from the server.
 
+___
 
-   
-   
+##No fluff documentation
+
+Define a new Cenny.
+```javascript
+var x = new Cenny( {url: 'url.to.cenny', user:['username', 'password'], group: ['name', 'key']} );
+```
+
+Set data (replaces existing data).
+```javascript
+x.set( {} );
+```
+
+Get data.
+```javascript
+x.get( callback );
+```
+
+Update data.
+```javascript
+x.update( {property: null, DELETE: ['property']} );
+```
+
+Watch data.
+```javascript
+x.modified( function(d) {}, ['property1', '2', 'three'] );
+```
+
 
