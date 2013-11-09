@@ -181,12 +181,12 @@ function Cenny(mainObject) {
 	};
     
     this.user.setEmail = function(email, callback) {
-        var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+        var filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
 
-        if (reg.test(email.value) === true) {
+        if (filter.test(email) === true) {
             that.aj("&data=" + email, "setEmail", callback); 
         } else {
-            callback("Email invalid.");   
+            if (callback !== undefined){callback("Email invalid.");}else{console.log("email invalid.")}; 
         }
         
     };
