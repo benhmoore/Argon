@@ -222,7 +222,7 @@ function Cenny(mainObject) {
 					that.deamon.lastData = JSON.stringify(output);
 				}
 			});
-		}, 1500);
+		}, 500);
 		
 	};
     
