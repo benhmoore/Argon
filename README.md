@@ -149,4 +149,23 @@ Watch data.
 x.modified( function(d) {}, ['property1', '2', 'three'] );
 ```
 
+Remember user.
+```javascript
+x.user.remember();
+```
+
+Forget user.
+```javascript
+x.user.forget();
+```
+
+Remove user.
+```javascript
+x.user.remove();
+```
+
+Switch user.
+```javascript
+x.user.switch( {user:[‘username’, ‘password’]} );
+```
 
