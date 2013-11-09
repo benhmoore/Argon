@@ -28,8 +28,9 @@ Cenny.js is object based, so you'll first need to create a fresh instance of the
 
 
 ```javascript
-   var backend = new Cenny(); 
+   var backend = new Cenny( {url: 'url.to/cenny.php'} ); 
 ```
+*The first parameter is an object containing the property 'url', this is the url referring to cenny.php on your server.*
 
    *All data stored, transfered, and retrieved with Cenny is object based, so instead of storing "hello world", it should
    be stored as {name: "hello world"}.*
@@ -61,10 +62,78 @@ the new data when it changes?
            console.log(returnedData);  
    });
 ```
-*The callback function will be passed the data only when it is edited.*
+*The callback function (first parameter) will be passed the data only when it is edited.*
 
 
 ___
+
+###Users
+
+Users can be used to keep data protected from prying eyes. They work the same as a Facebook user, or Youtube account.
+
+By default, when a new instance of Cenny is created, the user is "default" with the password "default".
+To create a new user, or login to an existing user, we'll need to create a new instance of the Cenny object.
+
+```javascript
+var fresh = new Cenny( {url: 'url.to/cenny', user: ['username', 'password']} );
+```
+*Since this user does not exist, it will be created. If the user had already existed, it would be logged in.*
+
+Now that we're signed in, we'll probubly want to remeber that complicated password and username.
+```javascript
+fresh.user.remember();
+```
+*This uses the localStorage object to save the username and password to the user's computer, if a username and password are not provided when defining a new instance of Cenny, these credentials will be used.*
+
+...And once we remember that our complicated username and password are not that complicated at all, we'll want to forget them.
+```javascript
+fresh.user.forget();
+```
+
+If our brand new user starts to get stale and we long for a new one, we can remove it completely.
+```javascript
+fresh.user.remove();
+```
+*You MUST be signed in to do this, but be careful, no going back from here.*
+
+Let's say you're a multitasking business pro, and have multible users, you'll want to be able to switch between them easily, right?
+```javascript
+fresh.user.switch( { user:['businessPro', 'hardPassword']} );
+```
+
+___
+
+###Groups
+
+Groups can be used to seperate groups of users, or multible web apps.
+
+By default, when a new instance of Cenny is created, the group "default" with the key "default" is used. *All users are stored in groups.*
+To create a new group, or access an existing one, we'll need to create a new instance of the Cenny object.
+
+
+```javascript
+var fresh = new Cenny( {url: 'url.to/cenny', group: ['groupName', 'secretKey']} );
+```
+*Since this group does not exist, it will be created. If the group had already existed, it would be accessed.*
+
+Groups cannot be removed from cenny.js, if you would like to remove a group, you'll need to remove the directory from the server.
+
+___
+
+###Diagram
+Here's how the backend is setup:
+
+Root directory (domain)
+    |
+    V
+Group directory
+    |
+    V
+User directory
+    |
+    V
+data.txt
+
 
 
    
