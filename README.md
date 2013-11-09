@@ -124,14 +124,23 @@ ___
 Here's how the backend is setup:
 
 Root directory (domain)
+
     |
+    
     V
+    
 Group directory
+
     |
+    
     V
+    
 User directory
+
     |
+    
     V
+    
 data.txt
 
 
