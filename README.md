@@ -118,32 +118,6 @@ var fresh = new Cenny( {url: 'url.to/cenny', group: ['groupName', 'secretKey']} 
 
 Groups cannot be removed from cenny.js, if you would like to remove a group, you'll need to remove the directory from the server.
 
-___
-
-###Diagram
-Here's how the backend is setup:
-
-Root directory (domain)
-
-    |
-    
-    V
-    
-Group directory
-
-    |
-    
-    V
-    
-User directory
-
-    |
-    
-    V
-    
-data.txt
-
-
 
    
    
