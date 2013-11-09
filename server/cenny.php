@@ -144,7 +144,16 @@
 			delete_files("$directory/$groupName/");
 			echo json_encode("removed group " . $groupName . " and all users within.");
 			
-		}
+		} else if ($action === "saveToken") {
+		    
+		    if (file_exists("backend/token.txt")) {
+		        echo json_encode("failed. Token already exists.");
+		    } else {
+		        saveFile("backend/token.txt", $clientData);
+                echo json_encode($clientData);
+            }
+		
+        }
 		// - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - /
 	
 	

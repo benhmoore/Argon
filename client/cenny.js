@@ -10,6 +10,7 @@ function Cenny(mainObject) {
 		this.user = {};
 		this.group = {};
 		this.deamon = {};
+        this.secure = {};
 		this.isOnline = navigator.onLine;
 	//****
 
@@ -205,10 +206,27 @@ function Cenny(mainObject) {
 		}, 1500);
 		
 	};
+    
+    
+    //future proofing
+    this.secure.genToken = function(callback) {
+        
+         var token = "";
+         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
+
+        for( var i=0; i < 65; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+        
+        that.aj("&data=" + token, "saveToken", callback);
+    
+    };
+    //finish
 	
 	
+    
 	var that = this;
 	
+    //check if client is online.
 	setInterval(function() {
         
         if (navigator.onLine) {
