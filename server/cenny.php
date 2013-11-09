@@ -144,7 +144,20 @@
 			delete_files("$directory/$groupName/");
 			echo json_encode("removed group " . $groupName . " and all users within.");
 			
-		} else if ($action === "saveToken") {
+		} else if ($action === "setEmail") {
+            
+            saveFile("$directory/$groupName/$userName/email.txt", $data);
+                  
+        } else if ($action === "getEmail") {
+            $emailbyuser = $_POS['getEmailOfUser'];
+            if (!empty($emailbyuser)) {
+                $openedEmail = openFile("$directory/$groupName/$emailbyuser/email.txt", 1000);
+            } else {
+                $openedEmail = openFile("$directory/$groupName/$userName/email.txt", 1000);
+            }
+            echo $openedEmail;
+        
+        } else if ($action === "saveToken") {
 		    
 		    if (file_exists("backend/token.txt")) {
 		        echo json_encode("failed. Token already exists.");

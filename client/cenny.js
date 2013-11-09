@@ -179,6 +179,26 @@ function Cenny(mainObject) {
 		}
 
 	};
+    
+    this.user.setEmail = function(email, callback) {
+        var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+
+        if (reg.test(email.value) === true) {
+            that.aj("&data=" + email, "setEmail", callback); 
+        } else {
+            callback("Email invalid.");   
+        }
+        
+    };
+    
+    this.user.getEmail = function(callback, username) {
+        if (username === undefined) {
+            that.aj("", "getEmail", callback);
+        } else {
+            username = braid.replace(username, " @w@");
+            that.aj("&getEmailOfUser=" + username, "getEmail", callback); 
+        }
+    };
 	
 	
 	//END USER STUFF

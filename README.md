@@ -103,6 +103,18 @@ Let's say you're a multitasking business pro, and have multiple users, you'll wa
 fresh.user.switch( { user:['businessPro', 'hardPassword']} );
 ```
 
+We can also easily attach an email to our user.
+```javascript
+fresh.user.setEmail(email); //set email
+
+fresh.user.getEmail(callback); //retrieve email
+```
+
+Anyone can retrieve any user's email by its username.
+```javascript
+fresh.user.getEmail(callback, username);
+```
+
 ___
 
 ###Groups
