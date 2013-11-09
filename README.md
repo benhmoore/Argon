@@ -17,7 +17,7 @@ ___
 
 ##Setup
 
-First, you'll need to add **cenny.php** (inside the "server" directory) to your server, this is what **cenny.js** will communicate with
+First, you'll need to add **cenny.php** (inside the "server" directory) to your server, this is what **cenny.js** ("client" directory) will communicate with
 and where it will store data generated with cenny.js.
 
 Second, add **cenny.js** to the ```<head>``` just like any other JS script.
