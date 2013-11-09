@@ -146,7 +146,7 @@
 			
 		} else if ($action === "setEmail") {
             
-            saveFile("$directory/$groupName/$userName/email.txt", $data);
+            saveFile("$directory/$groupName/$userName/email.txt", $clientData);
                   
         } else if ($action === "getEmail") {
             $emailbyuser = $_POS['getEmailOfUser'];
