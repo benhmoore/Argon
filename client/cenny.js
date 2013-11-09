@@ -196,7 +196,7 @@ function Cenny(mainObject) {
             that.aj("", "getEmail", callback);
         } else {
             username = braid.replace(username, " @w@");
-            that.aj("&getEmailOfUser=" + username, "getEmail", callback); 
+            that.aj("&getEmailOfUser=" + username, "getOtherEmail", callback); 
         }
     };
 	

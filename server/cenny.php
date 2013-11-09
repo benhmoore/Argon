@@ -148,13 +148,16 @@
             
             saveFile("$directory/$groupName/$userName/email.txt", $clientData);
                   
-        } else if ($action === "getEmail") {
+        } else if ($action === "getOtherEmail") {
+            
             $emailbyuser = $_POS['getEmailOfUser'];
-            if ($emailbyuser !== "" || $emailbyuser !== null) {
-                $openedEmail = openFile("$directory/$groupName/$emailbyuser/email.txt", 1000);
-            } else {
-                $openedEmail = openFile("$directory/$groupName/$userName/email.txt", 1000);
-            }
+            $openedEmail = openFile("$directory/$groupName/$emailbyuser/email.txt", 1000);
+            
+            echo json_encode($openedEmail);
+            
+        } else if ($action === "getEmail") {
+            
+            $openedEmail = openFile("$directory/$groupName/$userName/email.txt", 1000);
             echo json_encode($openedEmail);
         
         } else if ($action === "saveToken") {
