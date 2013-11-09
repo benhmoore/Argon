@@ -155,7 +155,7 @@
             } else {
                 $openedEmail = openFile("$directory/$groupName/$userName/email.txt", 1000);
             }
-            echo $openedEmail;
+            echo json_encode($openedEmail);
         
         } else if ($action === "saveToken") {
 		    
