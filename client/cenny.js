@@ -215,7 +215,7 @@ function Cenny(mainObject) {
          var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
 
         for( var i=0; i < 65; i++ )
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
+        token += possible.charAt(Math.floor(Math.random() * possible.length));
         
         that.aj("&data=" + token, "saveToken", callback);
     
