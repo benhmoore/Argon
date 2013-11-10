@@ -81,6 +81,18 @@ var fresh = new Cenny( {url: 'url.to/cenny', user: ['username', 'password']} );
 ```
 *Since this user does not exist, it will be created. If the user had already existed, it would be logged in.*
 
+By default, **anyone can view data in a user**, however, this can easily be disabled.
+```javascript
+var fresh = new Cenny( {url: 'url.to/cenny', user: ['username', 'password', false]} );
+```
+*Setting the third item in the user Array to |false| disables read access.*
+
+To get data from a user that has read access **enabled**:
+```javascript
+fresh.user.get( callback, 'username' );
+```
+*Remember, this only works with users that have read access enabled.*
+
 Now that we're signed in, we'll probably want to remember that complicated password and username.
 ```javascript
 fresh.user.remember();
@@ -151,6 +163,11 @@ Get data.
 x.get( callback );
 ```
 
+Get data from another user (if allowed).
+```javascript
+x.get( callback, 'username' );
+```
+
 Update data.
 ```javascript
 x.update( {property: null, DELETE: ['property']} );
@@ -179,5 +196,15 @@ x.user.remove();
 Switch user.
 ```javascript
 x.user.switch( {user:['username', 'password']} );
+```
+
+Set user email.
+```javascript
+x.user.setEmail( 'email' );
+```
+
+Get user email.
+```javascript
+x.user.getEmail( callback, 'username' );
 ```
 
