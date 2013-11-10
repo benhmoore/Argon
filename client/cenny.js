@@ -25,6 +25,7 @@ function Cenny(mainObject) {
 	//user stuff
 	this.userObject.user = "default";
 	this.userObject.pass = "default";
+    this.userObject.read = true; //read access
 	
 	
 	
@@ -47,7 +48,9 @@ function Cenny(mainObject) {
 			
 			this.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
 			this.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
-			
+			if (mainObject['user'][2] !== undefined) {
+                this.userObject.read = mainObject['user'][2];  //read access
+            }
 		} else {
 			
 			var x = localStorage['cenny'];
@@ -71,7 +74,7 @@ function Cenny(mainObject) {
 	
 	//#######################################################################################################################################################
 	//############################################# USED FOR ALL PLUGIN AJAX REQUESTS (& .GET() / .SET())####################################################
-	//#######################################################################################################################################################
+    //#######################################################################################################################################################
 	
 	this.aj = function(sendData, action, callback) {
 		
@@ -88,7 +91,7 @@ function Cenny(mainObject) {
 		};
 		xmlhttp.open("POST",that.url,true);
 		xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-		xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass);
+		xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass + "&userRead=" + that.userObject.read);
 	
 	};
 	
@@ -96,12 +99,20 @@ function Cenny(mainObject) {
 	//######################################################### GET DATA FROM BACKEND #######################################################################
 	//#######################################################################################################################################################
 	
-	this.get = function(callback) {
+	this.get = function(callback, user) {
+        if (user === undefined) {
 		that.aj("", "get", callback);
+        } else {
+        that.aj("&otherUser=" + braid.replace(user, " @w@"), "getOther", callback);
+        }
 	};
 	
 	this.set = function(object, callback) {
-		that.aj("&data=" + JSON.stringify(object), "set", callback);
+        if (object instanceof Object) {
+            that.aj("&data=" + JSON.stringify(object), "set", callback);
+        } else {
+            that.aj("&data=" + JSON.stringify({data:object}), "set", callback);
+        }
 	};
 	
 	this.update = function(object) {

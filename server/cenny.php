@@ -15,8 +15,7 @@
 	 *
 	 *
 	/* * * * * * * * * * * * * * * * * */
-
-
+	
 	function openFile($url, $size) {
 		if (file_exists($url)) {
 		$myFile = $url;
@@ -75,7 +74,10 @@
 	
 	$userName = $_POST['userName'];
 	$userPass = $_POST['userPass'];
-
+    $userRead = $_POST['userRead'];
+    
+    
+    
 	$directory = "backend";
 	if (file_exists("backend/")) {} else {
 		mkdir("backend/", 0700);
@@ -93,7 +95,7 @@
 		if ($orginalKey === $groupKey) {
 			$group_loggedin = true;
 		} else {
-			echo json_encode("Group key incorrect.");
+			echo '{"error":"group key incorrect"}';
 		}
 		
 	} else {
@@ -109,11 +111,12 @@
 		if ($orginalPass === $userPass) {
 			$user_loggedin = true;
 		} else {
-			echo json_encode("User pass incorrect.");
+			echo '{"error":"user pass incorrect"}';
 		}
 		
 	} else {
 		mkdir("$directory/$groupName/$userName/", 0700);
+		saveFile("$directory/$groupName/$userName/read.txt", $userRead);
 		saveFile("$directory/$groupName/$userName/pass.txt", $userPass);
 			$user_loggedin = true;
 	}
@@ -127,7 +130,33 @@
 		if ($action === "get") {
 			
 			$openedData = openFile("$directory/$groupName/$userName/data.txt", 500000);
-			echo $openedData;
+			
+			if ($openedData !== "") {
+			    echo $openedData;
+            } else {
+                echo '{"error":"user is empty"}';
+            }
+		}else if ($action === "getOther") {
+			
+			$otherUser = $_POST['otherUser'];
+	    
+	        if (file_exists("$directory/$groupName/$otherUser/")) {
+	        $openedRead = openFile("$directory/$groupName/$otherUser/read.txt", 1000);
+	            if ($openedRead !== "false") {
+	                    $openedData = openFile("$directory/$groupName/$otherUser/data.txt", 500000);
+
+			            if ($openedData !== "") {
+			                 echo $openedData;
+                        } else {
+                            echo '{"error":"user is empty."}';
+                        }
+
+                } else {
+                    echo '{"error":"read access not allowed by user."}';
+                }
+        	} else {
+            	echo '{"error":"user does not exist."}';
+        	}
 		
 		} else if ($action === "set") {
 		
@@ -167,6 +196,7 @@
 		    } else {
 		        saveFile("backend/token.txt", $clientData);
                 echo json_encode($clientData);
+                
             }
 		
         }
@@ -174,7 +204,7 @@
 	
 	
 	} else {
-	//user or group incorrect.	
+	//user or group incorrect // check if read access is allowed
 	}	
 	//########################################################################################################################
 	
