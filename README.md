@@ -85,7 +85,7 @@ By default, **anyone can view data in a user**, however, this can easily be disa
 ```javascript
 var fresh = new Cenny( {url: 'url.to/cenny', user: ['username', 'password', false]} );
 ```
-*Setting the third item in the user Array to |false| disables read access.*
+*Setting the third item in the user Array to ```false``` disables read access.*
 
 To get data from a user that has read access **enabled**:
 ```javascript
