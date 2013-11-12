@@ -15,6 +15,14 @@ Cenny.js is a plug 'n play, simple, and open backend for web apps of all shapes 
 
 ___
 
+##The Idea
+
+Cenny.js works on the bases of users. A user is a special "location" where protected data can be stored. These
+users can then be stored in groups, think of a group as a folder containing a list of users. A user holds a main JS ```Object``` 
+in which properties can be added and removed, *all data stored in a user is contained within this main ```Object```.*
+
+Domain (root) --> Group --> User --> JSON data
+
 ##Setup
 
 First, you'll need to add **cenny.php** (inside the ```server``` directory) to your server, this is what **cenny.js** (```client``` directory) will communicate with.
