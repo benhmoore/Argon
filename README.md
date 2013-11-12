@@ -21,7 +21,7 @@ Cenny.js works on the bases of users. A user is a special "location" where data 
 users can then be stored in groups, think of a group as a folder containing a list of users. A user holds a main JS ```Object``` 
 in which properties can be added and removed, *all data stored in a user is contained within this main ```Object```.*
 
-Domain (root) --> Group --> User --> JSON data
+**Domain (root) --> Group --> User --> JS main Object --> properties**
 
 ##Setup
 
