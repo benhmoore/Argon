@@ -129,6 +129,11 @@ function Cenny(mainObject) {
 				}
 			}
 			
+            if (d['error'] !== undefined) {
+                if (d['error'] === "user is empty") {
+                    delete d['error'];   
+                }
+            }
 			that.set(d);
 		
 		} else {
