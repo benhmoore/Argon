@@ -215,3 +215,7 @@ Get user email.
 x.user.getEmail( callback, 'username' );
 ```
 
+___
+
+**Quick and dirty example:** http://loadfive.com/cenny/example
+
