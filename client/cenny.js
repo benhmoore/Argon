@@ -184,7 +184,7 @@ function Cenny(mainObject) {
 		
 	};
 	
-	this.user.switch = function(mainObject) {
+	this.user.signin = function(mainObject) {
 		if (mainObject instanceof Object) {
 			if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
 				that.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
