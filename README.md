@@ -4,7 +4,7 @@ cenny.js
 ###A realtime backend for web apps.
 Cenny.js is a plug 'n play, simple, and open backend for web apps of all shapes and sizes. 
 
-**Extreamly simple example:** http://loadfive.com/cenny/example 
+> **Extreamly simple example:** http://loadfive.com/cenny/example 
 
 Cenny.js was built to make building powerful real-time web apps simple, even managing users. You won't have to touch a single line
 of server code if you don't want to. It's all easily accessed with pure Javascript. No networking code here.
@@ -113,9 +113,9 @@ fresh.user.remove();
 ```
 *You MUST be signed in to do this, but be careful, no going back from here.*
 
-Let's say you're a multitasking business pro, and have multiple users, you'll want to be able to switch between them easily, right?
+Let's say you want to signin to a different user, that's simple.
 ```javascript
-fresh.user.switch( { user:['businessPro', 'hardPassword']} );
+fresh.user.signin( { user:['businessPro', 'hardPassword']} );
 ```
 
 We can also easily attach an email to our user.
