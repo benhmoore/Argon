@@ -195,9 +195,9 @@ Remove user.
 x.user.remove();
 ```
 
-Switch user.
+Signin to another user.
 ```javascript
-x.user.switch( {user:['username', 'password']} );
+x.user.signin( {user:['username', 'password']} );
 ```
 
 Set user email.
