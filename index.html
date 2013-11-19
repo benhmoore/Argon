@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Cenny.js : The plug 'n play backend for web apps." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Cenny.js</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/loadfive/cenny.js">View on GitHub</a>
+
+          <h1 id="project_title">Cenny.js</h1>
+          <h2 id="project_tagline">The plug 'n play backend for web apps.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/loadfive/cenny.js/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/loadfive/cenny.js/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="cennyjs" class="anchor" href="#cennyjs"><span class="octicon octicon-link"></span></a>cenny.js</h1>
+
+<h3>
+<a name="a-realtime-backend-for-web-apps" class="anchor" href="#a-realtime-backend-for-web-apps"><span class="octicon octicon-link"></span></a>A realtime backend for web apps.</h3>
+
+<p>Cenny.js is a plug 'n play, simple, and open backend for web apps of all shapes and sizes. </p>
+
+<p>Cenny.js was built to make building powerful real-time web apps simple, even managing users. You won't have to touch a single line
+of server code if you don't want to. It's all easily accessed with pure Javascript. No networking code here.</p>
+
+<hr><h2>
+<a name="the-idea" class="anchor" href="#the-idea"><span class="octicon octicon-link"></span></a>The Idea</h2>
+
+<p>Cenny.js works on the bases of users. A user is a special "location" where data can be stored. These
+users can then be stored in groups, think of a group as a folder containing a list of users. A user holds a main JS <code>Object</code> 
+in which properties can be added and removed, <em>all data stored in a user is contained within this main <code>Object</code>.</em></p>
+
+<p><strong>Domain (root) --&gt; Group --&gt; User --&gt; main JS Object --&gt; properties</strong></p>
+
+<h2>
+<a name="setup" class="anchor" href="#setup"><span class="octicon octicon-link"></span></a>Setup</h2>
+
+<p>First, you'll need to add <strong>cenny.php</strong> (inside the <code>server</code> directory) to your server, this is what <strong>cenny.js</strong> (<code>client</code> directory) will communicate with.</p>
+
+<p>Secondly, add <strong>cenny.js</strong> to the <code>&lt;head&gt;</code> of any html document, just like any other JS script.</p>
+
+<h2>
+<a name="cennyjs-documentation" class="anchor" href="#cennyjs-documentation"><span class="octicon octicon-link"></span></a>Cenny.js Documentation</h2>
+
+<p>Cenny.js is object based, so you'll first need to create a fresh instance of the Cenny object.</p>
+
+<div class="highlight highlight-javascript"><pre>   <span class="kd">var</span> <span class="nx">backend</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Cenny</span><span class="p">(</span> <span class="p">{</span><span class="nx">url</span><span class="o">:</span> <span class="s1">'url.to/cenny.php'</span><span class="p">}</span> <span class="p">);</span> 
+</pre></div>
+
+<p><em>The first parameter is an object containing the property 'url', this is the url referring to cenny.php on your server.</em></p>
+
+<p><em>All data stored, transferred, and retrieved with Cenny is object based, so instead of storing "hello world", it should
+   be stored as {name: "hello world"}.</em></p>
+
+<p>Anyways, from here, let's set some data to our backend.</p>
+
+<div class="highlight highlight-javascript"><pre>   <span class="nx">backend</span><span class="p">.</span><span class="nx">set</span><span class="p">({</span><span class="nx">sky</span><span class="o">:</span> <span class="s1">'is high.'</span><span class="p">});</span>
+</pre></div>
+
+<p>Yay! Now let's retrieve that data.</p>
+
+<div class="highlight highlight-javascript"><pre>   <span class="nx">backend</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">returnedData</span><span class="p">){</span>
+           <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">returnedData</span><span class="p">);</span> <span class="c1">//outputs {sky: 'is high.'}</span>
+   <span class="p">});</span>
+</pre></div>
+
+<p><em>This method connects to cenny.php and retrieves the data, then passes it to the callback function.</em></p>
+
+<p>Great, but <code>.set()</code> replaces existing data. Let's keep the data we already have stored and just add to it.</p>
+
+<div class="highlight highlight-javascript"><pre>   <span class="nx">backend</span><span class="p">.</span><span class="nx">update</span><span class="p">({</span><span class="nx">another</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]});</span> <span class="c1">//the data is now {sky: 'is high.', another: [1,2,3]}</span>
+   <span class="nx">backend</span><span class="p">.</span><span class="nx">update</span><span class="p">(</span> <span class="p">{</span><span class="nx">DELETE</span><span class="o">:</span> <span class="p">[</span><span class="s1">'another'</span><span class="p">,</span> <span class="s1">'etc'</span><span class="p">]}</span> <span class="p">);</span> <span class="c1">//removes properties</span>
+</pre></div>
+
+<p><em>This method uses .get() and .set() to update, but not replace data.</em></p>
+
+<p>Ok, but what if someone across the world <code>.update()</code>s this data? How can we get, in real-time, 
+the new data when it changes?</p>
+
+<div class="highlight highlight-javascript"><pre>   <span class="nx">backend</span><span class="p">.</span><span class="nx">modified</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">returnedData</span><span class="p">)</span> <span class="p">{</span>
+           <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">returnedData</span><span class="p">);</span>  
+   <span class="p">});</span>
+</pre></div>
+
+<p>Optionally, the second parameter can be an array of specific properties to watch, instead of all data.
+<em>The callback function (first parameter) will be passed the data only when it is edited.</em></p>
+
+<hr><h3>
+<a name="users" class="anchor" href="#users"><span class="octicon octicon-link"></span></a>Users</h3>
+
+<p>Users can be used to keep data protected from prying eyes. They work the same as a Facebook user, or Youtube account.</p>
+
+<p>By default, when a new instance of Cenny is created, the user is "default" with the password "default".
+To create a new user, or login to an existing user, we'll need to create a new instance of the Cenny object.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">fresh</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Cenny</span><span class="p">(</span> <span class="p">{</span><span class="nx">url</span><span class="o">:</span> <span class="s1">'url.to/cenny'</span><span class="p">,</span> <span class="nx">user</span><span class="o">:</span> <span class="p">[</span><span class="s1">'username'</span><span class="p">,</span> <span class="s1">'password'</span><span class="p">]}</span> <span class="p">);</span>
+</pre></div>
+
+<p><em>Since this user does not exist, it will be created. If the user had already existed, it would be logged in.</em></p>
+
+<p>By default, <strong>anyone can view data in a user</strong>, however, this can easily be disabled.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">fresh</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Cenny</span><span class="p">(</span> <span class="p">{</span><span class="nx">url</span><span class="o">:</span> <span class="s1">'url.to/cenny'</span><span class="p">,</span> <span class="nx">user</span><span class="o">:</span> <span class="p">[</span><span class="s1">'username'</span><span class="p">,</span> <span class="s1">'password'</span><span class="p">,</span> <span class="kc">false</span><span class="p">]}</span> <span class="p">);</span>
+</pre></div>
+
+<p><em>Setting the third item in the user Array to <code>false</code> disables read access.</em></p>
+
+<p>To get data from a user that has read access <strong>enabled</strong>:</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">fresh</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span> <span class="nx">callback</span><span class="p">,</span> <span class="s1">'username'</span> <span class="p">);</span>
+</pre></div>
+
+<p><em>Remember, this only works with users that have read access enabled.</em></p>
+
+<p>Now that we're signed in, we'll probably want to remember that complicated password and username.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">fresh</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">remember</span><span class="p">();</span>
+</pre></div>
+
+<p><em>This uses the localStorage object to save the username and password to the user's computer, if a username and password are not provided when defining a new instance of Cenny, these credentials will be used.</em></p>
+
+<p>...And once we remember that our complicated username and password are not that complicated at all, we'll want to forget them.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">fresh</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">forget</span><span class="p">();</span>
+</pre></div>
+
+<p>If our brand new user starts to get stale and we long for a new one, we can remove it completely.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">fresh</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">remove</span><span class="p">();</span>
+</pre></div>
+
+<p><em>You MUST be signed in to do this, but be careful, no going back from here.</em></p>
+
+<p>Let's say you want to signin to a different user, that's simple.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">fresh</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">signin</span><span class="p">(</span> <span class="p">{</span> <span class="nx">user</span><span class="o">:</span><span class="p">[</span><span class="s1">'businessPro'</span><span class="p">,</span> <span class="s1">'hardPassword'</span><span class="p">]}</span> <span class="p">);</span>
+</pre></div>
+
+<p>We can also easily attach an email to our user.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">fresh</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">setEmail</span><span class="p">(</span><span class="nx">email</span><span class="p">);</span> <span class="c1">//set email</span>
+
+<span class="nx">fresh</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">getEmail</span><span class="p">(</span><span class="nx">callback</span><span class="p">);</span> <span class="c1">//retrieve email</span>
+</pre></div>
+
+<p>Anyone can retrieve any user's email by its username.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">fresh</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">getEmail</span><span class="p">(</span><span class="nx">callback</span><span class="p">,</span> <span class="nx">username</span><span class="p">);</span>
+</pre></div>
+
+<hr><h3>
+<a name="groups" class="anchor" href="#groups"><span class="octicon octicon-link"></span></a>Groups</h3>
+
+<p>Groups can be used to separate groups of users, or multiple web apps.</p>
+
+<p>By default, when a new instance of Cenny is created, the group "default" with the key "default" is used. <em>All users are stored in groups.</em>
+To create a new group, or access an existing one, we'll need to create a new instance of the Cenny object.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">fresh</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Cenny</span><span class="p">(</span> <span class="p">{</span><span class="nx">url</span><span class="o">:</span> <span class="s1">'url.to/cenny'</span><span class="p">,</span> <span class="nx">group</span><span class="o">:</span> <span class="p">[</span><span class="s1">'groupName'</span><span class="p">,</span> <span class="s1">'secretKey'</span><span class="p">]}</span> <span class="p">);</span>
+</pre></div>
+
+<p><em>Since this group does not exist, it will be created. If the group had already existed, it would be accessed.</em></p>
+
+<p>Groups cannot be removed from cenny.js, if you would like to remove a group, you'll need to remove the directory from the server.</p>
+
+<hr><h2>
+<a name="no-fluff-documentation" class="anchor" href="#no-fluff-documentation"><span class="octicon octicon-link"></span></a>No fluff documentation</h2>
+
+<p>Define a new Cenny.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Cenny</span><span class="p">(</span> <span class="p">{</span><span class="nx">url</span><span class="o">:</span> <span class="s1">'url.to.cenny'</span><span class="p">,</span> <span class="nx">user</span><span class="o">:</span><span class="p">[</span><span class="s1">'username'</span><span class="p">,</span> <span class="s1">'password'</span><span class="p">],</span> <span class="nx">group</span><span class="o">:</span> <span class="p">[</span><span class="s1">'name'</span><span class="p">,</span> <span class="s1">'key'</span><span class="p">]}</span> <span class="p">);</span>
+</pre></div>
+
+<p>Set data (replaces existing data).</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">x</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span> <span class="p">{}</span> <span class="p">);</span>
+</pre></div>
+
+<p>Get data.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">x</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span> <span class="nx">callback</span> <span class="p">);</span>
+</pre></div>
+
+<p>Get data from another user (if allowed).</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">x</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span> <span class="nx">callback</span><span class="p">,</span> <span class="s1">'username'</span> <span class="p">);</span>
+</pre></div>
+
+<p>Update data.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">x</span><span class="p">.</span><span class="nx">update</span><span class="p">(</span> <span class="p">{</span><span class="nx">property</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">DELETE</span><span class="o">:</span> <span class="p">[</span><span class="s1">'property'</span><span class="p">]}</span> <span class="p">);</span>
+</pre></div>
+
+<p>Watch data.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">x</span><span class="p">.</span><span class="nx">modified</span><span class="p">(</span> <span class="kd">function</span><span class="p">(</span><span class="nx">d</span><span class="p">)</span> <span class="p">{},</span> <span class="p">[</span><span class="s1">'property1'</span><span class="p">,</span> <span class="s1">'2'</span><span class="p">,</span> <span class="s1">'three'</span><span class="p">]</span> <span class="p">);</span>
+</pre></div>
+
+<p>Remember user.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">x</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">remember</span><span class="p">();</span>
+</pre></div>
+
+<p>Forget user.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">x</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">forget</span><span class="p">();</span>
+</pre></div>
+
+<p>Remove user.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">x</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">remove</span><span class="p">();</span>
+</pre></div>
+
+<p>Signin to another user.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">x</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">signin</span><span class="p">(</span> <span class="p">{</span><span class="nx">user</span><span class="o">:</span><span class="p">[</span><span class="s1">'username'</span><span class="p">,</span> <span class="s1">'password'</span><span class="p">]}</span> <span class="p">);</span>
+</pre></div>
+
+<p>Set user email.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">x</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">setEmail</span><span class="p">(</span> <span class="s1">'email'</span> <span class="p">);</span>
+</pre></div>
+
+<p>Get user email.</p>
+
+<div class="highlight highlight-javascript"><pre><span class="nx">x</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">getEmail</span><span class="p">(</span> <span class="nx">callback</span><span class="p">,</span> <span class="s1">'username'</span> <span class="p">);</span>
+</pre></div>
+
+<hr>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Cenny.js maintained by <a href="https://github.com/loadfive">loadfive</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
