@@ -212,5 +212,4 @@ x.user.getEmail( callback, 'username' );
 
 ___
 
-
-
+**Simple example (created by benmooredaily):**http://codepen.io/anon/pen/GKIqD
