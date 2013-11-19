@@ -124,7 +124,7 @@ fresh.user.setEmail(email); //set email
 fresh.user.getEmail(callback); //retrieve email
 ```
 
-Anyone can retrieve any user's email by its username.
+Also, anyone can retrieve any user's email by it's username.
 ```javascript
 fresh.user.getEmail(callback, username);
 ```
