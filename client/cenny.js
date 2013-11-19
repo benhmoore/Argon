@@ -216,7 +216,11 @@ function Cenny(mainObject) {
         }
     };
 	
-	
+	 //returns list users.
+    this.user.list = function(callback) {
+        that.aj("","userList", callback);
+    };
+    
 	//END USER STUFF
 	
 	this.modified = function(callback, pArray) {
