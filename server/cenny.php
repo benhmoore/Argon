@@ -179,7 +179,7 @@
                   
         } else if ($action === "getOtherEmail") {
             
-            $emailbyuser = $_POS['getEmailOfUser'];
+            $emailbyuser = $_POST['getEmailOfUser'];
             $openedEmail = openFile("$directory/$groupName/$emailbyuser/email.txt", 1000);
             
             echo json_encode($openedEmail);
