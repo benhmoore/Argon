@@ -175,7 +175,14 @@
 			
 		} else if ($action === "removeUser") {
 		
+			//remove user directory
 			delete_files("$directory/$groupName/$userName/");
+			
+			//remove from user list
+			$users = openFile("$directory/$groupName/userlist.txt", 500000);
+			$users = str_replace("$userName@SEPCENNYUSER@", "", $users);
+			saveFile("$directory/$groupName/userlist.txt", $users);
+			
 			echo json_encode("removed user " . $userName . " in group " . $groupName);
 			
 		} else if ($action === "removeGroup") {
