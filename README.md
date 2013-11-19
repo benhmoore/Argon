@@ -129,6 +129,11 @@ Anyone can retrieve any user's email by its username.
 fresh.user.getEmail(callback, username);
 ```
 
+If you want to get a list of all users:
+```javascript
+fresh.user.list(callback); //passes array of usernames
+```
+
 ___
 
 ###Groups
@@ -210,6 +215,10 @@ Get user email.
 x.user.getEmail( callback, 'username' );
 ```
 
+List all usernames.
+```javascript
+x.user.list( callback );
+```
 ___
 
 **Simple example (created by benmooredaily):**http://codepen.io/anon/pen/GKIqD
