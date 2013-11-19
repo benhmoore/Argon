@@ -216,11 +216,23 @@ function Cenny(mainObject) {
         }
     };
 	
+	
 	 //returns list users.
+	 
     this.user.list = function(callback) {
-        that.aj("","userList", callback);
+        that.aj("","listUsers", function(d){
+        
+        d = d.split("@SEPCENNYUSER@");
+        var output = [];
+        for (var i = 0; i < d.length - 1; i++) {
+        	output.push(d[i]);
+        }
+        callback(output);
+        });
     };
-    
+   
+   
+   
 	//END USER STUFF
 	
 	this.modified = function(callback, pArray) {

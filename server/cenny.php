@@ -55,6 +55,15 @@
 	
 	}
 	
+	function addToFile($url, $dataToSave) {
+		$myFile = $url;
+		$fh = fopen($myFile, 'a') or die($myFile);
+		fwrite($fh, $dataToSave);
+		fclose($fh);
+	
+	
+	}
+	
 	//***********************************************************
 		$group_loggedin = false;
 		$user_loggedin = false;
@@ -118,6 +127,7 @@
 		mkdir("$directory/$groupName/$userName/", 0700);
 		saveFile("$directory/$groupName/$userName/read.txt", $userRead);
 		saveFile("$directory/$groupName/$userName/pass.txt", $userPass);
+        addToFile("$directory/$groupName/userlist.txt", $userName . "@SEPCENNYUSER@");
 			$user_loggedin = true;
 	}
 	
@@ -199,12 +209,13 @@
                 
             }
 		
+        } else if ($action === "listUsers") {
+            $users = openFile("$directory/$groupName/userlist.txt", 500000);
+            echo json_encode($users);
         }
 		// - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - /
 	
 	
-	} else {
-	//user or group incorrect // check if read access is allowed
 	}	
 	//########################################################################################################################
 	
