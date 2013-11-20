@@ -45,7 +45,7 @@ Yay! Now let's retrieve that data.
 
 Great, but ```.set()``` replaces existing data. Let's keep the data we already have stored and just add to it.
 ```javascript
-   backend.update({another: [1,2,3]}); //the data is now {sky: 'is high.', another: [1,2,3]}
+   backend.update({another: [1,2,3]}); //the data is now { sky: 'is high.', another: [1,2,3] }
    backend.update( {DELETE: ['another', 'etc']} ); //removes properties 'another' and 'etc'
 ```
 
