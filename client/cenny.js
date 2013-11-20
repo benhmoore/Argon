@@ -78,8 +78,9 @@ function Cenny(mainObject) {
 	
 	this.aj = function(sendData, action, callback) {
         
-        if (that.userObject.user.length > 2) {
-		if (that.userObject.user.length < 25) {
+        if (that.userObject.user.length > 2 && that.userObject.user.length < 25) {
+        if (/^\w+$/.test(that.userObject.user)) {
+            
 		var xmlhttp;
 		xmlhttp=new XMLHttpRequest();
 		xmlhttp.onreadystatechange=function(){
@@ -96,10 +97,10 @@ function Cenny(mainObject) {
 		xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass + "&userRead=" + that.userObject.read);
             
         } else {
-            callback({error: 'username length not sufficient.'});   
+           callback({error: 'username contains invalid characters.'});   
         }
         } else {
-            callback({error: 'username length insufficient.'});   
+            callback({error: 'username length unsuitable.'});   
         }
 	
 	};
