@@ -77,7 +77,9 @@ function Cenny(mainObject) {
     //#######################################################################################################################################################
 	
 	this.aj = function(sendData, action, callback) {
-		
+        
+        if (that.userObject.user.length > 2) {
+		if (that.userObject.user.length < 25) {
 		var xmlhttp;
 		xmlhttp=new XMLHttpRequest();
 		xmlhttp.onreadystatechange=function(){
@@ -92,6 +94,13 @@ function Cenny(mainObject) {
 		xmlhttp.open("POST",that.url,true);
 		xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 		xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass + "&userRead=" + that.userObject.read);
+            
+        } else {
+            callback({error: 'username length not sufficient.'});   
+        }
+        } else {
+            callback({error: 'username length insufficient.'});   
+        }
 	
 	};
 	
