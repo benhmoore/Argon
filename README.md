@@ -91,6 +91,7 @@ Now that we're signed in, we'll probably want to remember that complicated passw
 fresh.user.remember();
 ```
 *This uses the localStorage object to save the username and password to the user's computer, if a username and password are not provided when defining a new instance of Cenny, these credentials will be used.*
+*localStorage is used to prevent syncing of confidential information outside of the user's computer.*
 
 ...And once we remember that our complicated username and password are not that complicated at all, we'll want to forget them.
 ```javascript
@@ -115,12 +116,12 @@ fresh.user.setEmail(email); //set email
 fresh.user.getEmail(callback); //retrieve email
 ```
 
-Also, anyone can retrieve any user's email by it's username.
+Also, anyone can retrieve a user's email by it's username.
 ```javascript
 fresh.user.getEmail(callback, username);
 ```
 
-If you want to get a list of all users:
+To retrieve a list of all users:
 ```javascript
 fresh.user.list(callback); //passes array of usernames
 ```
@@ -129,10 +130,10 @@ ___
 
 ###Groups
 
-Groups can be used to separate groups of users, or multiple web apps.
+Groups can be used to separate groups of users or multiple web apps.
 
 By default, when a new instance of Cenny is created, the group "default" with the key "default" is used. *All users are stored in groups.*
-To create a new group, or access an existing one, we'll need to create a new instance of the Cenny object.
+To create a new group or access an existing one, it must be defined when creating an instance of the Cenny object.
 
 
 ```javascript
@@ -140,7 +141,7 @@ var fresh = new Cenny( {url: 'url.to/cenny', group: ['groupName', 'secretKey']} 
 ```
 *Since this group does not exist, it will be created. If the group had already existed, it would be accessed.*
 
-Groups cannot be removed from cenny.js, if you would like to remove a group, you'll need to remove the directory from the server.
+Groups cannot be removed from cenny.js, to remove a group, the directory will need to be removed from the server.
 
 ___
 
