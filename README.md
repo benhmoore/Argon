@@ -35,7 +35,7 @@ Anyways, from here, let's set some data to our backend.
 ```
 
 
-Yay! Now let's retrieve that data.
+Now let's retrieve that data.
 ```javascript
    backend.get(function(returnedData){
            console.log(returnedData); //outputs {sky: 'is high.'}
