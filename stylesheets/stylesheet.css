@@ -81,7 +81,8 @@ header h1 {
 
 header h2 {
   font-size: 26px;
-  color: #9ddcff;
+  color: #f8f8f8;
+  opacity:0.6;
   font-weight: normal;
   line-height: 1.3;
   width: 540px;
@@ -232,7 +233,7 @@ form {
 
 #main-content h1:before {
   content: "/";
-  color: #9ddcff;
+  color: #ff855f;
   padding-right: 0.3em;
   margin-left: -0.9em;
 }
