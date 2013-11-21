@@ -80,7 +80,7 @@ function Cenny(mainObject) {
         
         if (that.userObject.user.length > 2 && that.userObject.user.length < 25) {
         if (/^\w+$/.test(that.userObject.user)) {
-            
+        if (that.userObject.pass.length > 3) {    
 		var xmlhttp;
 		xmlhttp=new XMLHttpRequest();
 		xmlhttp.onreadystatechange=function(){
@@ -95,7 +95,10 @@ function Cenny(mainObject) {
 		xmlhttp.open("POST",that.url,true);
 		xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 		xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass + "&userRead=" + that.userObject.read);
-            
+        
+        } else {
+            callback({error: 'pass length insufficient.'});   
+        }
         } else {
            callback({error: 'username contains invalid characters.'});   
         }
