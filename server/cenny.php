@@ -68,15 +68,6 @@
 		$group_loggedin = false;
 		$user_loggedin = false;
 	//***********************************************************
-	
-
-	$action = $_POST['action'];
-	
-	$clientData = $_POST['data'];
-	
-	//formatting
-		$clientData = str_replace("\'","'",$clientData);
-		$clientData = str_replace('\"','"',$clientData);
 
 	$groupName = $_POST['groupName'];
 	$groupKey = $_POST['groupKey'];
@@ -135,6 +126,17 @@
 	
 	//########################################################################################################################
 	if ($group_loggedin === true && $user_loggedin === true) {
+
+    
+    //**********************************************
+    //get actions / data from request
+    $action = $_POST['action'];
+	$clientData = $_POST['data'];
+    //formatting
+	$clientData = str_replace("\'","'",$clientData);
+	$clientData = str_replace('\"','"',$clientData);
+    //**********************************************
+    
 		
 		// - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - /
 		if ($action === "get") {
