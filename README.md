@@ -106,14 +106,14 @@ fresh.user.remove();
 ```
 *You MUST be signed in to do this, but be careful, no going back from here.*
 
-Let's say you want to signin to a different user, that's simple. If the user does not exist, we'll go ahead and create it for you.
+Let's say you want to signin to a different user, that's simple. If the user does not exist, Cenny will go ahead and create it for you. Optionally, a callback function can be provided. This function will be passed info on the signin attempt.
 ```javascript
-fresh.user.signin( { user:['businessPro', 'hardPassword']} );
+fresh.user.signin( { user:['businessPro', 'hardPassword']}, callback );
 ```
 
-Or you might like to just create a user, without signing out of your current user.
+Or you might like to just create a user, without signing out of your current user. Again, a callback function can optionally be provided.
 ```javascript
-fresh.user.create( { user:['another', 'insanePassword']} );
+fresh.user.create( { user:['another', 'insanePassword']}, callback );
 ```
 
 If you'd like to get info on the currently signed in user, that's simple.
@@ -206,12 +206,12 @@ x.user.remove();
 
 Signin to another user. 
 ```javascript
-x.user.signin( {user:['username', 'password']} );
+x.user.signin( {user:['username', 'password']}, callback );
 ```
 
 Create another user.
 ```javascript
-x.user.create( {user:['username', 'password']} );
+x.user.create( {user:['username', 'password']}, callback );
 ```
 
 Get user info.
