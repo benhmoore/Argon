@@ -100,7 +100,7 @@ fresh.user.remember();
 fresh.user.forget();
 ```
 
-If our brand new user starts to get stale and we long for a new one, we can remove it completely.
+If we'd like to remove the user completely, we can do that.
 ```javascript
 fresh.user.remove();
 ```
@@ -116,6 +116,10 @@ Or you might like to just create a user, without signing out of your current use
 fresh.user.create( { user:['another', 'insanePassword']} );
 ```
 
+If you'd like to get info on the currently signed in user, that's simple.
+```javascript
+fresh.user.info() //returns an array [username,password]
+```
 
 We can also easily attach an email to our user.
 ```javascript
