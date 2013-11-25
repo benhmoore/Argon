@@ -214,12 +214,19 @@ function Cenny(mainObject) {
 		
 	};
 	
-	this.user.signin = function(mainObject) {
+	this.user.signin = function(mainObject,callback) {
 		if (mainObject instanceof Object) {
 			if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
 				that.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
 				that.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
                 that.userObject.read = mainObject['user'][2];
+                
+                var userX = braid.replace(mainObject['user'][0], ' @w@');
+				var passX = braid.replace(mainObject['user'][1], ' @w@');
+                var readX = mainObject['user'][2];
+                
+                that.aj("","none",callback,[userX,passX,readX]);
+                
 			}
 		} else {
 			console.log("mainObject should be an Object.");

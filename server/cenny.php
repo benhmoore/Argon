@@ -221,6 +221,8 @@
         } else if ($action === "listUsers") {
             $users = openFile("$directory/$groupName/userlist.txt", 500000);
             echo json_encode($users);
+        } else {
+            echo json_encode("finished");
         }
 		// - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - /
 	
