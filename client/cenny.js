@@ -76,7 +76,9 @@ function Cenny(mainObject) {
 	//############################################# USED FOR ALL PLUGIN AJAX REQUESTS (& .GET() / .SET())####################################################
     //#######################################################################################################################################################
 	
-	this.aj = function(sendData, action, callback) {
+	this.aj = function(sendData, action, callback, optionalUserInfo) {
+        
+        
         
         if (that.userObject.user.length > 2 && that.userObject.user.length < 25) {
         if (/^\w+$/.test(that.userObject.user)) {
@@ -94,7 +96,22 @@ function Cenny(mainObject) {
 		};
 		xmlhttp.open("POST",that.url,true);
 		xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-		xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass + "&userRead=" + that.userObject.read);
+           
+        //***used for user.create()****
+        
+        if (optionalUserInfo !== undefined) {
+            var userX = optionalUserInfo[0];
+            var passX = optionalUserInfo[1];
+            var readX = optionalUserInfo[2];
+            
+            xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + userX + "&userPass=" + passX + "&userRead=" + readX);
+            
+        } else { //otherwise, use normal user info
+            
+            xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass + "&userRead=" + that.userObject.read);
+        }
+    
+        //**********
         
         } else {
             callback({error: 'pass length insufficient.'});   
@@ -202,12 +219,31 @@ function Cenny(mainObject) {
 			if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
 				that.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
 				that.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
+                that.userObject.read = mainObject['user'][2];
 			}
 		} else {
 			console.log("mainObject should be an Object.");
 		}
 
 	};
+    
+    this.user.create = function(mainObject, callback) {
+        if (mainObject instanceof Object) {
+			if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
+				var userX = braid.replace(mainObject['user'][0], ' @w@');
+				var passX = braid.replace(mainObject['user'][1], ' @w@');
+                var readX = mainObject['user'][2];
+                
+                that.aj("","none",callback,[userX,passX,readX]);
+			}
+		} else {
+			console.log("mainObject should be an Object.");
+		}
+    }
+    
+    this.user.info = function() {
+        return [that.userObject.user, that.userObject.pass];
+    };
     
     this.user.setEmail = function(email, callback) {
         var filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
