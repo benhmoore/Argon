@@ -214,6 +214,11 @@ Create another user.
 x.user.create( {user:['username', 'password']} );
 ```
 
+Get user info.
+```javascript
+x.user.info() //returns array: [username,password]
+```
+
 Set user email.
 ```javascript
 x.user.setEmail( 'email' );
