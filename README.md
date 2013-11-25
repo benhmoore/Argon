@@ -106,10 +106,16 @@ fresh.user.remove();
 ```
 *You MUST be signed in to do this, but be careful, no going back from here.*
 
-Let's say you want to signin to a different user, that's simple.
+Let's say you want to signin to a different user, that's simple. If the user does not exist, we'll go ahead and create it for you.
 ```javascript
 fresh.user.signin( { user:['businessPro', 'hardPassword']} );
 ```
+
+Or you might like to just create a user, without signing out of your current user.
+```javascript
+fresh.user.create( { user:['another', 'insanePassword']} );
+```
+
 
 We can also easily attach an email to our user.
 ```javascript
@@ -194,9 +200,14 @@ Remove user.
 x.user.remove();
 ```
 
-Signin to another user.
+Signin to another user. 
 ```javascript
 x.user.signin( {user:['username', 'password']} );
+```
+
+Create another user.
+```javascript
+x.user.create( {user:['username', 'password']} );
 ```
 
 Set user email.
