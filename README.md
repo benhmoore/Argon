@@ -138,6 +138,11 @@ To retrieve a list of all users:
 fresh.user.list(callback); //passes array of usernames
 ```
 
+To sign out of the current user, and sign back into the **default** user:
+```javascript
+fresh.user.signout();
+```
+
 ___
 
 ###Groups
@@ -232,6 +237,11 @@ x.user.getEmail( callback, 'username' );
 List all usernames.
 ```javascript
 x.user.list( callback );
+```
+
+Signout of current user.
+```javascript
+fresh.user.signout(callback);
 ```
 ___
 
