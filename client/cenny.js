@@ -234,6 +234,10 @@ function Cenny(mainObject) {
 
 	};
     
+    this.user.signout() = function() { //signs into default user.
+        that.user.signin({user:['default','default']});
+    };
+    
     this.user.create = function(mainObject, callback) {
         if (mainObject instanceof Object) {
 			if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
@@ -251,6 +255,7 @@ function Cenny(mainObject) {
     this.user.info = function() {
         return [that.userObject.user, that.userObject.pass];
     };
+    
     
     this.user.setEmail = function(email, callback) {
         var filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
