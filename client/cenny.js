@@ -137,13 +137,10 @@ function Cenny(mainObject) {
 	this.set = function(object, user, callback) {
         if (object instanceof Object) {
             if (user === undefined || user === '') {
-                console.log(1);
                 that.aj("&data=" + JSON.stringify(object), "set", callback);
             } else if (typeof user === "function") { //for backwards compat
-                console.log(2);
                 that.aj("&data=" + JSON.stringify(object), "set", user);  
             } else {
-                console.log(3);
                 that.aj("&otherUser=" + braid.replace(user, " @w@") + "&data=" + JSON.stringify(object),"setOther",callback);
             }
         }
