@@ -11,10 +11,13 @@ of server code if you don't want to. It's all easily accessed with pure Javascri
 
 Documentation order:
 1. Setup
+
 2. Users
+
 3. Permissions
+
 4. Groups
-----
+
 5. No fluff documentation
 
 ___
