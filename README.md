@@ -9,7 +9,7 @@ Cenny.js is a plug 'n play and open source backend for web apps of all shapes an
 Cenny.js was created to make building powerful real-time web apps simple, even managing users. You won't have to touch a single line
 of server code if you don't want to. It's all easily accessed with pure Javascript. No networking code here.
 
-*Documentation Order*:
+**Documentation Order**:
 
 1. Setup
 
