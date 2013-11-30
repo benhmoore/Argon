@@ -147,6 +147,18 @@ read:true; //allows all users to read from this user.
 Both of these properties - "read" and "write" - can be set to ```true``` to allow any user access, ```false``` to block all access, or to an ```Array``` of certain users to allow access.
 
 
+If another user has given **write** access to at least your current user, you can ```.set()``` or ```.update()``` that user's data easily:
+```javascript
+fresh.set( {}, 'username'); //set data in user 'username'
+
+fresh.update( {}, 'username'); //update data in user 'username'
+```
+
+If a user has given **read** access to at least your current user, you can easily use ```.get()``` on that user aswell:
+```javascript
+fresh.get( callback, 'username'); //get data from user 'username'
+```
+
 ___
 ###Groups
 
@@ -177,6 +189,11 @@ Set data (replaces existing data).
 x.set( {} );
 ```
 
+Set data in another user (if allowed).
+```javascript
+x.set( {}, 'username' );
+```
+
 Get data.
 ```javascript
 x.get( callback );
@@ -190,6 +207,11 @@ x.get( callback, 'username' );
 Update data.
 ```javascript
 x.update( {property: null, DELETE: ['property']} );
+```
+
+Update data in another user (if allowed).
+```javascript
+x.update( {property: null, DELETE: ['property']}, 'username' );
 ```
 
 Watch data.
