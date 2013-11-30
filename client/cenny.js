@@ -198,6 +198,10 @@ function Cenny(mainObject) {
 		localStorage['cenny'] = x;
 		
 	};
+    
+    
+    
+    
 	
 	this.user.forget = function() {
 		var x = localStorage['cenny'];
@@ -234,7 +238,7 @@ function Cenny(mainObject) {
 
 	};
     
-    this.user.signout() = function() { //signs into default user.
+    this.user.signout = function() { //signs into default user.
         that.user.signin({user:['default','default']});
     };
     
