@@ -9,9 +9,17 @@ Cenny.js is a plug 'n play and open source backend for web apps of all shapes an
 Cenny.js was created to make building powerful real-time web apps simple, even managing users. You won't have to touch a single line
 of server code if you don't want to. It's all easily accessed with pure Javascript. No networking code here.
 
+Documentation order:
+1. Setup
+2. Users
+3. Permissions
+4. Groups
+----
+5. No fluff documentation
+
 ___
 
-##Setup
+###Setup
 
 First, you'll need to add **cenny.php** (inside the ```server``` directory) to your server, this is what **cenny.js** (```client``` directory) will communicate with.
 
@@ -177,7 +185,7 @@ Groups cannot be removed from cenny.js, to remove a group, the directory will ne
 
 ___
 
-##No fluff documentation
+###No fluff documentation
 
 Define a new Cenny.
 ```javascript
