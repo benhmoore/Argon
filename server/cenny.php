@@ -45,6 +45,11 @@
 	    rmdir($dir);
 	  }
 	 }
+	 
+	function splitString($stringX,$by) {
+	  $arrayX = explode($by, $stringX);
+	  return $arrayX;
+	}
 
 	function saveFile($url, $dataToSave) {
 		$myFile = $url;
@@ -74,7 +79,6 @@
 	
 	$userName = $_POST['userName'];
 	$userPass = $_POST['userPass'];
-    $userRead = $_POST['userRead'];
     
     
     
@@ -116,7 +120,6 @@
 		
 	} else {
 		mkdir("$directory/$groupName/$userName/", 0700);
-		saveFile("$directory/$groupName/$userName/read.txt", $userRead);
 		saveFile("$directory/$groupName/$userName/pass.txt", $userPass);
         addToFile("$directory/$groupName/userlist.txt", $userName . "@SEPCENNYUSER@");
 			$user_loggedin = true;
@@ -148,24 +151,52 @@
             } else {
                 echo '{"error":"user is empty"}';
             }
-		}else if ($action === "getOther") {
+		} else if ($action === "getOther") {
 			
 			$otherUser = $_POST['otherUser'];
 	    
 	        if (file_exists("$directory/$groupName/$otherUser/")) {
-	        $openedRead = openFile("$directory/$groupName/$otherUser/read.txt", 1000);
-	            if ($openedRead !== "false") {
-	                    $openedData = openFile("$directory/$groupName/$otherUser/data.txt", 500000);
-
-			            if ($openedData !== "") {
-			                 echo $openedData;
-                        } else {
-                            echo '{"error":"user is empty."}';
-                        }
-
-                } else {
-                    echo '{"error":"read access not allowed by user."}';
-                }
+	        	$openedRead = openFile("$directory/$groupName/$otherUser/read.txt", 1000);
+	        	$arrayX = splitString($openedRead,"@n@");
+	        	$userFoundInP = false;
+	        	for ($x=0; $x< count($arrayX); $x++) {//look for current user in $otherUser's perms
+  					if ($arrayX[$x] === $userName) {
+  						$userFoundInP = true;
+  					}
+  				} 
+	        	if ($userFoundInP === true || $openedRead === "allowAll") {
+	        		$openedData = openFile("$directory/$groupName/$otherUser/data.txt", 500000);
+					if ($openedData !== "") {
+			 			echo $openedData;
+             	 	} else {
+                 		echo '{"error":"user is empty."}';
+              	 	}
+           		 } else {
+           			echo '{"error":"read access not granted."}';
+           		 }
+        	} else {
+            	echo '{"error":"user does not exist."}';
+        	}
+		
+		} else if ($action === "setOther") {
+			
+			$otherUser = $_POST['otherUser'];
+	    
+	        if (file_exists("$directory/$groupName/$otherUser/")) {
+	        	$openedWrite = openFile("$directory/$groupName/$otherUser/write.txt", 1000);
+	        	$arrayX = splitString($openedWrite,"@n@");
+	        	$userFoundInP = false;
+	        	for ($x=0; $x< count($arrayX); $x++) {//look for current user in $otherUser's perms
+  					if ($arrayX[$x] === $userName) {
+  						$userFoundInP = true;
+  					}
+  				} 
+	        	if ($userFoundInP === true || $openedWrite === "allowAll") {
+	        		saveFile("$directory/$groupName/$otherUser/data.txt", $clientData);
+	        		echo json_encode("saved to user " . $otherUser . " in group " . $groupName);
+           		 } else {
+           			echo '{"error":"write access not granted."}';
+           		 }
         	} else {
             	echo '{"error":"user does not exist."}';
         	}
@@ -175,6 +206,18 @@
 			saveFile("$directory/$groupName/$userName/data.txt", $clientData);
 			echo json_encode("saved to user " . $userName . " in group " . $groupName);
 			
+		} else if ($action === "permissions") {
+			if ($userName !== "default") { //make sure no permissions are set on default user
+				$read = $_POST['read'];
+				$write = $_POST['write'];
+				saveFile("$directory/$groupName/$userName/read.txt", $read);
+				saveFile("$directory/$groupName/$userName/write.txt", $write);
+				echo json_encode("Permissions updated");
+			} else {
+				echo json_encode("Permissions cannot be edited on default user");
+			}
+			
+		
 		} else if ($action === "removeUser") {
 		
 			//remove user directory
