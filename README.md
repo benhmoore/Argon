@@ -75,18 +75,6 @@ var fresh = new Cenny( {url: 'url.to/cenny', user: ['username', 'password']} );
 ```
 *Since this user does not exist, it will be created. If the user had already existed, it would be logged in.*
 
-By default, **anyone can view data in a user**, however, this can easily be disabled.
-```javascript
-var fresh = new Cenny( {url: 'url.to/cenny', user: ['username', 'password', false]} );
-```
-*Setting the third item in the user Array to ```false``` disables read access.*
-
-To get data from a user that has read access **enabled**:
-```javascript
-fresh.user.get( callback, 'username' );
-```
-*Remember, this only works with users that have read access enabled.*
-
 Now that we're signed in, we'll probably want to remember that complicated password and username.
 ```javascript
 fresh.user.remember();
@@ -110,7 +98,7 @@ Let's say you want to signin to a different user, that's simple. If the user doe
 fresh.user.signin( { user:['businessPro', 'hardPassword']}, callback );
 ```
 
-Or you might like to just create a user, without signing out of your current user. Again, a callback function can optionally be provided.
+Or you might like to just create a user without signing out of your current user. Again, a callback function can optionally be provided.
 ```javascript
 fresh.user.create( { user:['another', 'insanePassword']}, callback );
 ```
@@ -143,7 +131,23 @@ fresh.user.signout();
 ```
 
 ___
+###Permissions
 
+Permissions can be setup for users to, for instance, allow certain users to read from a user, block all users from reading from a user, allow a list of users to write to a user, and more.
+
+By default, when a user is created, permissions are set to **block** *both* read and write attempts from other users.
+These settings can easily be modified.
+```javascript
+fresh.user.permissions({
+write:['user1','user2','user3','etc'], //allows these users to write to this user.
+read:true; //allows all users to read from this user.
+
+});
+```
+Both of these properties - "read" and "write" - can be set to ```true``` to allow any user access, ```false``` to block all access, or to an ```Array``` of certain users to allow access.
+
+
+___
 ###Groups
 
 Groups can be used to separate groups of users or multiple web apps.
