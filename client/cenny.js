@@ -25,7 +25,6 @@ function Cenny(mainObject) {
 	//user stuff
 	this.userObject.user = "default";
 	this.userObject.pass = "default";
-    this.userObject.read = true; //read access
 	
 	
 	
@@ -48,9 +47,7 @@ function Cenny(mainObject) {
 			
 			this.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
 			this.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
-			if (mainObject['user'][2] !== undefined) {
-                this.userObject.read = mainObject['user'][2];  //read access
-            }
+            
 		} else {
 			
 			var x = localStorage['cenny'];
@@ -102,13 +99,13 @@ function Cenny(mainObject) {
         if (optionalUserInfo !== undefined) {
             var userX = optionalUserInfo[0];
             var passX = optionalUserInfo[1];
-            var readX = optionalUserInfo[2];
             
-            xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + userX + "&userPass=" + passX + "&userRead=" + readX);
+            
+            xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + userX + "&userPass=" + passX);
             
         } else { //otherwise, use normal user info
             
-            xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass + "&userRead=" + that.userObject.read);
+            xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass);
         }
     
         //**********
@@ -130,22 +127,29 @@ function Cenny(mainObject) {
 	//#######################################################################################################################################################
 	
 	this.get = function(callback, user) {
-        if (user === undefined) {
+        if (user === undefined || user === '') {
 		that.aj("", "get", callback);
         } else {
         that.aj("&otherUser=" + braid.replace(user, " @w@"), "getOther", callback);
         }
 	};
 	
-	this.set = function(object, callback) {
+	this.set = function(object, user, callback) {
         if (object instanceof Object) {
-            that.aj("&data=" + JSON.stringify(object), "set", callback);
-        } else {
-            that.aj("&data=" + JSON.stringify({data:object}), "set", callback);
+            if (user === undefined || user === '') {
+                console.log(1);
+                that.aj("&data=" + JSON.stringify(object), "set", callback);
+            } else if (typeof user === "function") { //for backwards compat
+                console.log(2);
+                that.aj("&data=" + JSON.stringify(object), "set", user);  
+            } else {
+                console.log(3);
+                that.aj("&otherUser=" + braid.replace(user, " @w@") + "&data=" + JSON.stringify(object),"setOther",callback);
+            }
         }
 	};
 	
-	this.update = function(object) {
+	this.update = function(object, user) {
 		that.get(function(d) {
 		if (object instanceof Object) {
 			
@@ -164,7 +168,7 @@ function Cenny(mainObject) {
                     delete d['error'];   
                 }
             }
-			that.set(d);
+			that.set(d,user);
 		
 		} else {
 			console.log("first parameter of .update() must be an Object.");
@@ -200,7 +204,48 @@ function Cenny(mainObject) {
 	};
     
     
-    
+    this.user.permissions = function(permObj,callback) {
+        var read = permObj.read;
+        var write = permObj.write;
+        var readString = "";
+        var writeString = "";
+        
+        //read
+        if (read instanceof Array) {
+            for (var i = 0; i < read.length;i++) {
+                if (read[i + 1] !== undefined) { //to keep things like "user@n@" <-- (no user next, but still "@n@")
+                readString+=read[i] + "@n@";
+                } else {
+                    readString+=read[i];  
+                }
+            }
+        } else if (read === true){
+            readString = "allowAll";   
+        } else if (read === false){
+            readString = "blockAll";   
+        } else {
+            readString = "blockAll";   
+        }
+        
+        //write
+        if (write instanceof Array) {
+        for (var i = 0; i < write.length;i++) {
+            if (write[i + 1] !== undefined) { //to keep things like "user@n@" <-- (no user next, but still "@n@")
+                writeString+=write[i] + "@n@";
+            } else {
+                writeString+=write[i];  
+            }
+        }
+        } else if (write === true) {
+            writeString = "allowAll";
+        } else if (write === false) {
+            writeString = "blockAll";
+        } else {
+            writeString = "blockAll";   
+        }
+        
+        that.aj('&write=' + writeString + '&read=' + readString,"permissions", callback);
+    };
     
 	
 	this.user.forget = function() {
@@ -223,13 +268,11 @@ function Cenny(mainObject) {
 			if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
 				that.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
 				that.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
-                that.userObject.read = mainObject['user'][2];
                 
                 var userX = braid.replace(mainObject['user'][0], ' @w@');
 				var passX = braid.replace(mainObject['user'][1], ' @w@');
-                var readX = mainObject['user'][2];
                 
-                that.aj("","none",callback,[userX,passX,readX]);
+                that.aj("","none",callback,[userX,passX]);
                 
 			}
 		} else {
@@ -247,9 +290,8 @@ function Cenny(mainObject) {
 			if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
 				var userX = braid.replace(mainObject['user'][0], ' @w@');
 				var passX = braid.replace(mainObject['user'][1], ' @w@');
-                var readX = mainObject['user'][2];
                 
-                that.aj("","none",callback,[userX,passX,readX]);
+                that.aj("","none",callback,[userX,passX]);
 			}
 		} else {
 			console.log("mainObject should be an Object.");
