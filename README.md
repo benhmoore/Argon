@@ -246,6 +246,12 @@ Signout of current user.
 ```javascript
 fresh.user.signout(callback);
 ```
+
+Set user permissions.
+```javascript
+fresh.user.permissions( {write:['user1','etc'], read:['user54','ben']} );
+```
+**"write" / "read" properties can be set to true (allows all users), false (blocks all users), or an array of specific users.**
 ___
 
 **Simple example (created by benmooredaily):**http://codepen.io/anon/pen/GKIqD
