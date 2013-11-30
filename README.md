@@ -82,7 +82,7 @@ fresh.user.remember();
 *This uses the localStorage object to save the username and password to the user's computer, if a username and password are not provided when defining a new instance of Cenny, these credentials will be used.*
 *localStorage is used to prevent syncing of confidential information outside of the user's computer.*
 
-...And once we remember that our complicated username and password are not that complicated at all, we'll want to forget them.
+To forget remembered user credentials:
 ```javascript
 fresh.user.forget();
 ```
