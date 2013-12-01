@@ -170,7 +170,7 @@ If a user has given **read** access to at least your current user, you can easil
 ```javascript
 fresh.get( callback, 'username'); //get data from user 'username'
 ```
-This can also be done with ```.user.getEmail```:
+This can also be done with ```.user.getEmail```: *(feature requested by @gimlet2)*
 ```javascript
 fresh.user.getEmail( callback, 'username'); //get user "username"'s email
 ```
