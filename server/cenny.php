@@ -171,8 +171,25 @@
              	 	} else {
                  		echo '{"error":"user is empty."}';
               	 	}
-           		 } else {
-           			echo '{"error":"read access not granted."}';
+           		 } else { //check if any property in data ends with $userName
+           		 	$openedData = openFile("$directory/$groupName/$otherUser/data.txt", 500000);
+           		 	$data = json_decode($openedData);
+           		 	$isThere = false;
+           		 	$outputObj = array(); //create obj for properties user is given access to.
+					foreach ($data as $name => $value) {
+    					if (strpos($name,'-@r@' . $userName) !== false) {
+    						$isThere = true;
+    						$outputObj[$name] = $value;
+						}
+					}
+           		 	
+           		 	if ($isThere === true) { //if $userName is found in properties do this
+           		 		$outputObj = json_encode($outputObj); //encode output obj to json
+           		 		echo $outputObj;
+           		 	} else { //otherwise, present error
+           		 		echo '{"error":"read access not granted."}';	
+           		 	}
+           		 
            		 }
         	} else {
             	echo '{"error":"user does not exist."}';
