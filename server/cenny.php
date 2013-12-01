@@ -1,5 +1,5 @@
 <?php
-	
+
 	/* * * * * * * * * * * * * * * * * *
 	 *
 	 * <- Backend for Cenny.js ->
@@ -180,6 +180,9 @@
     					if (strpos($name,'-@r@' . $userName) !== false) {
     						$isThere = true;
     						$outputObj[$name] = $value;
+						} else if (strpos($name,'-@r.all@') !== false) {//if all users are allowed access
+							$isThere = true;
+							$outputObj[$name] = $value;
 						}
 					}
            		 	
