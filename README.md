@@ -152,7 +152,7 @@ These settings can easily be modified.
 fresh.user.permissions({
 write:['user1','user2','user3','etc'], //allows these users to write to this user.
 read:true; //allows all users to read from this user.
-emailRead:false; //blocks all users from viewing the current user's email
+emailRead:false; //blocks all users from viewing the current user's email | feature requested by @gimlet2
 
 });
 ```
@@ -170,7 +170,8 @@ If a user has given **read** access to at least your current user, you can easil
 ```javascript
 fresh.get( callback, 'username'); //get data from user 'username'
 ```
-This can also be done with ```.user.getEmail```: *(feature requested by @gimlet2)*
+
+This can also be done with ```.user.getEmail``` to retrieve a user's email: 
 ```javascript
 fresh.user.getEmail( callback, 'username'); //get user "username"'s email
 ```
@@ -270,7 +271,7 @@ Set user email.
 x.user.setEmail( 'email' );
 ```
 
-Get user email.
+Get user email (if allowed).
 ```javascript
 x.user.getEmail( callback, 'username' );
 ```
