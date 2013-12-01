@@ -295,5 +295,5 @@ Set user permissions.
 ```javascript
 fresh.user.permissions( {write:['user1','etc'], read:['user54','ben'], emailRead:false} );
 ```
-*"write" / "read" properties can be set to true (allows all users), false (blocks all users), or an array of specific users.*
+*"write" / "read" / "emailRead" properties can be set to true (allows all users), false (blocks all users), or an array of specific users.*
 
