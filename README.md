@@ -156,7 +156,7 @@ emailRead:false //blocks all users from viewing the current user's email | featu
 
 });
 ```
-These properties - "read", "write" "emailRead" - can be set to ```true``` to allow any user access, ```false``` to block all access, or to an ```Array``` of certain users to allow access.
+These properties - "read", "write" and "emailRead" - can be set to ```true``` to allow any user access, ```false``` to block all access, or to an ```Array``` of certain users to allow access.
 
 
 If another user has given **write** access to at least your current user, you can ```.set()``` or ```.update()``` that user's data easily:
