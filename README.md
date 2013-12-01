@@ -176,7 +176,7 @@ fresh.get( callback, 'username'); //get data from user 'username'
 fresh.user.getEmail( callback, 'username'); //get user "username"'s email
 ```
 
-When creating a new property with ```.set()``` or ```.update()```, adding ````-@r@USERNAME``` to the end of the property name will grant that user read access to just this property, regardless of overall permissions. You may define more than one user aswell.
+When creating a new property with ```.set()``` or ```.update()```, adding ```-@r@USERNAME``` to the end of the property name will grant that user read access to just this property, regardless of overall permissions. You may define more than one user aswell.
 
 ```javascript
 fresh.update( {'custom-@r@ben-@r@toby':'hello'} ); //gives users 'ben' & 'toby' read access to just this property
@@ -293,7 +293,7 @@ fresh.user.signout(callback);
 
 Set user permissions.
 ```javascript
-fresh.user.permissions( {write:['user1','etc'], read:['user54','ben']} );
+fresh.user.permissions( {write:['user1','etc'], read:['user54','ben'], emailRead:false} );
 ```
 *"write" / "read" properties can be set to true (allows all users), false (blocks all users), or an array of specific users.*
 
