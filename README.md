@@ -151,8 +151,8 @@ These settings can easily be modified.
 ```javascript
 fresh.user.permissions({
 write:['user1','user2','user3','etc'], //allows these users to write to this user.
-read:true; //allows all users to read from this user.
-emailRead:false; //blocks all users from viewing the current user's email | feature requested by @gimlet2
+read:true, //allows all users to read from this user.
+emailRead:false //blocks all users from viewing the current user's email | feature requested by @gimlet2
 
 });
 ```
