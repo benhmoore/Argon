@@ -176,7 +176,7 @@ fresh.get( callback, 'username'); //get data from user 'username'
 fresh.user.getEmail( callback, 'username'); //get user "username"'s email
 ```
 
-When creating a new property with ```.set()``` or ```.update()```, adding ```-@read@USERNAME``` to the end of the property name will grant that user read access to just this property, regardless of overall permissions, you may also define more than one user. To allow all users read access to a property, add ```-@readall@``` to the end of the property name.
+When creating a new property with ```.set()``` or ```.update()```, adding ```-@read@USERNAME``` to the end of the property name will grant the user defined read access to just this property, regardless of overall permissions, you may also define more than one user. To allow all users read access to a property, add ```-@readall@``` to the end of the property name.
 
 ```javascript
 fresh.update( {'custom-@r@ben-@r@toby':'hello'} ); //gives users 'ben' & 'toby' read access to just this property
