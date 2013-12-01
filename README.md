@@ -126,7 +126,7 @@ fresh.user.setEmail(email); //set email
 fresh.user.getEmail(callback); //retrieve email
 ```
 
-Also, anyone can retrieve a user's email by it's username.
+If allowed by another user (covered in permissions section), you can retrieve it's email aswell:
 ```javascript
 fresh.user.getEmail(callback, username);
 ```
@@ -152,6 +152,7 @@ These settings can easily be modified.
 fresh.user.permissions({
 write:['user1','user2','user3','etc'], //allows these users to write to this user.
 read:true; //allows all users to read from this user.
+emailRead:false; //blocks all users from viewing the current user's email
 
 });
 ```
@@ -168,6 +169,10 @@ fresh.update( {}, 'username'); //update data in user 'username'
 If a user has given **read** access to at least your current user, you can easily use ```.get()``` on that user aswell:
 ```javascript
 fresh.get( callback, 'username'); //get data from user 'username'
+```
+This can also be done with ```.user.getEmail```:
+```javascript
+fresh.user.getEmail( callback, 'username'); //get user "username"'s email
 ```
 
 ___
