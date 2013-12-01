@@ -1,7 +1,6 @@
-> Sanitized from RTF by Dr. Abhishek Ghosh, no idea about `src` directory
 
 
-Add `cenny.php` and `src` to your web server.
+Add `cenny.php` to your web server.
 
 
 Now just add the url referring `cenny.php` to a new instance of Cenny and code away!
