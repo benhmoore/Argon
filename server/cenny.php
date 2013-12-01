@@ -1,5 +1,5 @@
 <?php
-
+	
 	/* * * * * * * * * * * * * * * * * *
 	 *
 	 * <- Backend for Cenny.js ->
@@ -178,6 +178,33 @@
             	echo '{"error":"user does not exist."}';
         	}
 		
+		} else if ($action === "getEmailOther") {
+			
+			$otherUser = $_POST['otherUser'];
+			
+	        if (file_exists("$directory/$groupName/$otherUser/")) {
+	        	$openedRead = openFile("$directory/$groupName/$otherUser/emailRead.txt", 1000);
+	        	$arrayX = splitString($openedRead,"@n@");
+	        	$userFoundInP = false;
+	        	for ($x=0; $x< count($arrayX); $x++) {//look for current user in $otherUser's perms
+  					if ($arrayX[$x] === $userName) {
+  						$userFoundInP = true;
+  					}
+  				} 
+	        	if ($userFoundInP === true || $openedRead === "allowAll" || $otherUser === $userName || $openedRead === "") {
+	        		$openedEmail = openFile("$directory/$groupName/$otherUser/email.txt", 1000);
+					if ($openedEmail !== "") {
+			 			echo json_encode($openedEmail);
+             	 	} else {
+                 		echo '{"error":"email not set."}';
+              	 	}
+           		 } else {
+           			echo '{"error":"email access not granted."}';
+           		 }
+        	} else {
+            	echo '{"error":"user "' + $otherUser + '" does not exist."}';
+        	}
+		
 		} else if ($action === "setOther") {
 			
 			$otherUser = $_POST['otherUser'];
@@ -210,8 +237,10 @@
 			if ($userName !== "default") { //make sure no permissions are set on default user
 				$read = $_POST['read'];
 				$write = $_POST['write'];
+				$emailRead = $_POST['emailRead'];
 				saveFile("$directory/$groupName/$userName/read.txt", $read);
 				saveFile("$directory/$groupName/$userName/write.txt", $write);
+				saveFile("$directory/$groupName/$userName/emailRead.txt", $emailRead);
 				echo json_encode("Permissions updated");
 			} else {
 				echo json_encode("Permissions cannot be edited on default user");
@@ -239,18 +268,6 @@
             
             saveFile("$directory/$groupName/$userName/email.txt", $clientData);
                   
-        } else if ($action === "getOtherEmail") {
-            
-            $emailbyuser = $_POST['getEmailOfUser'];
-            $openedEmail = openFile("$directory/$groupName/$emailbyuser/email.txt", 1000);
-            
-            echo json_encode($openedEmail);
-            
-        } else if ($action === "getEmail") {
-            
-            $openedEmail = openFile("$directory/$groupName/$userName/email.txt", 1000);
-            echo json_encode($openedEmail);
-        
         } else if ($action === "saveToken") {
 		    
 		    if (file_exists("backend/token.txt")) {

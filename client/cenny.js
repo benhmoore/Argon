@@ -204,8 +204,10 @@ function Cenny(mainObject) {
     this.user.permissions = function(permObj,callback) {
         var read = permObj.read;
         var write = permObj.write;
+        var emailRead = permObj.emailRead;
         var readString = "";
         var writeString = "";
+        var emailReadString = "";
         
         //read
         if (read instanceof Array) {
@@ -241,7 +243,24 @@ function Cenny(mainObject) {
             writeString = "blockAll";   
         }
         
-        that.aj('&write=' + writeString + '&read=' + readString,"permissions", callback);
+        //emailRead
+        if (emailRead instanceof Array) {
+        for (var i = 0; i < emailRead.length;i++) {
+            if (emailRead[i + 1] !== undefined) { //to keep things like "user@n@" <-- (no user next, but still "@n@")
+                emailReadString+=emailRead[i] + "@n@";
+            } else {
+                emailReadString+=emailRead[i];  
+            }
+        }
+        } else if (emailRead === true) {
+            emailReadString = "allowAll";
+        } else if (emailRead === false) {
+            emailReadString = "blockAll";
+        } else {
+            emailReadString = "allowAll";
+        }
+        
+        that.aj('&write=' + writeString + '&read=' + readString + '&emailRead=' + emailReadString,"permissions", callback);
     };
     
 	
@@ -313,10 +332,13 @@ function Cenny(mainObject) {
     
     this.user.getEmail = function(callback, username) {
         if (username === undefined) {
-            that.aj("", "getEmail", callback);
+            var username = that.user.info();
+            username = username[0];
+            username = braid.replace(username, " @w@");
+            that.aj("&otherUser=" + username, "getEmailOther", callback);
         } else {
             username = braid.replace(username, " @w@");
-            that.aj("&getEmailOfUser=" + username, "getOtherEmail", callback); 
+            that.aj("&otherUser=" + username, "getEmailOther", callback); 
         }
     };
 	
