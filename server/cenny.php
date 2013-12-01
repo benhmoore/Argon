@@ -1,5 +1,5 @@
 <?php
-
+ 
 	/* * * * * * * * * * * * * * * * * *
 	 *
 	 * <- Backend for Cenny.js ->
@@ -177,10 +177,10 @@
            		 	$isThere = false;
            		 	$outputObj = array(); //create obj for properties user is given access to.
 					foreach ($data as $name => $value) {
-    					if (strpos($name,'-@r@' . $userName) !== false) {
+    					if (strpos($name,'-@read@' . $userName) !== false) {
     						$isThere = true;
     						$outputObj[$name] = $value;
-						} else if (strpos($name,'-@r.all@') !== false) {//if all users are allowed access
+						} else if (strpos($name,'-@readall@') !== false) {//if all users are allowed access
 							$isThere = true;
 							$outputObj[$name] = $value;
 						}
