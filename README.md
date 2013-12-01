@@ -156,7 +156,7 @@ emailRead:false //blocks all users from viewing the current user's email | featu
 
 });
 ```
-Both of these properties - "read" and "write" - can be set to ```true``` to allow any user access, ```false``` to block all access, or to an ```Array``` of certain users to allow access.
+These properties - "read", "write" "emailRead" - can be set to ```true``` to allow any user access, ```false``` to block all access, or to an ```Array``` of certain users to allow access.
 
 
 If another user has given **write** access to at least your current user, you can ```.set()``` or ```.update()``` that user's data easily:
@@ -171,7 +171,7 @@ If a user has given **read** access to at least your current user, you can easil
 fresh.get( callback, 'username'); //get data from user 'username'
 ```
 
-...And if a user has given at least your current user emailRead access, you can use ```.user.getEmail()``` to retrieve the user's email: 
+...And if a user has given at least your current user **emailRead** access, you can use ```.user.getEmail()``` to retrieve the user's email: 
 ```javascript
 fresh.user.getEmail( callback, 'username'); //get user "username"'s email
 ```
