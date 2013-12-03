@@ -39,8 +39,8 @@ Cenny.js is object based, so you'll first need to create a fresh instance of the
 ```
 *The first parameter is an object containing the property 'url', this is the url referring to cenny.php on your server.*
 
-   *All data stored, transferred, and retrieved with Cenny is object based, so instead of storing "hello world", it should
-   be stored as {name: "hello world"}.*
+   *All data is stored within the main object, so instead of storing "hello world", it will
+   be stored as a property of the main object.*
    
 Anyways, from here, let's set some data to our backend.
 ```javascript
@@ -55,7 +55,8 @@ Now let's retrieve that data.
    });
 ```
 *This method connects to cenny.php and retrieves the data, then passes it to the callback function.*
-To retrieve specific properties instead of entire object:
+
+The above code retrieves all data from the server, however, you can also specify specific properties to be retrieved:
 ```javascript
    backend.get(function(returnedData){
            console.log(returnedData); //outputs {sky: 'is high.'}
@@ -70,7 +71,7 @@ Great, but ```.set()``` replaces existing data. Let's keep the data we already h
    backend.update( {DELETE: ['another', 'etc']} ); //removes properties 'another' and 'etc'
 ```
 
-Ok, but what if someone across the world ```.update()```s this data? How can we get, in real-time, 
+Ok, but what if another client  ```.update()```s this data? How can we get, in real-time, 
 the new data when it changes?
 ```javascript
    backend.modified(function(returnedData) {
@@ -188,7 +189,7 @@ If a user has given full or per-property **read** access to at least your curren
 ```javascript
 fresh.get( callback, 'username'); //get data from user 'username'
 ```
-If the second parameter of .get() is an array, it will be treated as a list of properties to be retrieved, however, if it is a string, it will be treated as a username (like above). 
+**If the second parameter of .get() is an array, it will be treated as a list of properties to be retrieved, however, if it is a string, it will be treated as a username (like above). **
 
 ...And if a user has given at least your current user **emailRead** access, you can use ```.user.getEmail()``` to retrieve the user's email: 
 ```javascript
