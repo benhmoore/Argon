@@ -222,6 +222,8 @@ function Cenny(mainObject) {
             readString = "allowAll";   
         } else if (read === false){
             readString = "blockAll";   
+        } else if (read === undefined) {
+            readString = "DoNotEdit";
         } else {
             readString = "blockAll";   
         }
@@ -239,6 +241,8 @@ function Cenny(mainObject) {
             writeString = "allowAll";
         } else if (write === false) {
             writeString = "blockAll";
+        } else if (write === undefined) {
+            writeString = "DoNotEdit";
         } else {
             writeString = "blockAll";   
         }
@@ -256,11 +260,40 @@ function Cenny(mainObject) {
             emailReadString = "allowAll";
         } else if (emailRead === false) {
             emailReadString = "blockAll";
+        } else if (emailRead === undefined) {
+            emailReadString = "DoNotEdit";  
         } else {
             emailReadString = "allowAll";
         }
+        var propertyObj = {};
+        for (key in permObj) {
+            
+            if (key !== "read" && key !== "write" && key !== "emailRead") {
+                var propertyString = "";
+                if (permObj[key] instanceof Array) {
+                    for (var i = 0; i < permObj[key].length; i++) {
+                        if (permObj[key][i + 1] !== undefined) { //to keep things like "user@n@" <-- (no user next, but still "@n@")
+                             propertyString+=permObj[key][i] + "@n@";
+                        } else {
+                            propertyString+=permObj[key][i];  
+                        }
+                    }
+                    
+                } else if (permObj[key] === true) {
+                    propertyString = "allowAll";
+                } else if (permObj[key] === false) {
+                    propertyString = "blockAll";
+                } else {
+                    propertyString = "blockAll";   
+                }
+                propertyObj[key] = propertyString; 
+            }
+        }
+        if (propertyObj === {}) {
+            propertyObj = "DoNotEdit";   
+        }
         
-        that.aj('&write=' + writeString + '&read=' + readString + '&emailRead=' + emailReadString,"permissions", callback);
+        that.aj('&write=' + writeString + '&read=' + readString + '&emailRead=' + emailReadString + '&propertyObj=' + JSON.stringify(propertyObj),"permissions", callback);
     };
     
 	
@@ -383,22 +416,6 @@ function Cenny(mainObject) {
 		}, 500);
 		
 	};
-    
-    
-    //future proofing
-    this.secure.genToken = function(callback) {
-        
-         var token = "";
-         var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_";
-
-        for( var i=0; i < 65; i++ )
-        token += possible.charAt(Math.floor(Math.random() * possible.length));
-        
-        that.aj("&data=" + token, "saveToken", callback);
-    
-    };
-    //finish
-	
 	
     
 	var that = this;
