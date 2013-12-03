@@ -55,6 +55,14 @@ Now let's retrieve that data.
    });
 ```
 *This method connects to cenny.php and retrieves the data, then passes it to the callback function.*
+To retrieve specific properties instead of entire object:
+```javascript
+   backend.get(function(returnedData){
+           console.log(returnedData); //outputs {sky: 'is high.'}
+   },['sky']); //only retrieves property 'sky' from server.
+```
+
+
 
 Great, but ```.set()``` replaces existing data. Let's keep the data we already have stored and just add to it.
 ```javascript
@@ -162,7 +170,7 @@ These properties - "read", "write", and "emailRead" - can be set to ```true``` t
 fresh.user.permissions({
 
 friendCount:true, //allows anyone to read the 'friendCount' property.
-privateMessageCount:['admin'] //alows only user 'admin' read access to this property.
+privateMessageCount:['admin'] //allows only user 'admin' read access to this property.
 
 });
 ```
@@ -176,10 +184,11 @@ fresh.set( {}, 'username'); //set data in user 'username'
 fresh.update( {}, 'username'); //update data in user 'username'
 ```
 
-If a user has given full or per-property **read** access to at least your current user, you can easily use ```.get()``` on that user aswell:
+If a user has given full or per-property **read** access to at least your current user, you can easily use ```.get()``` on that user as well:
 ```javascript
 fresh.get( callback, 'username'); //get data from user 'username'
 ```
+If the second parameter of .get() is an array, it will be treated as a list of properties to be retrieved, however, if it is a string, it will be treated as a username (like above). 
 
 ...And if a user has given at least your current user **emailRead** access, you can use ```.user.getEmail()``` to retrieve the user's email: 
 ```javascript
@@ -229,6 +238,11 @@ x.get( callback );
 Get data from another user (if allowed).
 ```javascript
 x.get( callback, 'username' );
+```
+
+Get specific properties from data.
+```javascript
+x.get( callback, ['array','of','properties'] );
 ```
 
 Update data.
@@ -301,4 +315,3 @@ Set user permissions.
 fresh.user.permissions( {write:['user1','etc'], read:['user54','ben'], emailRead:false, propertyX:true} );
 ```
 *"write" / "read" / "emailRead" properties can be set to true (allows all users), false (blocks all users), or an array of specific users.*
-
