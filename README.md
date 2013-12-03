@@ -6,8 +6,9 @@ Cenny.js is a plug 'n play and open source backend for web apps of all shapes an
 
 ####Live Example: http://byteaspect.com/cidar/
 
-Cenny.js was created to make building powerful real-time web apps simple, even managing users. You won't have to touch a single line
-of server code if you don't want to. It's all easily accessed with pure Javascript. No networking code here.
+Cenny.js was created to make building powerful real-time web apps simple, even managing users. Meant for client-side developers, you won't have to touch a single line
+of server code if you don't want to. It's all easily accessed with pure Javascript.
+
 
 **Documentation Order**:
 
