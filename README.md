@@ -144,19 +144,28 @@ fresh.user.signout();
 ___
 ###Permissions
 
-Permissions can be setup for users to, for instance, allow certain users to read from a user, block all users from reading from a user, allow a list of users to write to a user, and more.
+Permissions can be setup for users to, for instance, allow certain users to read from a user, block all users from reading from a user, allow a list of users to write to a user, allow a certain property to be read from, and more.
 
 By default, when a user is created, permissions are set to **block** *both* read and write attempts from other users.
 These settings can easily be modified.
 ```javascript
 fresh.user.permissions({
 write:['user1','user2','user3','etc'], //allows these users to write to this user.
-read:true, //allows all users to read from this user.
-emailRead:false //blocks all users from viewing the current user's email | feature requested by @gimlet2
+read:false, //blocks all users from reading from this user.
+emailRead:false, //blocks all users from viewing the current user's email | feature requested by @gimlet2
 
 });
 ```
-These properties - "read", "write" and "emailRead" - can be set to ```true``` to allow any user access, ```false``` to block all access, or to an ```Array``` of certain users to allow access.
+These properties - "read", "write", and "emailRead" - can be set to ```true``` to allow any user access, ```false``` to block all access, or to an ```Array``` of certain users to allow access. You can also set per-property read access using the same syntax:
+```javascript
+fresh.user.permissions({
+
+friendCount:true, //allows anyone to read the 'friendCount' property.
+privateMessageCount:['admin'] //alows only user 'admin' read access to this property.
+
+});
+```
+When a specific property is given permissions, those permissions override the existing read access permissions, for just that property.
 
 
 If another user has given **write** access to at least your current user, you can ```.set()``` or ```.update()``` that user's data easily:
@@ -166,7 +175,7 @@ fresh.set( {}, 'username'); //set data in user 'username'
 fresh.update( {}, 'username'); //update data in user 'username'
 ```
 
-If a user has given **read** access to at least your current user, you can easily use ```.get()``` on that user aswell:
+If a user has given full or per-property **read** access to at least your current user, you can easily use ```.get()``` on that user aswell:
 ```javascript
 fresh.get( callback, 'username'); //get data from user 'username'
 ```
@@ -176,12 +185,6 @@ fresh.get( callback, 'username'); //get data from user 'username'
 fresh.user.getEmail( callback, 'username'); //get user "username"'s email
 ```
 
-When creating a new property with ```.set()``` or ```.update()```, adding ```-@read@USERNAME``` to the end of the property name will grant the user defined read access to just this property, regardless of overall permissions, you may also define more than one user. To allow all users read access to a property, add ```-@readall@``` to the end of the property name.
-
-```javascript
-fresh.update( {'custom-@r@ben-@r@toby':'hello'} ); //gives users 'ben' & 'toby' read access to just this property
-fresh.update( {'two-@readall@':'hello'} ); //gives all users read access to just this property
-```
 
 ###Groups
 
@@ -294,7 +297,7 @@ fresh.user.signout(callback);
 
 Set user permissions.
 ```javascript
-fresh.user.permissions( {write:['user1','etc'], read:['user54','ben'], emailRead:false} );
+fresh.user.permissions( {write:['user1','etc'], read:['user54','ben'], emailRead:false, propertyX:true} );
 ```
 *"write" / "read" / "emailRead" properties can be set to true (allows all users), false (blocks all users), or an array of specific users.*
 
