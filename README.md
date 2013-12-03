@@ -189,7 +189,7 @@ If a user has given full or per-property **read** access to at least your curren
 ```javascript
 fresh.get( callback, 'username'); //get data from user 'username'
 ```
-**If the second parameter of .get() is an array, it will be treated as a list of properties to be retrieved, however, if it is a string, it will be treated as a username (like above). **
+**If the second parameter of .get() is an array, it will be treated as a list of properties to be retrieved, however, if it is a string, it will be treated as a username (like above).**
 
 ...And if a user has given at least your current user **emailRead** access, you can use ```.user.getEmail()``` to retrieve the user's email: 
 ```javascript
