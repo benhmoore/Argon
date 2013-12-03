@@ -1,5 +1,5 @@
 <?php
- 
+
 	/* * * * * * * * * * * * * * * * * *
 	 *
 	 * <- Backend for Cenny.js ->
@@ -171,26 +171,45 @@
              	 	} else {
                  		echo '{"error":"user is empty."}';
               	 	}
-           		 } else { //check if any property in data ends with $userName
-           		 	$openedData = openFile("$directory/$groupName/$otherUser/data.txt", 500000);
-           		 	$data = json_decode($openedData);
+           		 } else { //check if any property allows $userName read access
+           		 	$openedPropertyPerm = openFile("$directory/$groupName/$otherUser/propertyPerm.txt", 50000);
+           		 	$openedData = openFile("$directory/$groupName/$otherUser/data.txt", 500000); //actual data
+           		 	$openedData = json_decode($openedData);
+           		 	$permissionProperties = json_decode($openedPropertyPerm);
+           		 	
            		 	$isThere = false;
            		 	$outputObj = array(); //create obj for properties user is given access to.
-					foreach ($data as $name => $value) {
-    					if (strpos($name,'-@read@' . $userName) !== false) {
-    						$isThere = true;
-    						$outputObj[$name] = $value;
-						} else if (strpos($name,'-@readall@') !== false) {//if all users are allowed access
-							$isThere = true;
-							$outputObj[$name] = $value;
-						}
-					}
+           		 	
+           		 	foreach ($permissionProperties as $propertyName => $propertyValue) {
+           		 		$propertyUsers = splitString($propertyValue,"@n@");
+           		 		for ($x=0; $x< count($propertyUsers); $x++) {//look for current user in $otherUser's perms
+  							if ($propertyUsers[$x] === $userName) {
+  								
+  								$isThere = true;
+  								foreach ($openedData as $dataPropertyName => $dataPropertyData) {
+  									if ($propertyName === $dataPropertyName) {
+  										$outputObj[$propertyName] = $dataPropertyData;
+  									}
+  								}
+  								
+  							} else if ($propertyValue === "allowAll") {
+  								$isThere = true;
+								foreach ($openedData as $dataPropertyName => $dataPropertyData) {
+  									if ($propertyName === $dataPropertyName) {
+  										$outputObj[$propertyName] = $dataPropertyData;
+  									}
+  								}
+  							}
+  						} 
+           		 
+           		 
+           		 	}
            		 	
            		 	if ($isThere === true) { //if $userName is found in properties do this
            		 		$outputObj = json_encode($outputObj); //encode output obj to json
            		 		echo $outputObj;
            		 	} else { //otherwise, present error
-           		 		echo '{"error":"read access not granted."}';	
+           		 		echo '{"error":"access not granted"}';	
            		 	}
            		 
            		 }
@@ -258,9 +277,42 @@
 				$read = $_POST['read'];
 				$write = $_POST['write'];
 				$emailRead = $_POST['emailRead'];
+				$propertyObj = $_POST['propertyObj']; //for specific properties
+				if ($read !== "DoNotEdit") {
 				saveFile("$directory/$groupName/$userName/read.txt", $read);
+				}
+				if ($write !== "DoNotEdit") {
 				saveFile("$directory/$groupName/$userName/write.txt", $write);
+				}
+				if ($emailRead !== "DoNotEdit") {
 				saveFile("$directory/$groupName/$userName/emailRead.txt", $emailRead);
+				}
+				if ($propertyObj !== "DoNotEdit") {//updates permissions on properties
+					//clean up property obj
+					$propertyObj = str_replace("\'","'",$propertyObj);
+					$propertyObj = str_replace('\"','"',$propertyObj);
+					
+					
+					$unpackedPropertyObj = json_decode($propertyObj);
+					
+					$openedPermProperties = openFile("$directory/$groupName/$userName/propertyPerm.txt",50000);
+					$openedPermProperties = json_decode($openedPermProperties);
+					
+					$outputPermProperties = array();
+					
+					foreach ($unpackedPropertyObj as $pName => $pData) {
+					foreach ($openedPermProperties as $ppName => $ppData) {
+  						if ($pName === $ppName) {
+  							$outputPermProperties[$ppName] = $pData;
+  						} else {
+  							$outputPermProperties[$pName] = $pData;
+  						}
+  						$outputPermProperties[$ppName] = $ppData;
+  					}
+  					}
+
+					saveFile("$directory/$groupName/$userName/propertyPerm.txt", json_encode($outputPermProperties));
+				}
 				echo json_encode("Permissions updated");
 			} else {
 				echo json_encode("Permissions cannot be edited on default user");
@@ -288,16 +340,6 @@
             
             saveFile("$directory/$groupName/$userName/email.txt", $clientData);
                   
-        } else if ($action === "saveToken") {
-		    
-		    if (file_exists("backend/token.txt")) {
-		        echo json_encode("failed. Token already exists.");
-		    } else {
-		        saveFile("backend/token.txt", $clientData);
-                echo json_encode($clientData);
-                
-            }
-		
         } else if ($action === "listUsers") {
             $users = openFile("$directory/$groupName/userlist.txt", 500000);
             echo json_encode($users);
