@@ -126,9 +126,20 @@ function Cenny(mainObject) {
 	//######################################################### GET DATA FROM BACKEND #######################################################################
 	//#######################################################################################################################################################
 	
-	this.get = function(callback, user) {
+	this.get = function(callback, user) { //if user variable is array, it will be treated as property list, if it's a string, it will be treated as a username.
+        
         if (user === undefined || user === '') {
-		that.aj("", "get", callback);
+            that.aj("&getProperties=all", "get", callback);
+        } else if (user instanceof Array) {
+            var propertyString = "";
+            for (var i = 0; i < user.length;i++) {
+                if (user[i + 1] !== undefined) { //to keep things like "user@n@" <-- (no user next, but still "@n@")
+                propertyString+=user[i] + "@n@";
+                } else {
+                    propertyString+=user[i];  
+                }
+            }
+            that.aj("&getProperties=" + propertyString, "get", callback); 
         } else {
         that.aj("&otherUser=" + braid.replace(user, " @w@"), "getOther", callback);
         }
@@ -397,6 +408,7 @@ function Cenny(mainObject) {
 	this.modified = function(callback, pArray) {
 		setInterval(function() {
 			that.get(function(d){
+                
 			var output = {};
 				if (pArray !== undefined) {
 					for (var i = 0; i < pArray.length; i++) {
@@ -412,8 +424,8 @@ function Cenny(mainObject) {
 					callback(output);	
 					that.deamon.lastData = JSON.stringify(output);
 				}
-			});
-		}, 500);
+			},pArray);
+		}, 450);
 		
 	};
 	

@@ -145,12 +145,39 @@
 		if ($action === "get") {
 			
 			$openedData = openFile("$directory/$groupName/$userName/data.txt", 500000);
+			$getProperties = $_POST['getProperties'];
+			if ($getProperties === "all") {
 			
-			if ($openedData !== "") {
-			    echo $openedData;
+				if ($openedData !== "") {
+				    echo $openedData;
+            	} else {
+            	    echo '{"error":"user is empty"}';
+            	}
+            
             } else {
-                echo '{"error":"user is empty"}';
+            	$getProperties = splitString($getProperties, "@n@");	
+            	if ($openedData !== "") {
+            	$openedData = json_decode($openedData);
+            	$outputObj = array();
+            
+            	foreach ($openedData as $pName => $pData) {
+            		for ($x=0; $x< count($getProperties); $x++) {
+  						if ($pName === $getProperties[$x]) {
+  							$outputObj[$pName] = $pData;
+  						}
+  					}
+  				}
+  				
+  				$outputObj = json_encode($outputObj); //encode output obj to json
+           		echo $outputObj;
+  				
+  				} else {//opened data is empty
+  					echo '{"error":"user is empty"}';
+  				}
+  				
+  				
             }
+            
 		} else if ($action === "getOther") {
 			
 			$otherUser = $_POST['otherUser'];
