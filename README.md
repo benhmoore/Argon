@@ -53,7 +53,7 @@ __
 
 1. Download the *.zip* of this respiratory.
 2. Unpack and add *cenny.php* (inside ```server``` directory) to your web server.
-3. Add *cenny.js* to the ```<head>``` of your pages.
+3. Add *cenny.js* (inside ```client``` directory) to the ```<head>``` of your pages.
 
 Congratulations! Cenny.js is ready to go.
 
