@@ -43,7 +43,7 @@ Cenny.js was built to work with your web app, it is extremely flexible and works
 7. Reading & Writing Another User
 
 
-##Setup & Stuff You Should Know
+##Setup & Stuff You Should Know 
 
 1. Download the *.zip* of this respiratory.
 2. Unpack and add *cenny.php* (inside ```server``` directory) to your web server.
