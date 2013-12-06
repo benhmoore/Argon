@@ -1,324 +1,272 @@
-cenny.js
-========
+Cenny.js is the plug 'n play backend for web apps. Building a chat web app? Use Cenny.js to store, send, and receive messages in real-time. Building a multiplayer game? Cenny.js can keep player positions synced in real-time. 
 
-###A realtime backend for web apps.
-Cenny.js is a plug 'n play and open source backend for web apps of all shapes and sizes. 
+Simple demo: http://byteaspect.com/cidar
 
-####Live Example: http://byteaspect.com/cidar/
+Cenny.js was built to work with your web app, it is extremely flexible and works with almost any setup. Everything is done through a single JS script. No Javascript dependancies, just two files: Cenny.js, and a PHP file for the server.
 
-Cenny.js was created to make building powerful real-time web apps simple, even managing users. Meant for client-side developers, you won't have to touch a single line
-of server code if you don't want to. It's all easily accessed with pure Javascript.
+**Phrases used in this documentation**:
+**!Word of thumb** - a helpful explanation or definition.
+**!Remember this** - something you'll want to remember.
+**!Issue scout** - describes a common mistake.
+**!Get the gist** - a simple explanation or instructions of a complex subject. 
 
+**Definitions of words used in this documentation**:
+*Property* - a labeled item in a JS Object.
+*cenny.js* - refers to either the name of this project, or the file cenny.js, the file which we'll be working with.
+*cenny.php* - a file cenny.js talks to, you should not edit this.
 
-**Documentation Order**:
+**Documentation order**:
 
 1. Setup
 
-2. Users
+2. Getting Started
 
-3. Permissions
+3. Setting, Updating, & Adding Properties
 
-4. Groups
+4. Getting & Watching Properties
+
+5. Users & Their Methods
+
+6. Permissions & Security
+
+7. Reading & Writing Another User
 
 
-___
+##Setup & Stuff You Should Know
 
-###Setup
+1. Download the *.zip* of this respiratory.
+2. Unpack and add *cenny.php* (inside ```server``` directory) to your web server.
+3. Add *cenny.js* to the ```<head>``` of your pages.
 
-First, you'll need to add **cenny.php** (inside the ```server``` directory) to your server, this is what **cenny.js** (```client``` directory) will communicate with.
+Congratulations! Cenny.js is ready to go.
 
-Secondly, add **cenny.js** to the ```<head>``` of any html document, just like any other JS script.
+##Stuff you should know
+**Cenny.js Diagram:**
+Server —> Group(s) —> User(s) —> Object (```{ property:data }```).
 
-##Cenny.js Documentation
+A *group* is a directory in which users are stored.
 
-Cenny.js is object based, so you'll first need to create a fresh instance of the Cenny object.
+A *user* is a directory in which data can be stored as properties of the main Object (normal JS Object). Permissions can be set for the user, or individual properties to prevent unauthorized access, and give custom privileges. 
 
+**!Remember this**: All data is stored as properties in a user's main Object.
+
+##Getting Started
+Before Cenny.js can be used, a new instance of the Cenny() object must be created.
 
 ```javascript
-   var backend = new Cenny( {url: 'url.to/cenny.php'} ); 
+var server = new Cenny({ url:'url.to/cenny.php' });
 ```
-*The first parameter is an object containing the property 'url', this is the url referring to cenny.php on your server.*
+The variable ```server``` has now been setup to access the backend located at the url provided (```url``` property).
 
-   *All data is stored within the main object, so instead of storing "hello world", it will
-   be stored as a property of the main object.*
-   
-Anyways, from here, let's set some data to our backend.
+You can optionally provide a group, though if none is provided, the ```default``` group is used.
 ```javascript
-   backend.set({sky: 'is high.'});
+var server = new Cenny({ url:'url.to/cenny.php', group:['name','key'] });
 ```
+This snippet creates a *group* named 'name', with the key 'key'.
+**!Word of thumb**: Don't mistake the 'key' variable as a variable meant to be protected, do not take measures to protect it's secrecy, as it is not important.
+
+**!Remember this**: by default, the ```default``` group and user are accessed. As discussed above, you may define another group to access. We'll discuss how to sign into another user later on.
 
 
-Now let's retrieve that data.
+##Setting, Updating, & Adding Properties
+Adding properties to Cenny.js - whether it's a player's high-score, a user's address, or computed schematics - can be accomplished with two methods: .set() and .update().
+
+###.set()
+.set() is the most basic method of Cenny.js, it writes properties to a user's main Object, overwriting existing ones. 
+**!Remember this:** If used, this method replaces all existing properties with new ones.
+####Syntax:
 ```javascript
-   backend.get(function(returnedData){
-           console.log(returnedData); //outputs {sky: 'is high.'}
-   });
+server.set( {propertyN:[1,2,3], sixty:60} );
 ```
-*This method connects to cenny.php and retrieves the data, then passes it to the callback function.*
+####What's happening:
+This snippet overwrites all existing data, and appends the properties ```propertyN``` and ```sixty``` to the user's main Object.
 
-The above code retrieves all data from the server, however, you can also specify specific properties to be retrieved:
+###.update()
+.update() is much the same as .set(), in that it writes to a user's main Object. However, instead of replacing existing properties, adds to them. If a property already exists that is being modified, it will simply update the property. If a property does not already exist, it will be added.
+####Syntax:
 ```javascript
-   backend.get(function(returnedData){
-           console.log(returnedData); //outputs {sky: 'is high.'}
-   },['sky']); //only retrieves property 'sky' from server.
+server.update( {propertyN:[4,5,6], hundred:100} );
 ```
+####What's happening:
+This snippet updates ```propertyN``` since it already exists, and adds the hundred property to the user's main Object. The property ```sixty``` remains the same from the previous snippet. 
 
+##Getting & Watching Properties
+Existing properties can be retrieved from Cenny.js using the method *.get()*, and watched for changes using the method *.modified()*.
 
-
-Great, but ```.set()``` replaces existing data. Let's keep the data we already have stored and just add to it.
+###.get()
+.get() is how properties are retrieved from the user's main Object. Optionally, a the second parameter of this method can be set to an Array of specific properties to be retrieved (instead of the entire Object).
+####Syntax: 
 ```javascript
-   backend.update({another: [1,2,3]}); //the data is now { sky: 'is high.', another: [1,2,3] }
-   backend.update( {DELETE: ['another', 'etc']} ); //removes properties 'another' and 'etc'
+server.get( function(returnedData) {
+		console.log(returnedData);
+} /* optionally add ['array'] of specific properties here */);
 ```
-
-Ok, but what if another client  ```.update()```s this data? How can we get, in real-time, 
-the new data when it changes?
+####What's happening:
+This snippet retrieves the properties already set in the previous section and logs them to the console. 
+####Simulated Output:
 ```javascript
-   backend.modified(function(returnedData) {
-           console.log(returnedData);  
-   });
-```
-Optionally, the second parameter can be an array of specific properties to watch, instead of all data.
-*The callback function (first parameter) will be passed the data only when it is edited.*
-
-
-___
-
-###Users
-
-Users can be used to keep data protected from prying eyes. They work the same as a Facebook user, or Youtube account.
-
-By default, when a new instance of Cenny is created, the user is "default" with the password "default".
-To create a new user, or login to an existing user, we'll need to create a new instance of the Cenny object.
-
-```javascript
-var fresh = new Cenny( {url: 'url.to/cenny', user: ['username', 'password']} );
-```
-*Since this user does not exist, it will be created. If the user had already existed, it would be logged in.*
-
-Now that we're signed in, we'll probably want to remember that complicated password and username.
-```javascript
-fresh.user.remember();
-```
-*This uses the localStorage object to save the username and password to the user's computer, if a username and password are not provided when defining a new instance of Cenny, these credentials will be used.*
-*localStorage is used to prevent syncing of confidential information outside of the user's computer.*
-
-To forget remembered user credentials:
-```javascript
-fresh.user.forget();
+{propertyN: [4,5,6], sixty: 60, hundred:100}
 ```
 
-If we'd like to remove the user completely, we can do that.
+###.modified()
+Once it is called, .modified() continuously watches a provided Array of properties for changes. If a change is detected, the properties are passed to the callback function.
+**!Issue scout**: This method can only be called once per instance of the Cenny() Object.
+####Syntax: 
 ```javascript
-fresh.user.remove();
+server.modified( function(returnedData) {
+		console.log(returnedData);
+}, ['sixty', 'propertyN'] );
 ```
-*You MUST be signed in to do this, but be careful, no going back from here.*
-
-Let's say you want to signin to a different user, that's simple. If the user does not exist, Cenny will go ahead and create it for you. Optionally, a callback function can be provided. This function will be passed info on the signin attempt.
+####What's happening:
+This snippet continuously watches the properties ```sixty``` and ```propertyN``` for changes. If a .update() was called that updated propertyN to ```[7,8,9]```, the properties ```sixty``` and ```propertyN``` would be passed to the callback function.
+####Simulated Output:
 ```javascript
-fresh.user.signin( { user:['businessPro', 'hardPassword']}, callback );
-```
-
-Or you might like to just create a user without signing out of your current user. Again, a callback function can optionally be provided.
-```javascript
-fresh.user.create( { user:['another', 'insanePassword']}, callback );
-```
-
-If you'd like to get info on the currently signed in user, that's simple.
-```javascript
-fresh.user.info() //returns an array [username,password]
+{propertyN: [7,8,9], sixty: 60}
 ```
 
-We can also easily attach an email to our user.
-```javascript
-fresh.user.setEmail(email); //set email
+##Users & Their Methods
+Cenny.js provides many methods for user operations: .create(), .signin(), .signout(), .info(), .setEmail(), .getEmail(), .remember(), .forget(), .remove(), and .list().  These methods are located under the .user object.
 
-fresh.user.getEmail(callback); //retrieve email
+###.user.create()
+.user.create() creates a new user under the current group with the information provided.
+####Syntax:
+```javascript
+server.user.create({user:['username','password');
+```
+####What's happening:
+This snippet creates the user 'username' with the password 'password'.
+
+###.user.signin()
+.user.signin() as the same suggests, is used to sign into the specified user. Once a user is signed in, methods like .get() or .update() will begin operating on this user, instead of the previous user.
+**!Word of thumb**: if a user does not already exist, it will be created.
+####Syntax:
+```javascript
+server.user.signin({user:['username','password']}, callback);
+```
+####What's happening:
+This snippet signs into the user 'username'. Once the sign in is complete, information about the attempt is passed to the optional callback function. A callback function is useful as, for example, it can be used to automatically load data once a user has signed in, or retrieve information about a failed signin attempt.
+
+###.user.signout()
+.user.signout() signs out of the current user, switching back to the 'default' user.
+####Syntax:
+```javascript
+server.user.signout();
+```
+####What's happening:
+This snippet signs out of the current user, which is 'username', and switches back to the 'default' user.
+
+###.user.info()
+.user.info() returns an array of information about the current user. 
+####Syntax:
+```javascript
+server.user.info();
+```
+####What's happening:
+This snippet returns an array of information about the 'default' user. 
+####Simulated output:
+```javascript
+['default', 'default'] // [username, password]
 ```
 
-If allowed by another user (covered in permissions section), you can retrieve it's email aswell:
+###.user.setEmail()
+.user.setEmail() can be used to set the email of the current user. 
+####Syntax:
 ```javascript
-fresh.user.getEmail(callback, username);
+server.user.setEmail('valid@email.com');
+```
+####What's happening:
+This snippet check the provided email for authenticity, before setting it as the user's email.  
+
+###.user.getEmail()
+.user.getEmail() is used to get the email of the current user if it is set. 
+####Syntax:
+```javascript
+server.user.getEmail(callback);
+```
+####What's happening:
+This snippet passes the email of the current user to the callback function, if it is set.
+
+###.user.remember()
+.user.remember() uses localStorage to store the username and password of current user. Cenny.js will sign into this user by default with the next visit by this computer. 
+####Syntax:
+```javascript
+server.user.remember();
+```  
+
+###.user.forget()
+.user.forget() forgets the remembered user credentials if they are set.
+####Syntax:
+```javascript
+server.user.forget();
+```  
+
+###.user.remove()
+.user.remove() completely removes the current user.
+**!Issue scout**: There's no going back.
+####Syntax:
+```javascript
+server.user.remove();
+```  
+
+###.user.list()
+.user.list() passes an Array of every user's username in the current group to the callback function.
+####Syntax:
+```javascript
+server.user.list(callback);
+```  
+####Simulated output:
+```javascript
+['username','default', etc]
 ```
 
-To retrieve a list of all users:
+##Permissions & Security
+Permissions can be setup for the current user to, for instance, allow certain users to read from the current user, block all users from reading from the current user, allow a list of users to write to the current user, allow a certain property to be read from, and more. Permissions are modified and set using the method .user.permissions().
+
+By default, when a user is created, permissions are set to block both read and write attempts from other users. These settings can easily be modified.
+
+###.user.permissions()
+####Syntax:
 ```javascript
-fresh.user.list(callback); //passes array of usernames
-```
-
-To sign out of the current user, and sign back into the **default** user:
-```javascript
-fresh.user.signout();
-```
-
-___
-###Permissions
-
-Permissions can be setup for users to, for instance, allow certain users to read from a user, block all users from reading from a user, allow a list of users to write to a user, allow a certain property to be read from, and more.
-
-By default, when a user is created, permissions are set to **block** *both* read and write attempts from other users.
-These settings can easily be modified.
-```javascript
-fresh.user.permissions({
+server.user.permissions({
 write:['user1','user2','user3','etc'], //allows these users to write to this user.
 read:false, //blocks all users from reading from this user.
-emailRead:false, //blocks all users from viewing the current user's email | feature requested by @gimlet2
-
+emailRead:false, //blocks all users from viewing the current user's email
 });
 ```
-These properties - "read", "write", and "emailRead" - can be set to ```true``` to allow any user access, ```false``` to block all access, or to an ```Array``` of certain users to allow access. You can also set per-property read access using the same syntax:
-```javascript
-fresh.user.permissions({
 
+These properties - "read", "write", and "emailRead" - can be set to ```true``` to allow any user access, ```false``` to block all access, or to an Array of certain users to allow access. Individual properties can also be set to allow read access using the same syntax:
+```javascript
+server.user.permissions({
 friendCount:true, //allows anyone to read the 'friendCount' property.
 privateMessageCount:['admin'] //allows only user 'admin' read access to this property.
 
 });
 ```
-When a specific property is given permissions, those permissions override the existing read access permissions, for just that property.
+**!Word of thumb**: When a specific property is given permissions, those permissions override the existing read access permissions, for just that property.
 
+##Reading & Writing Another User
 
-If another user has given **write** access to at least your current user, you can ```.set()``` or ```.update()``` that user's data easily:
+If another user has given write access to at least the current user, ```.set()``` or ```.update()``` can be used on that user's properties:
 ```javascript
-fresh.set( {}, 'username'); //set data in user 'username'
+server.set( {}, 'username'); //set properties in user 'username'
 
-fresh.update( {}, 'username'); //update data in user 'username'
+server.update( {}, 'username'); //update properties in user 'username'
 ```
 
-If a user has given full or per-property **read** access to at least your current user, you can easily use ```.get()``` on that user as well:
+If a user has given full or per-property read access to at least the current user, ```.get()``` can be used on that user:
 ```javascript
-fresh.get( callback, 'username'); //get data from user 'username'
+server.get( callback, 'username'); //get data from user 'username'
 ```
-**If the second parameter of .get() is an array, it will be treated as a list of properties to be retrieved, however, if it is a string, it will be treated as a username (like above):**
-
+**!Word of thumb**: If the second parameter of .get() is an array, it will be treated as a list of properties to be retrieved, however, if it is a string, it will be treated as a username (like above):
 ```javascript
-fresh.get(function(d){ console.log(d); }, 'toby') //gets data from USER 'toby' 
-fresh.get(function(d){ console.log(d); }, ['MsgCount','ip']) //gets only properties 'MsgCount' and 'ip' from server.
-```
-
-If a user has given at least your current user **emailRead** access, you can use ```.user.getEmail()``` to retrieve the user's email: 
-```javascript
-fresh.user.getEmail( callback, 'username'); //get user "username"'s email
+server.get(function(d){ console.log(d); }, 'toby') //gets data from USER 'toby' 
+server.get(function(d){ console.log(d); }, ['MsgCount','ip']) //gets only properties 'MsgCount' and 'ip' from server.
 ```
 
-
-###Groups
-
-Groups can be used to separate groups of users or multiple web apps.
-
-By default, when a new instance of Cenny is created, the group "default" with the key "default" is used. *All users are stored in groups.*
-To create a new group or access an existing one, it must be defined when creating an instance of the Cenny object.
-
-
+If a user has given at least the current user emailRead access, .user.getEmail() can be used to retrieve the user's email:
 ```javascript
-var fresh = new Cenny( {url: 'url.to/cenny', group: ['groupName', 'secretKey']} );
-```
-*Since this group does not exist, it will be created. If the group had already existed, it would be accessed.*
-
-Groups cannot be removed from cenny.js, to remove a group, the directory will need to be removed from the server.
-
-___
-
-###No fluff documentation
-
-Define a new Cenny.
-```javascript
-var x = new Cenny( {url: 'url.to.cenny', user:['username', 'password'], group: ['name', 'key']} );
+server.user.getEmail( callback, 'username'); //get user "username"'s email
 ```
 
-Set data (replaces existing data).
-```javascript
-x.set( {} );
-```
-
-Set data in another user (if allowed).
-```javascript
-x.set( {}, 'username' );
-```
-
-Get data.
-```javascript
-x.get( callback );
-```
-
-Get data from another user (if allowed).
-```javascript
-x.get( callback, 'username' );
-```
-
-Get specific properties from data.
-```javascript
-x.get( callback, ['array','of','properties'] );
-```
-
-Update data.
-```javascript
-x.update( {property: null, DELETE: ['property']} );
-```
-
-Update data in another user (if allowed).
-```javascript
-x.update( {property: null, DELETE: ['property']}, 'username' );
-```
-
-Watch data.
-```javascript
-x.modified( function(d) {}, ['property1', '2', 'three'] );
-```
-
-Remember user.
-```javascript
-x.user.remember();
-```
-
-Forget user.
-```javascript
-x.user.forget();
-```
-
-Remove user.
-```javascript
-x.user.remove();
-```
-
-Signin to another user. 
-```javascript
-x.user.signin( {user:['username', 'password']}, callback );
-```
-
-Create another user.
-```javascript
-x.user.create( {user:['username', 'password']}, callback );
-```
-
-Get user info.
-```javascript
-x.user.info() //returns array: [username,password]
-```
-
-Set user email.
-```javascript
-x.user.setEmail( 'email' );
-```
-
-Get user email (if allowed).
-```javascript
-x.user.getEmail( callback, 'username' );
-```
-
-List all usernames.
-```javascript
-x.user.list( callback );
-```
-
-Signout of current user.
-```javascript
-fresh.user.signout(callback);
-```
-
-Set user permissions.
-```javascript
-fresh.user.permissions( {write:['user1','etc'], read:['user54','ben'], emailRead:false, propertyX:true} );
-```
-*"write" / "read" / "emailRead" / and other properties can be set to true (allows all users), false (blocks all users), or an array of specific users.*
+_____
 
