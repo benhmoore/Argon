@@ -46,8 +46,34 @@
             };
             
             x.user.permissions({//setting permissions for no reason
-            savedData:false//no other user can use .get(callback, 'example') to get this property
+            read:true; //allow read access of all properties
+            savedData:false//reading of this property blocked for all other users (regardless of read:true above)
             });
+            
+            
+            /*CODE SNIPPETS (FOR NO REAL REASON)
+            
+            var callback = function(returnedD) {
+                console.log(returnedD);
+            };
+            
+            x.get(callback, 'username') // get properties from another user (if allowed)
+            
+            x.get(callback, ['property1','pez']) //get select properties
+            
+            x.update({snippets:9},'username') //update properties for another user (if allowed)
+            
+            x.user.create({user:['name','pass']});
+            
+            x.user.signin({user:['name','pass']});
+            
+            x.user.list(callback); //list of all users
+            
+            x.user.info();
+            
+            x.user.signout();
+            
+            /*
             
             
             
