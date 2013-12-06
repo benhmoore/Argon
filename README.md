@@ -118,7 +118,7 @@ This snippet overwrites all existing data, and appends the properties ```propert
 
 ###.update()
 
-.update() is much the same as .set(), in that it writes to a user's main Object. However, instead of replacing existing properties, adds to them. If a property already exists that is being modified, it will simply update the property. If a property does not already exist, it will be added.
+.update() is much the same as .set(), in that it writes to a user's main Object. However, instead of replacing existing properties, it adds to them. If a property already exists that is being modified, it will simply update the property. If a property does not already exist, it will be added.
 
 ####Syntax:
 ```javascript
@@ -131,7 +131,7 @@ This snippet updates ```propertyN``` since it already exists, and adds the hundr
 
 ##Getting & Watching Properties
 
-Existing properties can be retrieved from Cenny.js using the method *.get()*, and watched for changes using the method *.modified()*.
+Existing properties can be retrieved from Cenny.js using the method *.get()*, or watched for changes using the method *.modified()*.
 
 
 ###.get()
@@ -180,7 +180,7 @@ This snippet continuously watches the properties ```sixty``` and ```propertyN```
 
 ##Users & Their Methods
 
-Cenny.js provides many methods for user operations: .create(), .signin(), .signout(), .info(), .setEmail(), .getEmail(), .remember(), .forget(), .remove(), and .list().  These methods are located under the .user object.
+Cenny.js provides many methods for user operations: .create(), .signin(), .signout(), .info(), .setEmail(), .getEmail(), .remember(), .forget(), .remove(), and .list().  These methods are located under the ```.user``` object.
 
 
 ###.user.create()
@@ -189,7 +189,7 @@ Cenny.js provides many methods for user operations: .create(), .signin(), .signo
 
 ####Syntax:
 ```javascript
-server.user.create({user:['username','password');
+server.user.create({user:['username','password'});
 ```
 
 ####What's happening:
@@ -258,12 +258,12 @@ server.user.setEmail('valid@email.com');
 
 ####What's happening:
 
-This snippet check the provided email for authenticity, before setting it as the user's email.  
+This snippet checks the provided email for authenticity, before setting it as the user's email.  
 
 
 ###.user.getEmail()
 
-.user.getEmail() is used to get the email of the current user if it is set. 
+.user.getEmail() is used to get the email of the current user (if it is set). 
 
 ####Syntax:
 ```javascript
