@@ -382,7 +382,7 @@ ____
 
 Define a new Cenny.
 ```javascript
-var x = new Cenny( {url: 'url.to.cenny', user:['username', 'password'], group: ['name', 'key']} );
+var x = new Cenny( {url: 'url.to.cenny', group: ['name', 'key']} );
 ```
 
 Set data (replaces existing data).
