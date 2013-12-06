@@ -1,0 +1,54 @@
+<html>
+    <head>
+        
+        
+        <script>
+            /* * * * * * * * * * * * * * * * * * * * * *
+             *                                         *
+             * !!!EXTREMELY BASIC CENNY.JS EXAMPLE!!!  *
+             *                                         *
+             * * * * * * * * * * * * * * * * * * * * * */    
+        </script>
+        
+        
+        <!--CENNY.JS / CENNY.PHP HOSTED-->
+        <script src = 'http://byteaspect.com/demo/cenny.js'></script>
+        <script>
+            var x = new Cenny({url:'http://byteaspect.com/demo/cenny.php', group:['example','example']});
+            var saveInput = function() {
+                
+                var inputData = document.getElementById('input').value; //get textarea text
+                
+                inputData = braid.replace(inputData, "\n@w@NLINEX");//replace line breaks with 'NLINEX' (not necessary)
+                
+                if (inputData.length < 500) {//extremely basic length check
+                x.update({savedData:inputData});
+                } else {
+                    alert("input length too large");
+                }
+            
+            };
+            
+            window.onload = function() {//load text on load
+            
+                x.get(function(d) {
+                    if (d['error'] === undefined) {//if no error occurs (basic check)
+                       var data = d['savedData']; //for shortness
+                       
+                       //replace 'NLINEX' with line breaks (not necessary)
+                       data = braid.replace(data, "NLINEX@w@\n"); //braid.js use (included with cenny.js)
+                       
+                       document.getElementById('input').value = data;
+                    }
+                });
+            
+            };
+            
+        </script>
+    </head>
+    <body>
+        <textarea id = "input"></textarea>
+        <button onclick = "saveInput()">Save</button>
+        
+    </body>
+</html>
