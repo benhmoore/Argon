@@ -44,6 +44,10 @@ Cenny.js was built to work with your web app, it is extremely flexible and works
 
 8. Simple Documentation
 
+__
+
+9. Contributors & Credits
+
 
 ##Setup & Stuff You Should Know 
 
@@ -480,6 +484,19 @@ Set user permissions.
 fresh.user.permissions( {write:['user1','etc'], read:['user54','ben'], emailRead:false, propertyX:true} );
 ```
 *"write" / "read" / "emailRead" / and other properties can be set to true (allows all users), false (blocks all users), or an array of specific users.*
+
+___
+
+##Contributors & Credits
+###Created by Ben Moore (@benmooredaily) as a part of LoadFive (@loadfive).
+
+This project has been contributed to by @AbhishekGhosh, @gimlet2, and @instyled.
+Thank you!
+
+
+
+
+
 
 
 
