@@ -1,6 +1,7 @@
-Cenny.js is the plug 'n play backend for web apps. Building a chat web app? Use Cenny.js to store, send, and receive messages in real-time. Building a multiplayer game? Cenny.js can keep player positions synced in real-time. 
+#Cenny.js is the plug 'n play backend for web apps.
+Building a chat web app? Use Cenny.js to store, send, and receive messages in real-time. Building a multiplayer game? Cenny.js can keep player positions synced in real-time. 
 
-Simple demo: http://byteaspect.com/cidar
+##Simple demo: http://byteaspect.com/cidar
 
 Cenny.js was built to work with your web app, it is extremely flexible and works with almost any setup. Everything is done through a single JS script. No Javascript dependancies, just two files: Cenny.js, and a PHP file for the server.
 
