@@ -15,6 +15,7 @@
         <script src = 'http://byteaspect.com/demo/cenny.js'></script>
         <script>
             var x = new Cenny({url:'http://byteaspect.com/demo/cenny.php', group:['example','example']});
+            x.user.signin({user:['example','example']});
             var saveInput = function() {
                 
                 var inputData = document.getElementById('input').value; //get textarea text
@@ -43,6 +44,10 @@
                 });
             
             };
+            
+            x.user.permissions({//setting permissions for no reason
+            savedData:false//no one can read our saved data, unless they're signed into this user.
+            });
             
         </script>
     </head>
