@@ -15,6 +15,7 @@ Cenny.js was built to work with your web app, it is extremely flexible and works
 **!Get the gist** - a simple explanation or instructions of a complex subject. 
 
 
+
 **Definitions of words used in this documentation**:
 
 *Property* - a labeled item in a JS Object.
@@ -22,6 +23,7 @@ Cenny.js was built to work with your web app, it is extremely flexible and works
 *cenny.js* - refers to either the name of this project, or the file cenny.js, the file which we'll be working with.
 
 *cenny.php* - a file cenny.js talks to, you should not edit this.
+
 
 
 **Documentation order**:
