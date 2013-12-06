@@ -488,10 +488,11 @@ fresh.user.permissions( {write:['user1','etc'], read:['user54','ben'], emailRead
 ___
 
 ##Contributors & Credits
-###Created by Ben Moore (@benmooredaily) as a part of LoadFive (@loadfive).
+####Created by Ben Moore (@benmooredaily) as a part of LoadFive (@loadfive).
 
-This project has been contributed to by @AbhishekGhosh, @gimlet2, and @instyled.
-Thank you!
+Thanks to these awesome people for suggesting ideas and contributing:
+@AbhishekGhosh, @gimlet2, and @instyled.
+
 
 
 
