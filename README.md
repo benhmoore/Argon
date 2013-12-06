@@ -42,6 +42,8 @@ Cenny.js was built to work with your web app, it is extremely flexible and works
 
 7. Reading & Writing Another User
 
+8. Simple Documentation
+
 
 ##Setup & Stuff You Should Know 
 
@@ -374,5 +376,111 @@ If a user has given at least the current user emailRead access, .user.getEmail()
 server.user.getEmail( callback, 'username'); //get user "username"'s email
 ```
 
-_____
+____
+
+##Simple Documentation
+
+Define a new Cenny.
+```javascript
+var x = new Cenny( {url: 'url.to.cenny', user:['username', 'password'], group: ['name', 'key']} );
+```
+
+Set data (replaces existing data).
+```javascript
+x.set( {} );
+```
+
+Set data in another user (if allowed).
+```javascript
+x.set( {}, 'username' );
+```
+
+Get data.
+```javascript
+x.get( callback );
+```
+
+Get data from another user (if allowed).
+```javascript
+x.get( callback, 'username' );
+```
+
+Get specific properties from data.
+```javascript
+x.get( callback, ['array','of','properties'] );
+```
+
+Update data.
+```javascript
+x.update( {property: null, DELETE: ['property']} );
+```
+
+Update data in another user (if allowed).
+```javascript
+x.update( {property: null, DELETE: ['property']}, 'username' );
+```
+
+Watch data.
+```javascript
+x.modified( function(d) {}, ['property1', '2', 'three'] );
+```
+
+Remember user.
+```javascript
+x.user.remember();
+```
+
+Forget user.
+```javascript
+x.user.forget();
+```
+
+Remove user.
+```javascript
+x.user.remove();
+```
+
+Signin to another user. 
+```javascript
+x.user.signin( {user:['username', 'password']}, callback );
+```
+
+Create another user.
+```javascript
+x.user.create( {user:['username', 'password']}, callback );
+```
+
+Get user info.
+```javascript
+x.user.info() //returns array: [username,password]
+```
+
+Set user email.
+```javascript
+x.user.setEmail( 'email' );
+```
+
+Get user email (if allowed).
+```javascript
+x.user.getEmail( callback, 'username' );
+```
+
+List all usernames.
+```javascript
+x.user.list( callback );
+```
+
+Signout of current user.
+```javascript
+fresh.user.signout(callback);
+```
+
+Set user permissions.
+```javascript
+fresh.user.permissions( {write:['user1','etc'], read:['user54','ben'], emailRead:false, propertyX:true} );
+```
+*"write" / "read" / "emailRead" / and other properties can be set to true (allows all users), false (blocks all users), or an array of specific users.*
+
+
+
 
