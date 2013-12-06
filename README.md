@@ -3,7 +3,7 @@ Building a chat web app? Use Cenny.js to store, send, and receive messages in re
 
 ##Simple demo: http://byteaspect.com/cidar
 
-Cenny.js was built to work with your web app, it is extremely flexible and works with almost any setup. Everything is done through a single JS script. No Javascript dependancies, just two files: Cenny.js, and a PHP file for the server.
+Cenny.js was built to work with your web app, it is extremely flexible and works with almost any setup. Everything is done through a single JS script. No Javascript dependancies, just two files: Cenny.js, and a PHP file for the server. Oh, and no database required. Cenny.js is proudly file based, no specials needed.
 
 ###**Phrases used in this documentation**:
 
