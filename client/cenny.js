@@ -5,9 +5,6 @@
  * List of libraries included with Cenny.js:                                                                                                       *
  *  1. Braid.js | http://github.com/loadfive/braid.js (@LoadFive)                                                                                  *
  *                                                                                                                                                 *
- *  - - - - - - - - - - -                                                                                                                          *
- * CONTRIBUTORS / HACKERS / PLUGIN MAKERS:                                                                                                         *
- *  - Documentation coming soon, hold tight, we're busy making this better!                                                                        *
  *                                                                                                                                                 *
  *  - - - - - - - - - - -                                                                                                                          *
  *                                                                                                                                                 *
@@ -48,7 +45,7 @@ function Cenny(mainObject) {
 	this.userObject.pass = "default";
 	
 
-    //url to cenny.php
+    //url to cenny.php (preset until set)
 	this.url = document.URL + "cenny.php";
 	
 	//#######################################################################################################################################################
@@ -157,54 +154,52 @@ function Cenny(mainObject) {
 	
 	this.aj = function(sendData, action, callback, optionalUserInfo) {
         
-        
+        //check username before sending request
         if (that.userObject.user.length > 2 && that.userObject.user.length < 25) {
-        if (/^\w+$/.test(that.userObject.user)) {
-        if (that.userObject.pass.length > 3) {    
-		var xmlhttp;
-		xmlhttp=new XMLHttpRequest();
-		xmlhttp.onreadystatechange=function(){
-			if (xmlhttp.readyState==4 && xmlhttp.status==200) {
-				var data = xmlhttp.responseText;
-				if (callback !== undefined) {
-					callback(JSON.parse(data));	
-					
-					//plugin info
-					that.plugin.stopRequestTimer();
-				}		  
-			}
-				 
-		};
-		xmlhttp.open("POST",that.url,true);
-		xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-           
-        //***used for user.create()****
-        
-        if (optionalUserInfo !== undefined) {
-            var userX = optionalUserInfo[0];
-            var passX = optionalUserInfo[1];
-            
-            
-            xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + userX + "&userPass=" + passX);
-            
-        } else { //otherwise, use normal user info
-            
-            xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass);
-        }
-    	
-    	
-    	//plugin info
-    	that.plugin.startRequestTimer();
-    	that.plugin.requests++; //add to requests
-    	
-        //**********
-        
-        } else {
-            callback({error: 'pass length insufficient.'});   
-        }
-        } else {
-           callback({error: 'username contains invalid characters.'});   
-        }
+            if (/^\w+$/.test(that.userObject.user)) {
+                if (that.userObject.pass.length > 3) {    
+                    var xmlhttp;
+                    xmlhttp=new XMLHttpRequest();
+                    xmlhttp.onreadystatechange=function(){
+                        if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+                            var data = xmlhttp.responseText;
+                            if (callback !== undefined) {
+                                callback(JSON.parse(data));	
+                                
+                                //plugin info
+                                that.plugin.stopRequestTimer();
+                            }		  
+                        }
+                             
+                    };
+                    xmlhttp.open("POST",that.url,true);
+                    xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+                       
+                        
+                    if (optionalUserInfo !== undefined) {//used for **.create();**
+                        var userX = optionalUserInfo[0];
+                        var passX = optionalUserInfo[1];
+                        
+                        
+                        xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + userX + "&userPass=" + passX);
+                        
+                    } else { //otherwise, use global user info
+                        
+                        xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass);
+                    }
+                    
+                    
+                    //plugin info
+                    that.plugin.startRequestTimer();
+                    that.plugin.requests++; //add to requests
+                    //end plugin info
+                
+                } else {
+                    callback({error: 'pass length insufficient.'});   
+                }
+            } else {
+               callback({error: 'username contains invalid characters.'});   
+            }
         } else {
             callback({error: 'username length unsuitable.'});   
         }
