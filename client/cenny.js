@@ -246,33 +246,12 @@ function Cenny(mainObject) {
         }
 	};
 	
-	this.update = function(object, user) {
-		that.get(function(d) {
-		if (object instanceof Object) {
-			
-			for (key in object) {
-				if (key === "DELETE" && object[key] instanceof Array) {
-					for (var i = 0; i < object[key].length; i++) {
-						delete d[object[key][i]];
-					}
-				} else {
-					d[key] = object[key];
-				}
-			}
-			
-            if (d['error'] !== undefined) {
-                if (d['error'] === "user is empty") {
-                    delete d['error'];   
-                }
-            }
-			that.set(d,user);
-		
+	this.update = function(object, user, callback) {
+		if (user === undefined || user === "" || typeof user === "function") {
+			that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "update", user);
 		} else {
-			console.log("first parameter of .update() must be an Object.");
+			that.aj("&otherUser=" + braid.replace(user, " @w@") + "&data=" + encodeURIComponent(JSON.stringify(object)), "updateOther", callback);
 		}
-		
-		});
-	
 	};
 	
 	

@@ -1,5 +1,5 @@
 <?php
-
+	
 	/* * * * * * * * * * * * * * * * * *
 	 *
 	 * <- Backend for Cenny.js ->
@@ -294,6 +294,117 @@
             	echo '{"error":"user does not exist."}';
         	}
 		
+		} else if ($action === "updateOther") {
+			
+			$otherUser = $_POST['otherUser'];
+	    
+	        if (file_exists("$directory/$groupName/$otherUser/")) {
+	        	$openedWrite = openFile("$directory/$groupName/$otherUser/write.txt", 1000);
+	        	$arrayX = splitString($openedWrite,"@n@");
+	        	$userFoundInP = false;
+	        	for ($x=0; $x< count($arrayX); $x++) {//look for current user in $otherUser's perms
+  					if ($arrayX[$x] === $userName) {
+  						$userFoundInP = true;
+  					}
+  				} 
+	        	if ($userFoundInP === true || $openedWrite === "allowAll") {
+	        		$openedData = openFile("$directory/$groupName/$otherUser/data.txt",500000);
+					$openedData = json_decode($openedData);
+			
+					$clientData = json_decode($clientData);
+					
+					$outputData = array();
+					$markedFDProps = array();
+		
+					foreach($clientData as $cpName => $cpData) {
+						if ($cpName === "DELETE") {
+							for($x=0;$x<count($cpData);$x++) {
+  								array_push($markedFDProps, $cpData[$x]);
+  							}
+ 						}
+					}
+					
+					foreach ($openedData as $opName => $opData) {
+					foreach ($clientData as $cpName => $cpData) {
+  						if ($opName === $cpName) {
+  							if ($cpName !== "DELETE") {//do not push DELETE property to main Object
+  								$outputData[$cpName] = $cpData;
+  							}
+  						} else {
+  							if ($cpName !== "DELETE") {//do not push DELETE property to main Object
+  								$outputData[$cpName] = $cpData;
+  							}
+  							$toBeDeleted = false;
+  							for($x=0;$x<count($markedFDProps);$x++) { //check if property is markted to be deleted.
+  								if ($opName === $markedFDProps[$x]) {
+  									$toBeDeleted = true;
+  								}
+  							}
+  							if ($toBeDeleted === false) {
+  								$outputData[$opName] = $opData;
+  							}
+ 						}
+ 						
+ 					}
+  					}
+		
+					saveFile("$directory/$groupName/$otherUser/data.txt", json_encode($outputData));
+					
+					echo json_encode("updated");
+					
+				} else {
+    		       	echo '{"error":"write access not granted."}';
+      		    }
+        	} else {
+            	echo '{"error":"user does not exist."}';
+        	}
+		
+		}  else if ($action === "update") {
+		
+			$openedData = openFile("$directory/$groupName/$userName/data.txt",500000);
+			$openedData = json_decode($openedData);
+			
+			$clientData = json_decode($clientData);
+					
+			$outputData = array();
+			$markedFDProps = array();
+
+			foreach($clientData as $cpName => $cpData) {
+				if ($cpName === "DELETE") {
+					for($x=0;$x<count($cpData);$x++) {
+  						array_push($markedFDProps, $cpData[$x]);
+  					}
+ 				}
+			}
+					
+			foreach ($openedData as $opName => $opData) {
+			foreach ($clientData as $cpName => $cpData) {
+  				if ($opName === $cpName) {
+  					if ($cpName !== "DELETE") {//do not push DELETE property to main Object
+  						$outputData[$cpName] = $cpData;
+  					}
+  				} else {
+  					if ($cpName !== "DELETE") {//do not push DELETE property to main Object
+  						$outputData[$cpName] = $cpData;
+  					}
+  					$toBeDeleted = false;
+  					for($x=0;$x<count($markedFDProps);$x++) { //check if property is markted to be deleted.
+  						if ($opName === $markedFDProps[$x]) {
+  							$toBeDeleted = true;
+  						}
+  					}
+  					if ($toBeDeleted === false) {
+  						$outputData[$opName] = $opData;
+  					}
+ 				}
+ 				
+ 			}
+  			}
+
+			saveFile("$directory/$groupName/$userName/data.txt", json_encode($outputData));
+			
+			echo json_encode("updated");
+			
 		} else if ($action === "set") {
 		
 			saveFile("$directory/$groupName/$userName/data.txt", $clientData);
