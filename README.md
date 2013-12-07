@@ -490,8 +490,8 @@ ___
 ##Contributors & Credits
 ####Created by Ben Moore (@benmooredaily) as a part of LoadFive (@loadfive).
 
-Thanks to these awesome people for suggesting ideas and contributing:
-@AbhishekGhosh, @gimlet2, and @instyled.
+Thanks to these awesome people for suggesting ideas, giving heads ups on bugs, and contributing:
+@AbhishekGhosh, @gimlet2, +Taylor Hakes (https://plus.google.com/+TaylorHakes/posts) and @instyled.
 
 
 
