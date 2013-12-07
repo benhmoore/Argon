@@ -249,6 +249,20 @@ function Cenny(mainObject) {
 		}
 	};
 	
+	this.watch = function(vari, propertyName) {
+		var currentVal = window[vari];
+		setInterval(function() {
+			if (currentVal !== window[vari]) {
+				var obj = {};
+				obj[propertyName] = window[vari];
+				that.update(obj);
+				console.log("updated");
+			}
+			currentVal = window[vari];
+		}, 300);
+		
+	};
+	
 	
 	//USER STUFF
 	
