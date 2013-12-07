@@ -56,6 +56,7 @@ __
 3. Add *cenny.js* (inside ```client``` directory) to the ```<head>``` of your pages.
 
 Congratulations! Cenny.js is ready to go.
+
 **!Issue scout**: You may have to modify permissions for the directory in which *cenny.php* is stored, in order for *cenny.php* to create directories and files.
 
 ###Stuff You Should Know
