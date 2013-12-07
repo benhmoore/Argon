@@ -256,7 +256,6 @@ function Cenny(mainObject) {
 				var obj = {};
 				obj[propertyName] = window[vari];
 				that.update(obj);
-				console.log("updated");
 			}
 			currentVal = window[vari];
 		}, 300);
