@@ -16,25 +16,22 @@ function Cenny(mainObject) {
 
 	this.groupObject = {};
 	
-	//group stuff
+	//group definitions
 	this.groupObject.group = "default";
 	this.groupObject.key = "default";
 	
 	this.userObject = {};
 	
-	//user stuff
+	//user definitions
 	this.userObject.user = "default";
 	this.userObject.pass = "default";
 	
-	
-	
-	
-	
-	//url to backend
+
+    //url to cenny.php
 	this.url = document.URL + "cenny.php";
 	
 	//#######################################################################################################################################################
-	//######################################################## SET UP MAIN OBJECT STUFF #####################################################################
+	//######################################################## SET UP MAIN OBJECT ###########################################################################
 	//#######################################################################################################################################################
 	if (mainObject instanceof Object) {
 		if (mainObject['group'] !== undefined && mainObject['group'] instanceof Array) {
@@ -68,6 +65,7 @@ function Cenny(mainObject) {
 	} else {
 		console.log("mainObject should be an Object.");
 	}
+		
 	
 	//#######################################################################################################################################################
 	//############################################# USED FOR ALL PLUGIN AJAX REQUESTS (& .GET() / .SET())####################################################
@@ -148,11 +146,11 @@ function Cenny(mainObject) {
 	this.set = function(object, user, callback) {
         if (object instanceof Object) {
             if (user === undefined || user === '') {
-                that.aj("&data=" + JSON.stringify(object), "set", callback);
+                that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "set", callback);
             } else if (typeof user === "function") { //for backwards compat
-                that.aj("&data=" + JSON.stringify(object), "set", user);  
+                that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "set", user);  
             } else {
-                that.aj("&otherUser=" + braid.replace(user, " @w@") + "&data=" + JSON.stringify(object),"setOther",callback);
+                that.aj("&otherUser=" + braid.replace(user, " @w@") + "&data=" + encodeURIComponent(JSON.stringify(object)),"setOther",callback);
             }
         }
 	};
