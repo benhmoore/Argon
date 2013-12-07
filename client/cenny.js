@@ -1,18 +1,18 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Cenny.js was build by @LoadFive, and has been delighted to receive many contributions from a bunch of amazing people.
- * We want to give a huge THANK YOU to everyone who has had any input into this project. (list of notable contributors available in README.md)
- *  
- * List of libraries included with Cenny.js:
- *  1. Braid.js | http://github.com/loadfive/braid.js (@LoadFive)
- *  
- *  - - - - - - - - - - - 
- * CONTRIBUTORS / HACKERS / PLUGIN MAKERS: 
- *  - Documentation coming soon, hold tight!
- *
- *  - - - - - - - - - - - 
- *
- * - - - | THIS FILE AND ALL OTHERS INCLUDED IN THIS PROJECT RELEASED UNDER AN MIT LICENSE
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Cenny.js was build by @LoadFive, and has been delighted to receive many contributions from a bunch of amazing people.                           *
+ * We want to give a huge THANK YOU to everyone who has had any input into this project. (list of notable contributors available in README.md)     *
+ *                                                                                                                                                 *
+ * List of libraries included with Cenny.js:                                                                                                       *
+ *  1. Braid.js | http://github.com/loadfive/braid.js (@LoadFive)                                                                                  *
+ *                                                                                                                                                 *
+ *  - - - - - - - - - - -                                                                                                                          *
+ * CONTRIBUTORS / HACKERS / PLUGIN MAKERS:                                                                                                         *
+ *  - Documentation coming soon, hold tight, we're busy making this better!                                                                        *
+ *                                                                                                                                                 *
+ *  - - - - - - - - - - -                                                                                                                          *
+ *                                                                                                                                                 *
+ * - - - | THIS FILE AND ALL OTHERS INCLUDED IN THIS PROJECT RELEASED UNDER AN MIT LICENSE                                                         *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
  //LoadFive | loadfive.com | @loadfive
 
 
