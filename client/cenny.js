@@ -61,20 +61,7 @@ function Cenny(mainObject) {
 		if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
 			
 			this.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
-			this.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
-            
-		} else {
-			
-			var x = localStorage['cenny'];
-			if (x !== undefined) {
-				x = JSON.parse(x);
-				if (x['user'] !== undefined) {
-					this.userObject.user = x['user'];
-					this.userObject.pass = x['pass'];
-				}
-				
-			}
-			
+			this.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');   
 		}
 
 		if (mainObject['url'] !== undefined) {
@@ -270,23 +257,6 @@ function Cenny(mainObject) {
 		that.userObject.user = "default";
 		that.userObject.pass = "default";
 	};
-	
-	
-	this.user.remember = function() {
-		var x = localStorage['cenny'];
-		if (x === undefined) {
-			x = {};
-		} else {
-			x = JSON.parse(x);
-		}
-		x['user'] = that.userObject.user;
-		x['pass'] = that.userObject.pass;
-		x = JSON.stringify(x);
-		
-		localStorage['cenny'] = x;
-		
-	};
-    
     
     this.user.permissions = function(permObj,callback) {
         var read = permObj.read;
@@ -382,22 +352,6 @@ function Cenny(mainObject) {
         
         that.aj('&write=' + writeString + '&read=' + readString + '&emailRead=' + emailReadString + '&propertyObj=' + JSON.stringify(propertyObj),"permissions", callback);
     };
-    
-	
-	this.user.forget = function() {
-		var x = localStorage['cenny'];
-		if (x === undefined) {
-			x = {};
-		} else {
-			x = JSON.parse(x);
-		}
-		delete x['user'];
-		delete x['pass'];
-		x = JSON.stringify(x);
-		
-		localStorage['cenny'] = x;
-		
-	};
 	
 	this.user.signin = function(mainObject,callback) {
 		if (mainObject instanceof Object) {
