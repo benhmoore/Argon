@@ -427,6 +427,7 @@ Update data in another user (if allowed).
 ```javascript
 x.update( {property: null, DELETE: ['property']}, 'username' );
 ```
+*the last parameter (either the second or third, depending if a username is provided) can optionally be a callback function. It will be passed information about the update attempt.*
 
 Watch data.
 ```javascript
@@ -480,7 +481,7 @@ x.user.list( callback );
 
 Signout of current user.
 ```javascript
-fresh.user.signout(callback);
+fresh.user.signout();
 ```
 
 Set user permissions.
