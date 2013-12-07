@@ -118,12 +118,16 @@ This snippet overwrites all existing data, and appends the properties ```propert
 
 ###.update()
 
-.update() is much the same as .set(), in that it writes to a user's main Object. However, instead of replacing existing properties, it adds to them. If a property already exists that is being modified, it will simply update the property. If a property does not already exist, it will be added.
+.update() is much the same as .set(), in that it writes to a user's main Object. However, instead of replacing existing properties, it adds to them. If a property already exists that is being modified, it will simply update the property. If a property does not already exist, it will be added. **Properties can be removed** by adding the property ```DELETE``` to the first parameter's Object and setting it to an Array of properties to be removed.
 
 ####Syntax:
 ```javascript
 server.update( {propertyN:[4,5,6], hundred:100} );
+
+server.update( {DELETE:['property','two','etc']} ); //deletes properties 'property','two', and 'etc' if they exist
+
 ```
+
 
 ####What's happening:
 This snippet updates ```propertyN``` since it already exists, and adds the hundred property to the user's main Object. The property ```sixty``` remains the same from the previous snippet. 
