@@ -86,14 +86,76 @@ function Cenny(mainObject) {
 	} else {
 		console.log("mainObject should be an Object.");
 	}
+	
+	//#######################################################################################################################################################
+	//############################################# USED FOR PLUGINS ########################################################################################
+    //#######################################################################################################################################################
 		
+	this.plugin = {};
+	this.plugin.requests = 0;
+	this.plugin.requestTimes = []; //(in milliseconds)
+	this.plugin.currentRequestTime = 0;
+	
+	//returns info on current Cenny instance
+	this.plugin.cInfo = function() {
+	
+		//generate average request times
+		var averageRT = 0;
+		for (var i = 0; i < that.plugin.requestTimes.length; i++) {
+			averageRT+=that.plugin.requestTimes[i];
+		}
+		averageRT = averageRT / that.plugin.requestTimes.length;
+		
+		
+		return {group:[that.groupObject.group, that.groupObject.key], user:that.user.info(), requests:that.plugin.requests, requestTime:averageRT};
+	}
+	
+	//test if a user's connection speed is sufficient
+	this.plugin.testConnectionSpeed = function(callback,wantedMS) {
+		that.plugin.requestTimes = [];
+		that.get(function(d){
+			that.get(function(d){
+				that.get(function(d){
+					that.get(function(d){
+						that.get(function(d){
+							that.get(function(d){
+								that.get(function(d){
+									var cInfoData = that.plugin.cInfo();
+									if (cInfoData['requestTime'] + 300 >= wantedMS && cInfoData['requestTime'] - 300 <= wantedMS) {
+										callback(true);
+									} else if (cInfoData['requestTime'] < wantedMS) {
+										callback(true);
+									} else {
+										callback(false);
+									}
+								});
+							});
+						});
+					});
+				});
+			});
+		});
+		
+		
+	};
+	
+	this.plugin.startRequestTimer = function() {
+		that.plugin.requestTimer = setInterval(function() {
+			that.plugin.currentRequestTime++;
+		},1);
+	
+	};
+	this.plugin.stopRequestTimer = function() {
+		clearInterval(that.plugin.requestTimer);
+		that.plugin.requestTimes.push(that.plugin.currentRequestTime);
+		that.plugin.currentRequestTime = 0;	
+	};
 	
 	//#######################################################################################################################################################
 	//############################################# USED FOR ALL PLUGIN AJAX REQUESTS (& .GET() / .SET())####################################################
     //#######################################################################################################################################################
 	
 	this.aj = function(sendData, action, callback, optionalUserInfo) {
-        
         
         
         if (that.userObject.user.length > 2 && that.userObject.user.length < 25) {
@@ -105,7 +167,10 @@ function Cenny(mainObject) {
 			if (xmlhttp.readyState==4 && xmlhttp.status==200) {
 				var data = xmlhttp.responseText;
 				if (callback !== undefined) {
-					callback(JSON.parse(data));			  
+					callback(JSON.parse(data));	
+					
+					//plugin info
+					that.plugin.stopRequestTimer();
 				}		  
 			}
 				 
@@ -126,7 +191,12 @@ function Cenny(mainObject) {
             
             xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass);
         }
-    
+    	
+    	
+    	//plugin info
+    	that.plugin.startRequestTimer();
+    	that.plugin.requests++; //add to requests
+    	
         //**********
         
         } else {
