@@ -58,7 +58,7 @@ __
 Congratulations! Cenny.js is ready to go.
 
 
-##Stuff You Should Know
+###Stuff You Should Know
 
 **Cenny.js Diagram:**
 
@@ -197,7 +197,7 @@ This snippet continuously watches the properties ```sixty``` and ```propertyN```
 
 ##Users & Their Methods
 
-Cenny.js provides many methods for user operations: .create(), .signin(), .signout(), .info(), .setEmail(), .getEmail(), .remember(), .forget(), .remove(), and .list().  These methods are located under the ```.user``` object.
+Cenny.js provides many methods for user operations: .create(), .signin(), .signout(), .info(), .setEmail(), .getEmail(), .remove(), and .list().  These methods are located under the ```.user``` object.
 
 
 ###.user.create()
@@ -290,26 +290,6 @@ server.user.getEmail(callback);
 ####What's happening:
 
 This snippet passes the email of the current user to the callback function, if it is set.
-
-
-###.user.remember()
-
-.user.remember() uses localStorage to store the username and password of current user. Cenny.js will sign into this user by default with the next visit by this computer. 
-
-####Syntax:
-```javascript
-server.user.remember();
-```  
-
-
-###.user.forget()
-
-.user.forget() forgets the remembered user credentials if they are set.
-
-####Syntax:
-```javascript
-server.user.forget();
-```  
 
 
 ###.user.remove()
@@ -442,19 +422,14 @@ x.update( {property: null, DELETE: ['property']}, 'username' );
 ```
 *the last parameter (either the second or third, depending if a username is provided) can optionally be a callback function. It will be passed information about the update attempt.*
 
-Watch data.
+Watch backend properties.
 ```javascript
 x.modified( function(d) {}, ['property1', '2', 'three'] );
 ```
 
-Remember user.
+Watch local variables / push to backend.
 ```javascript
-x.user.remember();
-```
-
-Forget user.
-```javascript
-x.user.forget();
+x.watch('variableName','backendPropertyName');
 ```
 
 Remove user.
