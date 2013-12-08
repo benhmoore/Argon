@@ -299,17 +299,22 @@ function Cenny(mainObject) {
 		}
 	};
 	
-	this.watch = function(vari, propertyName) {
+	function watchVariable(vari, propertyName) {
 		var currentVal = window[vari];
 		setInterval(function() {
 			if (currentVal !== window[vari]) {
 				var obj = {};
 				obj[propertyName] = window[vari];
+				console.log("UPDATING " + vari);
 				that.update(obj);
 			}
 			currentVal = window[vari];
 		}, 300);
 		
+	}
+	
+	this.watch = function(vari, propertyName) {
+		var x = new watchVariable(vari, propertyName);		
 	};
 	
 	
@@ -587,7 +592,6 @@ function Cenny(mainObject) {
 	
 	this.offline.getOfflineObject = function() { //used for get / modified
 		var offlineObjectUpdate = localStorage.getItem('cennyOfflineUpdate');
-		console.log(offlineObjectUpdate);
 		var offlineObject = localStorage.getItem('cennyOffline');
 		if (offlineObject === undefined || offlineObject === null) { 
 			offlineObject = {};
@@ -654,13 +658,11 @@ function Cenny(mainObject) {
 	
 	//END OFFLINE AWESOMENESS - - - - - - - - 
 	
-	
-	
-	
-	this.modified = function(callback, pArray) {
+	function watchBackendProperty(callback, pArray) {
+		var lastData = "";
 		setInterval(function() {
 			that.get(function(d){
-                
+		        
 			var output = {};
 				if (pArray !== undefined) {
 					for (var i = 0; i < pArray.length; i++) {
@@ -672,13 +674,18 @@ function Cenny(mainObject) {
 				
 				var vexput = JSON.stringify(output); //for comparing.
 				
-				if (vexput !== that.deamon.lastData) {
+				if (vexput !== lastData) {
 					callback(output);	
-					that.deamon.lastData = JSON.stringify(output);
+					lastData = JSON.stringify(output);
 				}
 			},pArray);
 		}, 450);
-		
+	}
+	
+	
+	
+	this.modified = function(callback, pArray) {
+		var x = new watchBackendProperty(callback, pArray);
 	};
 	
     
