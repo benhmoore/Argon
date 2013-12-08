@@ -3,7 +3,7 @@ Building a chat web app? Use Cenny.js to store, send, and receive messages in re
 
 ###Introducing Offline Mode
 
-If a user goes offline while using your web app, dont' worry. Any actions they take while offline will be gracefully synced when they get back online. And while they're offline, the majority of Cenny.js features will function normally (like .set(), .update(), .get(), etc). Best of all, you don't have to add a single line of code, all this happens automatically.
+If a user goes offline while using your web app, dont' worry. Any actions they take while offline will be gracefully synced when they get back online. And while they're offline, the majority of Cenny.js features will function normally (like .set(), .update(), .get(), etc). Best of all, you don't have to add a single line of code, all this happens automatically. If your not into that kind of thing, we'll get into how to disable it in the permissions section.
 
 
 ##Simple demo: http://byteaspect.com/cidar
@@ -43,7 +43,7 @@ Cenny.js was built to work with your web app, it is extremely flexible and works
 
 5. Users & Their Methods
 
-6. Permissions & Security
+6. Permissions
 
 7. Reading & Writing Another User
 
@@ -327,9 +327,9 @@ server.user.list(callback);
 ```
 
 
-##Permissions & Security
+##Permissions
 
-Permissions can be setup for the current user to, for instance, allow certain users to read from the current user, block all users from reading from the current user, allow a list of users to write to the current user, allow a certain property to be read from, and more. Permissions are modified and set using the method .user.permissions().
+Permissions can be setup for the current user to, for instance, allow certain users to read from the current user, block all users from reading from the current user, allow a list of users to write to the current user, allow a certain property to be read from, block syncing of offline data, and more. Permissions are modified and set using the method .user.permissions().
 
 
 By default, when a user is created, permissions are set to block both read and write attempts from other users. These settings can easily be modified.
@@ -343,11 +343,12 @@ server.user.permissions({
 write:['user1','user2','user3','etc'], //allows these users to write to this user.
 read:false, //blocks all users from reading from this user.
 emailRead:false, //blocks all users from viewing the current user's email
+allowOffline:false //block offline mode syncing
 });
 ```
 
 
-These properties - "read", "write", and "emailRead" - can be set to ```true``` to allow any user access, ```false``` to block all access, or to an Array of certain users to allow access. Individual properties can also be set to allow read access using the same syntax:
+These properties - "read", "write", "emailRead", and "allowOffline" - can be set to ```true``` to allow any user access, ```false``` to block all access, or - with an exeption to "allowOffline" - to an Array of certain users to allow access. "allowOffline" sets whether the current user can sync offline data, this is useful if the user in question is used by more than one client. Individual properties can also be set to allow read access using the same syntax:
 ```javascript
 server.user.permissions({
 friendCount:true, //allows anyone to read the 'friendCount' property.
