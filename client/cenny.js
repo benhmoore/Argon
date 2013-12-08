@@ -140,6 +140,11 @@ function Cenny(mainObject) {
     //#######################################################################################################################################################
 	
 	this.aj = function(sendData, action, callback, optionalUserInfo) {
+        if (callback === undefined || typeof callback !== "function") {
+            var callback = function(d) {
+                console.log(d);   
+            };
+        }
        	if (navigator.onLine === true) { 
 	        //check username before sending request
 	        if (that.userObject.user.length > 2 && that.userObject.user.length < 25) {
@@ -417,10 +422,16 @@ function Cenny(mainObject) {
 				that.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
 				that.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
                 
+                //once signed in, check if should update backend with offline data
+                that.offline.syncWithBackend();
+                
                 var userX = braid.replace(mainObject['user'][0], ' @w@');
 				var passX = braid.replace(mainObject['user'][1], ' @w@');
-                
-                that.aj("","none",callback,[userX,passX]);
+                if (typeof callback === "function") {
+                    that.aj("","none",callback,[userX,passX]);
+                } else {
+                    that.aj("","none",function(){},[userX,passX]);
+                }
                 
 			}
 		} else {
@@ -520,25 +531,38 @@ function Cenny(mainObject) {
 		
 		offlineQueueObject = JSON.stringify(offlineQueueObject);
 		localStorage.setItem('cennyOfflineUpdate', offlineQueueObject);	
+    
+        that.offline.setDataUsername();
+        
 	};
+    
+    this.offline.setDataUsername = function() { //so that data isn't updated in the wrong user
+        localStorage.setItem('cennyOfflineUsername', that.userObject.user);
+    };
 	
 	this.offline.set = function(object) {
 		object = JSON.stringify(object);
 		localStorage.setItem('cennyOffline', object);	
 		localStorage.setItem('cennyOfflineUpdate', object);
+        
+        that.offline.setDataUsername();
+        
 	};
 	
 	this.offline.syncWithBackend = function() {
 		var isOnline = navigator.onLine;
 		if (isOnline === true) {
 			var offlineObject = localStorage.getItem('cennyOfflineUpdate');
+            var dataUsername = localStorage.getItem('cennyOfflineUsername');//username that set data
 			if (offlineObject === undefined || offlineObject === null) { 
 				offlineObject = {};
 			} else { 
 				offlineObject = JSON.parse(offlineObject);
 			}
-			that.update(offlineObject);
-			localStorage.setItem('cennyOfflineUpdate', JSON.stringify({})); //clear update queue
+            if (dataUsername === that.userObject.user) {
+                that.update(offlineObject);
+                localStorage.setItem('cennyOfflineUpdate', JSON.stringify({})); //clear update queue
+            }
 		}
 
 	};
@@ -569,6 +593,14 @@ function Cenny(mainObject) {
 		
 		return finalObject;
 	};
+    
+    //check if should sync with backend
+    setTimeout(function() {
+        var updateData = JSON.parse(localStorage.getItem('cennyOfflineUpdate'));
+        if (updateData !== {}) {
+            that.offline.syncWithBackend();   
+        }
+    }, 100);
 	
 	this.offline.lastState = navigator.onLine;
 	setInterval(function() {
