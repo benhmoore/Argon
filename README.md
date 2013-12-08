@@ -348,7 +348,7 @@ allowOffline:false //block offline mode syncing
 ```
 
 
-These properties - "read", "write", "emailRead", and "allowOffline" - can be set to ```true``` to allow any user access, ```false``` to block all access, or - with an exeption to "allowOffline" - to an Array of certain users to allow access. "allowOffline" sets whether the current user can sync offline data, this is useful if the user in question is used by more than one client. Individual properties can also be set to allow read access using the same syntax:
+These properties - "read", "write", "emailRead", and "allowOffline" - can be set to ```true``` to allow any user access, ```false``` to block all access, or - with an exception to "allowOffline" - to an Array of certain users to allow access. "allowOffline" sets whether the current user can sync offline data, this is useful if the user in question is used by more than one client. Individual properties can also be set to allow read access using the same syntax:
 ```javascript
 server.user.permissions({
 friendCount:true, //allows anyone to read the 'friendCount' property.
