@@ -145,7 +145,7 @@ This snippet updates ```propertyN``` since it already exists, and adds the hundr
 .watch() watches a client side variable (first parameter) for changes. Once a change is detected, it will be pushed to the backend with the property name provided in the second parameter. 
 
 **!Issue scout**: both the first and second parameters should be strings denoting the property/variable.
-**!Issue scout**: This method can only be called once per instance of the Cenny() Object.
+~~**!Issue scout**: This method can only be called once per instance of the Cenny() Object.~~
 
 ####Syntax:
 ```javascript
@@ -184,7 +184,7 @@ This snippet retrieves the properties already set in the previous section and lo
 
 Once it is called, .modified() continuously watches a provided Array of properties for changes. If a change is detected, the properties are passed to the callback function. **Do not confuse .modified() with .watch() - which is used to watch a LOCAL variable for changes, and then push it to the backend.**
 
-**!Issue scout**: This method can only be called once per instance of the Cenny() Object.
+~~**!Issue scout**: This method can only be called once per instance of the Cenny() Object.~~
 
 ####Syntax: 
 ```javascript
