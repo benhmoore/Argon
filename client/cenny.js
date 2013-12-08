@@ -29,7 +29,6 @@ function Cenny(mainObject) {
 		this.group = {};
 		this.deamon = {};
         this.secure = {};
-		this.isOnline = navigator.onLine;
 	//****
 
 	this.groupObject = {};
@@ -97,6 +96,7 @@ function Cenny(mainObject) {
 	//test if a user's connection speed is sufficient
 	this.plugin.testConnectionSpeed = function(callback,wantedMS) {
 		that.plugin.requestTimes = [];
+		if (navigator.onLine === true) {
 		that.get(function(d){
 			that.get(function(d){
 				that.get(function(d){
@@ -119,7 +119,7 @@ function Cenny(mainObject) {
 				});
 			});
 		});
-		
+		}
 		
 	};
 	
@@ -140,55 +140,61 @@ function Cenny(mainObject) {
     //#######################################################################################################################################################
 	
 	this.aj = function(sendData, action, callback, optionalUserInfo) {
+       	if (navigator.onLine === true) { 
+	        //check username before sending request
+	        if (that.userObject.user.length > 2 && that.userObject.user.length < 25) {
+	            if (/^\w+$/.test(that.userObject.user)) {
+	                if (that.userObject.pass.length > 3) {    
+	                    var xmlhttp;
+	                    xmlhttp=new XMLHttpRequest();
+	                    xmlhttp.onreadystatechange=function(){
+	                        if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+	                            var data = xmlhttp.responseText;
+	                            if (callback !== undefined) {
+	                                callback(JSON.parse(data));	
+	                                
+	                                //update offline stuff
+	                                that.offline.updateOfflineObject();
+	                                
+	                                //plugin info
+	                                that.plugin.stopRequestTimer();
+	                            }		  
+	                        }
+	                             
+	                    };
+	                    xmlhttp.open("POST",that.url,true);
+	                    xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+	                       
+	                        
+	                    if (optionalUserInfo !== undefined) {//used for **.create();**
+	                        var userX = optionalUserInfo[0];
+	                        var passX = optionalUserInfo[1];
+	                        
+	                        
+	                        xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + userX + "&userPass=" + passX);
+	                        
+	                    } else { //otherwise, use global user info
+	                        
+	                        xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass);
+	                    }
+	                    
+	                    
+	                    //plugin info
+	                    that.plugin.startRequestTimer();
+	                    that.plugin.requests++; //add to requests
+	                    //end plugin info
+	                
+	                } else {
+	                    callback({error: 'pass length insufficient.'});   
+	                }
+	            } else {
+	               callback({error: 'username contains invalid characters.'});   
+	            }
+	        } else {
+	            callback({error: 'username length unsuitable.'});   
+	        }
+        } else { //is offline
         
-        //check username before sending request
-        if (that.userObject.user.length > 2 && that.userObject.user.length < 25) {
-            if (/^\w+$/.test(that.userObject.user)) {
-                if (that.userObject.pass.length > 3) {    
-                    var xmlhttp;
-                    xmlhttp=new XMLHttpRequest();
-                    xmlhttp.onreadystatechange=function(){
-                        if (xmlhttp.readyState==4 && xmlhttp.status==200) {
-                            var data = xmlhttp.responseText;
-                            if (callback !== undefined) {
-                                callback(JSON.parse(data));	
-                                
-                                //plugin info
-                                that.plugin.stopRequestTimer();
-                            }		  
-                        }
-                             
-                    };
-                    xmlhttp.open("POST",that.url,true);
-                    xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-                       
-                        
-                    if (optionalUserInfo !== undefined) {//used for **.create();**
-                        var userX = optionalUserInfo[0];
-                        var passX = optionalUserInfo[1];
-                        
-                        
-                        xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + userX + "&userPass=" + passX);
-                        
-                    } else { //otherwise, use global user info
-                        
-                        xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass);
-                    }
-                    
-                    
-                    //plugin info
-                    that.plugin.startRequestTimer();
-                    that.plugin.requests++; //add to requests
-                    //end plugin info
-                
-                } else {
-                    callback({error: 'pass length insufficient.'});   
-                }
-            } else {
-               callback({error: 'username contains invalid characters.'});   
-            }
-        } else {
-            callback({error: 'username length unsuitable.'});   
         }
 	
 	};
@@ -198,41 +204,93 @@ function Cenny(mainObject) {
 	//#######################################################################################################################################################
 	
 	this.get = function(callback, user) { //if user variable is array, it will be treated as property list, if it's a string, it will be treated as a username.
-        
-        if (user === undefined || user === '') {
-            that.aj("&getProperties=all", "get", callback);
-        } else if (user instanceof Array) {
-            var propertyString = "";
-            for (var i = 0; i < user.length;i++) {
-                if (user[i + 1] !== undefined) { //to keep things like "user@n@" <-- (no user next, but still "@n@")
-                propertyString+=user[i] + "@n@";
-                } else {
-                    propertyString+=user[i];  
-                }
-            }
-            that.aj("&getProperties=" + propertyString, "get", callback); 
-        } else {
-        that.aj("&otherUser=" + braid.replace(user, " @w@"), "getOther", callback);
+        var isOnline = navigator.onLine;
+        if (isOnline === true) {
+	        if (user === undefined || user === '') {
+	            that.aj("&getProperties=all", "get", callback);
+	        } else if (user instanceof Array) {
+	            var propertyString = "";
+	            for (var i = 0; i < user.length;i++) {
+	                if (user[i + 1] !== undefined) { //to keep things like "user@n@" <-- (no user next, but still "@n@")
+	                propertyString+=user[i] + "@n@";
+	                } else {
+	                    propertyString+=user[i];  
+	                }
+	            }
+	            that.aj("&getProperties=" + propertyString, "get", callback); 
+	        } else {
+	        	that.aj("&otherUser=" + braid.replace(user, " @w@"), "getOther", callback);
+	        }
+        } else if (isOnline === false) { //user offline
+        	
+        	var offlineObject = that.offline.getOfflineObject();
+        	if (user === undefined || user === '') {
+        	    callback(offlineObject);
+        	} else if (user instanceof Array) { //specific properties
+        		var finalObject = {};
+        	    for (var i = 0; i < user.length;i++) {
+        	        for (key in offlineObject) {
+        	        	if (user[i] === key) {
+        	        		finalObject[key] = offlineObject[key];
+        	        	}
+        	        }
+        	    }
+        	    callback(finalObject);
+        	} else {//inform that getting data from another user is not possible when offline
+        		callback({error:'getting properties from user while offline is not possible'});
+        	}
         }
 	};
 	
 	this.set = function(object, user, callback) {
-        if (object instanceof Object) {
-            if (user === undefined || user === '') {
-                that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "set", callback);
-            } else if (typeof user === "function") { //for backwards compat
-                that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "set", user);  
-            } else {
-                that.aj("&otherUser=" + braid.replace(user, " @w@") + "&data=" + encodeURIComponent(JSON.stringify(object)),"setOther",callback);
-            }
+		var isOnline = navigator.onLine;
+		if (isOnline === true) {
+	        if (object instanceof Object) {
+	        
+	        	object['cennyJS'] = true; //for smashing bugs
+	        	
+	            if (user === undefined || user === '') {
+	                that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "set", callback);
+	            } else if (typeof user === "function") { //for backwards compat
+	                that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "set", user);  
+	            } else {
+	                that.aj("&otherUser=" + braid.replace(user, " @w@") + "&data=" + encodeURIComponent(JSON.stringify(object)),"setOther",callback);
+	            }
+	        }
+	        
+        } else if (isOnline === false) { //user offline
+        	if (object instanceof Object) {
+        		
+        		object['cennyJS'] = true; //for smashing bugs
+        	
+        	    if (user === undefined || user === '') {
+        	        that.offline.set(object); 
+        	    } else if (typeof user === "function") { //for backwards compat
+        	        that.offline.set(object);
+        	        user("updated (offline)");   
+        	    }
+        	}
         }
 	};
 	
 	this.update = function(object, user, callback) {
-		if (user === undefined || user === "" || typeof user === "function") {
-			that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "update", user);
-		} else {
-			that.aj("&otherUser=" + braid.replace(user, " @w@") + "&data=" + encodeURIComponent(JSON.stringify(object)), "updateOther", callback);
+		var isOnline = navigator.onLine;
+		if (isOnline === true) {
+			
+			object['cennyJS'] = true; //for smashing bugs
+		
+			if (user === undefined || user === "" || typeof user === "function") {
+				that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "update", user);
+			} else {
+				that.aj("&otherUser=" + braid.replace(user, " @w@") + "&data=" + encodeURIComponent(JSON.stringify(object)), "updateOther", callback);
+			}
+		} else if (isOnline === false) {//offline
+		
+			object['cennyJS'] = true; //for smashing bugs
+		
+			if (user === undefined || user === "" || typeof user === "function") {
+				that.offline.update(object);
+			}
 		}
 	};
 	
@@ -430,10 +488,124 @@ function Cenny(mainObject) {
         callback(output);
         });
     };
-   
-   
+    
    
 	//END USER STUFF
+	
+	
+	
+	//START OFFLINE AWESOMENESS - - - - - - - - 
+	
+	this.offline = {};
+	this.offline.update = function(object) {
+		var offlineQueueObject = localStorage.getItem('cennyOfflineUpdate');
+		if (offlineQueueObject === undefined || offlineQueueObject === null) { 
+			offlineQueueObject = {};
+		} else { 
+			offlineQueueObject = JSON.parse(offlineQueueObject);
+		}
+		
+		for (key in object) {
+			if (key === "DELETE") {
+				var offlineObject = JSON.parse(localStorage.getItem('cennyOffline'));
+				for (var i = 0; i < object[key].length; i++) {
+					delete offlineQueueObject[object[key][i]];
+					delete offlineObject[object[key][i]];
+				}
+				localStorage.setItem('cennyOffline',JSON.stringify(offlineObject));
+			} else {
+				offlineQueueObject[key] = object[key];
+			}
+		}
+		
+		offlineQueueObject = JSON.stringify(offlineQueueObject);
+		localStorage.setItem('cennyOfflineUpdate', offlineQueueObject);	
+	};
+	
+	this.offline.set = function(object) {
+		object = JSON.stringify(object);
+		localStorage.setItem('cennyOffline', object);	
+		localStorage.setItem('cennyOfflineUpdate', object);
+	};
+	
+	this.offline.syncWithBackend = function() {
+		var isOnline = navigator.onLine;
+		if (isOnline === true) {
+			var offlineObject = localStorage.getItem('cennyOfflineUpdate');
+			if (offlineObject === undefined || offlineObject === null) { 
+				offlineObject = {};
+			} else { 
+				offlineObject = JSON.parse(offlineObject);
+			}
+			that.update(offlineObject);
+			localStorage.setItem('cennyOfflineUpdate', JSON.stringify({})); //clear update queue
+		}
+
+	};
+	
+	this.offline.getOfflineObject = function() { //used for get / modified
+		var offlineObjectUpdate = localStorage.getItem('cennyOfflineUpdate');
+		console.log(offlineObjectUpdate);
+		var offlineObject = localStorage.getItem('cennyOffline');
+		if (offlineObject === undefined || offlineObject === null) { 
+			offlineObject = {};
+		} else { 
+			offlineObject = JSON.parse(offlineObject);	
+		}
+		if (offlineObjectUpdate === undefined || offlineObjectUpdate === null) { 
+			offlineObjectUpdate = {};
+		} else { 
+			offlineObjectUpdate = JSON.parse(offlineObjectUpdate);	
+		}
+		
+		var finalObject = {};
+		
+		for (key in offlineObject) {
+			finalObject[key] = offlineObject[key];
+		}
+		for (key in offlineObjectUpdate) {
+			finalObject[key] = offlineObjectUpdate[key];
+		}
+		
+		return finalObject;
+	};
+	
+	this.offline.lastState = navigator.onLine;
+	setInterval(function() {
+		if (navigator.onLine !== that.offline.lastState) {
+			if (navigator.onLine === true) {
+				console.log("gracefully came back online");
+				that.offline.syncWithBackend();
+			}
+			that.offline.lastState = navigator.onLine;
+		}
+	
+	},300);
+	
+	this.offline.updateOfflineObject = function() {
+		var isOnline = navigator.onLine;
+		if (isOnline === true) {
+			that.get(function(d) {
+				var offlineObject = d;
+				localStorage.setItem('cennyOffline', JSON.stringify(offlineObject));
+			});
+		} else {
+			//user offline
+		}
+	};
+	
+	//start offline updating
+	setTimeout(this.offline.updateOfflineObject, 1000);
+	
+	this.offline.updateOfflineInterval = setInterval(function(){
+		that.offline.updateOfflineObject();
+	},7000); //updates offline object every 8 sec
+	
+	
+	//END OFFLINE AWESOMENESS - - - - - - - - 
+	
+	
+	
 	
 	this.modified = function(callback, pArray) {
 		setInterval(function() {
@@ -462,16 +634,6 @@ function Cenny(mainObject) {
     
 	var that = this;
 	
-    //check if client is online.
-	setInterval(function() {
-        
-        if (navigator.onLine) {
-            that.isOnline = true;
-        } else {
-            that.isOnline = false;
-        }
-        
-        
-    }, 300);
+   
 
 };
