@@ -400,7 +400,7 @@ function Cenny(mainObject) {
         var propertyObj = {};
         for (key in permObj) {
             
-            if (key !== "read" && key !== "write" && key !== "emailRead") {
+            if (key !== "read" && key !== "write" && key !== "emailRead" && key !== "allowOffline") {
                 var propertyString = "";
                 if (permObj[key] instanceof Array) {
                     for (var i = 0; i < permObj[key].length; i++) {
