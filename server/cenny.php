@@ -415,15 +415,20 @@
 				$read = $_POST['read'];
 				$write = $_POST['write'];
 				$emailRead = $_POST['emailRead'];
+				$offlinePerm = $_POST['offlinePerm'];
 				$propertyObj = $_POST['propertyObj']; //for specific properties
+				
 				if ($read !== "DoNotEdit") {
-				saveFile("$directory/$groupName/$userName/read.txt", $read);
+					saveFile("$directory/$groupName/$userName/read.txt", $read);
 				}
 				if ($write !== "DoNotEdit") {
-				saveFile("$directory/$groupName/$userName/write.txt", $write);
+					saveFile("$directory/$groupName/$userName/write.txt", $write);
 				}
 				if ($emailRead !== "DoNotEdit") {
-				saveFile("$directory/$groupName/$userName/emailRead.txt", $emailRead);
+					saveFile("$directory/$groupName/$userName/emailRead.txt", $emailRead);
+				}
+				if ($offlinePerm !== "DoNotEdit") {
+					saveFile("$directory/$groupName/$userName/offlinePerm.txt", $offlinePerm);
 				}
 				if ($propertyObj !== "DoNotEdit") {//updates permissions on properties
 					//clean up property obj
@@ -457,6 +462,9 @@
 			}
 			
 		
+		} else if ($action === "getOfflinePerm") {
+			$openedPerm = openFile("$directory/$groupName/$userName/offlinePerm.txt",50000);
+			echo json_encode($openedPerm);
 		} else if ($action === "removeUser") {
 		
 			//remove user directory

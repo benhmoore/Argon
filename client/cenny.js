@@ -325,6 +325,7 @@ function Cenny(mainObject) {
         var read = permObj.read;
         var write = permObj.write;
         var emailRead = permObj.emailRead;
+        var offlinePerm = permObj.allowOffline;
         var readString = "";
         var writeString = "";
         var emailReadString = "";
@@ -385,6 +386,17 @@ function Cenny(mainObject) {
         } else {
             emailReadString = "allowAll";
         }
+        
+        if (offlinePerm === true) {
+            offlinePerm = "allowAll";
+        } else if (offlinePerm === false) {
+            offlinePerm = "blockAll";
+        } else if (offlinePerm === undefined) {
+            offlinePerm = "DoNotEdit";  
+        } else {
+            offlinePerm = "allowAll";
+        }
+        
         var propertyObj = {};
         for (key in permObj) {
             
@@ -413,7 +425,7 @@ function Cenny(mainObject) {
             propertyObj = "DoNotEdit";   
         }
         
-        that.aj('&write=' + writeString + '&read=' + readString + '&emailRead=' + emailReadString + '&propertyObj=' + JSON.stringify(propertyObj),"permissions", callback);
+        that.aj('&write=' + writeString + '&read=' + readString + '&offlinePerm=' + offlinePerm + '&emailRead=' + emailReadString + '&propertyObj=' + JSON.stringify(propertyObj),"permissions", callback);
     };
 	
 	this.user.signin = function(mainObject,callback) {
@@ -550,21 +562,27 @@ function Cenny(mainObject) {
 	};
 	
 	this.offline.syncWithBackend = function() {
-		var isOnline = navigator.onLine;
-		if (isOnline === true) {
-			var offlineObject = localStorage.getItem('cennyOfflineUpdate');
-            var dataUsername = localStorage.getItem('cennyOfflineUsername');//username that set data
-			if (offlineObject === undefined || offlineObject === null) { 
-				offlineObject = {};
-			} else { 
-				offlineObject = JSON.parse(offlineObject);
+		that.aj("", "getOfflinePerm", function(d){
+			if (d !== "blockAll") {
+				var isOnline = navigator.onLine;
+				if (isOnline === true) {
+					var offlineObject = localStorage.getItem('cennyOfflineUpdate');
+				    var dataUsername = localStorage.getItem('cennyOfflineUsername');//username that set data
+					if (offlineObject === undefined || offlineObject === null) { 
+						offlineObject = {};
+					} else { 
+						offlineObject = JSON.parse(offlineObject);
+					}
+				    if (dataUsername === that.userObject.user) {
+				        that.update(offlineObject);
+				        localStorage.setItem('cennyOfflineUpdate', JSON.stringify({})); //clear update queue
+				    }
+				}
+			} else {
+				localStorage.setItem('cennyOfflineUpdate', JSON.stringify({})); //clear update queue
 			}
-            if (dataUsername === that.userObject.user) {
-                that.update(offlineObject);
-                localStorage.setItem('cennyOfflineUpdate', JSON.stringify({})); //clear update queue
-            }
-		}
-
+			
+		});
 	};
 	
 	this.offline.getOfflineObject = function() { //used for get / modified
