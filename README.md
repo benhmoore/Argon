@@ -46,7 +46,9 @@ Cenny.js was built to work with your web app, it is extremely flexible and works
 
 __
 
-9. Contributors & Credits
+9. Security Measures
+
+10. Contributors & Credits
 
 
 ##Setup & Stuff You Should Know 
@@ -478,6 +480,22 @@ Set user permissions.
 fresh.user.permissions( {write:['user1','etc'], read:['user54','ben'], emailRead:false, propertyX:true} );
 ```
 *"write" / "read" / "emailRead" / and other properties can be set to true (allows all users), false (blocks all users), or an array of specific users.*
+
+
+##Security Measures
+
+###Cenny.js was from the ground up to be secure. Many measures are taken to prevent attacks like *cross-site request forgery*, amongst others. All these precautions are set by default, however, if wanted, can be removed.
+
+
+####1. ALL requests must be signed with an authenticated user, a client cannot update, set, or even receive data from Cenny.js without being authenticated.
+
+
+####2. ALL requests must come from the same domain. (**Under some circumstances, there may be a need for cross-site scripting. For instance, the examples included with this documentation use a version of cenny.php that allows other locations access**).
+
+
+####3. ALL requests must pass through an authentication "barrier", NO actions on the server are executed, or loaded, before the user and group is authenticated.
+
+
 
 ___
 
