@@ -1,6 +1,11 @@
 #Cenny.js | The plug 'n play backend for web apps.
 Building a chat web app? Use Cenny.js to store, send, and receive messages in real-time. Building a multiplayer game? Cenny.js can keep player positions synced in real-time. 
 
+###Introducing Offline Mode
+
+If a user goes offline while using your web app, dont' worry. Any actions they take while offline will be gracefully synced when they get back online. And while they're offline, the majority of Cenny.js features will function normally (like .set(), .update(), .get(), etc). Best of all, you don't have to add a single line of code, all this happens automatically.
+
+
 ##Simple demo: http://byteaspect.com/cidar
 
 Cenny.js was built to work with your web app, it is extremely flexible and works with almost any setup. Everything is done through a single JS script. No Javascript dependancies, just two files: Cenny.js, and a PHP file for the server. Oh, and no database required. Cenny.js is proudly file based, no specials needed.
