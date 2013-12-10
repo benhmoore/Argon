@@ -31,21 +31,6 @@
 	
 	}
 	
-	
-	function genToken()
-	{
-		$length=56;
-	    $chars ="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890#$%";//length:36
-	    $final_rand='';
-	    for($i=0;$i<$length; $i++)
-	    {
-	        $final_rand .= $chars[ rand(0,strlen($chars)-1)];
-	 
-	    }
-	    return $final_rand;
-	}
-	
-	
 	function delete_files($dir) {
 	  if (is_dir($dir)) {
 	    $objects = scandir($dir);
@@ -127,17 +112,10 @@
 	
 	if (file_exists("$directory/$groupName/$userName/")) {
 		$orginalPass = openFile("$directory/$groupName/$userName/pass.txt", 10000);
-		$token = openFile("$directory/$groupName/$userName/token.txt", 10000);
 		if ($orginalPass === $userPass) {
 			$user_loggedin = true;
-		} else if ($token !== ""){
-			if ($token === $userPass) {
-				$user_loggedin = true;
-			} else {
-				echo '{"error":"user incorrect 2"}';
-			}
 		} else {
-			echo '{"error":"user incorrect"}';
+			echo '{"error":"user pass incorrect"}';
 		}
 		
 	} else {
@@ -200,13 +178,6 @@
   				
             }
             
-		} else if ($action === "generateAuthToken") {
-			if ($userName !== "default") {
-				$token = genToken();
-				saveFile("$directory/$groupName/$userName/token.txt", $token);
-				echo json_encode($token);
-			}
-		
 		} else if ($action === "changePass") {
 			if ($userName !== "default") {
 				$newPass = $_POST['newPass'];

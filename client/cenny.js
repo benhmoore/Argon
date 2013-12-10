@@ -26,8 +26,6 @@ function Cenny(mainObject) {
 	
 	//****
 		this.user = {};
-		this.user.clientID = Math.floor(Math.random() * 32973);
-		
 		this.group = {};
 		this.deamon = {};
         this.secure = {};
@@ -44,28 +42,6 @@ function Cenny(mainObject) {
 	//user definitions
 	this.userObject.user = "default";
 	this.userObject.pass = "default";
-	
-	
-	
-	//scan for new tokens (auth info) on this computer
-	this.user.scanForToken = function() {//look for token in another window
-		var lastTokenMeta = [];
-		setInterval(function() {
-			var token = localStorage.getItem('cennyToken');
-			token = JSON.parse(token);
-			if (token !== null && token !== undefined && token !== []) {
-				if (token[2] === that.userObject.user) {
-					if (lastTokenMeta !== token[0]) {
-					if (token[1] !== that.user.clientID) {//if this client did not set token
-						that.userObject.pass = token[0];
-						lastTokenMeta = token[0];
-					}
-					}
-				}
-			}
-		}, 500);
-	};
-	this.user.scanForToken();
 	
 
     //url to cenny.php (preset until set)
@@ -438,15 +414,12 @@ function Cenny(mainObject) {
         
         that.aj('&write=' + writeString + '&read=' + readString + '&offlinePerm=' + offlinePerm + '&emailRead=' + emailReadString + '&propertyObj=' + JSON.stringify(propertyObj),"permissions", callback);
     };
-    
-    
-    this.user.password = function(newPassword,callback){
-    	that.aj("&newPassword="+braid.replace(newPassword,' @w@'),"newPass",callback);
-    };
 	
 	this.user.signin = function(mainObject,callback) {
 		if (mainObject instanceof Object) {
 			if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
+				that.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
+				that.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
                 
                 //once signed in, check if should update backend with offline data
                 that.offline.syncWithBackend();
@@ -454,29 +427,9 @@ function Cenny(mainObject) {
                 var userX = braid.replace(mainObject['user'][0], ' @w@');
 				var passX = braid.replace(mainObject['user'][1], ' @w@');
                 if (typeof callback === "function") {
-                    that.aj("","generateAuthToken",function(d){
-                    
-                    	//set local user information
-                    	that.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
-                    	that.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
-                    	
-                    	that.userObject.pass = d; //set pass to token
-                    	localStorage.setItem('cennyToken',JSON.stringify([d,that.user.clientID,that.userObject.user])); //set token in localStorage
-
-                    	callback(d); //call provided callback
-                    },[userX,passX]);
-                    
+                    that.aj("","none",callback,[userX,passX]);
                 } else {
-                   that.aj("","generateAuthToken",function(d){
-                   		
-                   		//set local user information
-                   		that.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
-                   		that.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
-                   		
-                   		that.userObject.pass = d; //set pass to token
-                   		localStorage.setItem('cennyToken',JSON.stringify([d,that.user.clientID,that.userObject.user])); //set token in localStorage
-
-                   },[userX,passX]);
+                    that.aj("","none",function(){},[userX,passX]);
                 }
                 
 			}
@@ -486,10 +439,13 @@ function Cenny(mainObject) {
 
 	};
     
+    this.user.password = function(newPassword,callback){
+    	that.aj("&newPassword="+braid.replace(newPassword,' @w@'),"newPass",callback);
+    };
+    
     this.user.signout = function() { //signs into default user.
         that.userObject.pass = "default";
         that.userObject.user = "default";
-        that.aj("","generateAuthToken",function(d){});
     };
     
     this.user.create = function(mainObject, callback) {
