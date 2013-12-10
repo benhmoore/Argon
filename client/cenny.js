@@ -299,7 +299,6 @@ function Cenny(mainObject) {
 		}
 	};
 	
-	
 	//USER STUFF
 	
 	this.user.remove = function(callback) {
@@ -666,7 +665,7 @@ function Cenny(mainObject) {
 					lastData = JSON.stringify(output);
 				}
 			},pArray);
-		}, 450);
+		}, 400);
 	}
 	
 	
