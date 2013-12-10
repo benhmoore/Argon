@@ -495,13 +495,11 @@ fresh.user.permissions( {write:['user1','etc'], read:['user54','ben'], emailRead
 
 ####1. ALL requests must be signed with an authenticated user, a client cannot update, set, or even receive data from Cenny.js without being authenticated.
 
-####2. Whenever a user signs in, a new auth token is generated. If the user signs in on another computer, or signs out, the token becomes invalid and the user must sign in again. This token keeps Cenny.js from having to send the user's password with each request. 
+
+####2. ALL requests must come from the same domain. (**Under some circumstances, there may be a need for cross-site scripting. For instance, the examples included with this documentation use a version of cenny.php that allows other locations access**).
 
 
-####3. ALL requests must come from the same domain. (**Under some circumstances, there may be a need for cross-site scripting. For instance, the examples included with this documentation use a version of cenny.php that allows other locations access**).
-
-
-####4. ALL requests must pass through an authentication "barrier", NO actions on the server are executed, or loaded, before the user and group is authenticated.
+####3. ALL requests must pass through an authentication "barrier", NO actions on the server are executed, or loaded, before the user and group is authenticated.
 
 
 
