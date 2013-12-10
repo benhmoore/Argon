@@ -140,20 +140,6 @@ server.update( {DELETE:['property','two','etc']} ); //deletes properties 'proper
 This snippet updates ```propertyN``` since it already exists, and adds the hundred property to the user's main Object. The property ```sixty``` remains the same from the previous snippet. 
 
 
-###.watch()
-
-.watch() watches a client side variable (first parameter) for changes. Once a change is detected, it will be pushed to the backend with the property name provided in the second parameter. 
-
-**!Issue scout**: both the first and second parameters should be strings denoting the property/variable.
-~~**!Issue scout**: This method can only be called once per instance of the Cenny() Object.~~
-
-####Syntax:
-```javascript
-server.watch('localVariable','propertyNameToBe'); //if a change to 'localVariable' is detected, the property 'propertyNameToBe' will be updated with 'localVariable's data in the backend.
-```
-
-
-
 ##Getting & Watching Properties
 
 Existing properties can be retrieved from Cenny.js using the method *.get()*, or watched for changes using the method *.modified()*.
@@ -182,7 +168,7 @@ This snippet retrieves the properties already set in the previous section and lo
 
 ###.modified()
 
-Once it is called, .modified() continuously watches a provided Array of properties for changes. If a change is detected, the properties are passed to the callback function. **Do not confuse .modified() with .watch() - which is used to watch a LOCAL variable for changes, and then push it to the backend.**
+Once it is called, .modified() continuously watches a provided Array of properties for changes. If a change is detected, the properties are passed to the callback function.
 
 ~~**!Issue scout**: This method can only be called once per instance of the Cenny() Object.~~
 
@@ -449,11 +435,6 @@ x.update( {property: null, DELETE: ['property']}, 'username' );
 Watch backend properties.
 ```javascript
 x.modified( function(d) {}, ['property1', '2', 'three'] );
-```
-
-Watch local variables / push to backend.
-```javascript
-x.watch('variableName','backendPropertyName');
 ```
 
 Remove user.
