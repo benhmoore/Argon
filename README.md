@@ -8,6 +8,18 @@ If a user goes offline while using your web app, dont' worry. Any actions they t
 
 ##Simple demo: http://byteaspect.com/cidar
 
+___
+
+###Security
+
+Cenny.js was build from the ground up to be secure. All requests to the server must be authenticated, timely, and validated before any action is taken. All requests must pass through an authentication barrier before any code is executed. 
+
+Building a secure platform using Javascript is tough, if not impossible. Cenny.js gets around this by doing a second round of validation, authentication, and scanning on the server, making it impossible for an invalid request to infiltrate the backend. 
+
+Best of all, because Cenny.js is an open source project, if an issue ever arises, there's a community that can fix it.
+
+___
+
 Cenny.js was built to work with your web app, it is extremely flexible and works with almost any setup. Everything is done through a single JS script. No Javascript dependancies, just two files: Cenny.js, and a PHP file for the server. Oh, and no database required. Cenny.js is proudly file based, no specials needed.
 
 ###**Phrases used in this documentation**:
