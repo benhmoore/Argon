@@ -191,7 +191,7 @@ This snippet continuously watches the properties ```sixty``` and ```propertyN```
 
 ##Users & Their Methods
 
-Cenny.js provides many methods for user operations: .create(), .signin(), .signout(), .password(), .info(), .setEmail(), .getEmail(), .remove(), and .list().  These methods are located under the ```.user``` object.
+Cenny.js provides many methods for user operations: .create(), .signin(), .signout(), .password(), .info(), .setEmail(), .getEmail(), and .remove(). These methods are located under the ```.user``` object.
 
 
 ###.user.create()
@@ -311,21 +311,6 @@ This snippet passes the email of the current user to the callback function, if i
 ```javascript
 server.user.remove();
 ```  
-
-
-###.user.list()
-
-.user.list() passes an Array of every user's username in the current group to the callback function.
-
-####Syntax:
-```javascript
-server.user.list(callback);
-```  
-
-####Simulated output:
-```javascript
-['username','default', etc]
-```
 
 
 ##Permissions
@@ -469,11 +454,6 @@ x.user.setEmail( 'email' );
 Get user email (if allowed).
 ```javascript
 x.user.getEmail( callback, 'username' );
-```
-
-List all usernames.
-```javascript
-x.user.list( callback );
 ```
 
 Signout of current user.
