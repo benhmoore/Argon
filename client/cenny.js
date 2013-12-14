@@ -26,8 +26,9 @@ function Cenny(mainObject) {
 	
 	//****
 		this.user = {};
+		this.user.clientID = Math.floor(Math.random() * 32973);
+		
 		this.group = {};
-		this.deamon = {};
         this.secure = {};
 	//****
 
@@ -42,6 +43,30 @@ function Cenny(mainObject) {
 	//user definitions
 	this.userObject.user = "default";
 	this.userObject.pass = "default";
+	
+	
+	//scan for new tokens (auth info) on this computer
+	this.user.scanForToken = function() {//look for token in another window
+		var lastTokenMeta = [];
+		setInterval(function() {
+			var token = localStorage.getItem('cennyToken');
+			token = JSON.parse(token);
+			if (token !== null && token !== undefined && token !== []) {
+				if (token[2] === that.userObject.user) {
+					if (lastTokenMeta !== token[0]) {
+					if (token[1] !== that.user.clientID) {//if this client did not set token
+                        if (that.userObject.pass !== token[0]) {
+				            that.userObject.pass = token[0];
+                            lastTokenMeta = token[0];
+                        }
+						
+					}
+					}
+				}
+			}
+		}, 500);
+	};
+	this.user.scanForToken();
 	
 
     //url to cenny.php (preset until set)
@@ -227,7 +252,6 @@ function Cenny(mainObject) {
 	        	that.aj("&otherUser=" + braid.replace(user, " @w@"), "getOther", callback);
 	        }
         } else if (isOnline === false) { //user offline
-        	
         	var offlineObject = that.offline.getOfflineObject();
         	if (user === undefined || user === '') {
         	    callback(offlineObject);
@@ -251,9 +275,7 @@ function Cenny(mainObject) {
 		var isOnline = navigator.onLine;
 		if (isOnline === true) {
 	        if (object instanceof Object) {
-	        
 	        	object['cennyJS'] = true; //for smashing bugs
-	        	
 	            if (user === undefined || user === '') {
 	                that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "set", callback);
 	            } else if (typeof user === "function") { //for backwards compat
@@ -281,23 +303,20 @@ function Cenny(mainObject) {
 	this.update = function(object, user, callback) {
 		var isOnline = navigator.onLine;
 		if (isOnline === true) {
-			
 			object['cennyJS'] = true; //for smashing bugs
-		
 			if (user === undefined || user === "" || typeof user === "function") {
 				that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "update", user);
 			} else {
 				that.aj("&otherUser=" + braid.replace(user, " @w@") + "&data=" + encodeURIComponent(JSON.stringify(object)), "updateOther", callback);
 			}
 		} else if (isOnline === false) {//offline
-		
 			object['cennyJS'] = true; //for smashing bugs
-		
 			if (user === undefined || user === "" || typeof user === "function") {
 				that.offline.update(object);
 			}
 		}
 	};
+	
 	
 	//USER STUFF
 	
@@ -413,12 +432,15 @@ function Cenny(mainObject) {
         
         that.aj('&write=' + writeString + '&read=' + readString + '&offlinePerm=' + offlinePerm + '&emailRead=' + emailReadString + '&propertyObj=' + JSON.stringify(propertyObj),"permissions", callback);
     };
+    
+    
+    this.user.password = function(newPassword,callback){
+    	that.aj("&newPassword="+braid.replace(newPassword,' @w@'),"newPass",callback);
+    };
 	
 	this.user.signin = function(mainObject,callback) {
 		if (mainObject instanceof Object) {
 			if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
-				that.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
-				that.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
                 
                 //once signed in, check if should update backend with offline data
                 that.offline.syncWithBackend();
@@ -426,9 +448,29 @@ function Cenny(mainObject) {
                 var userX = braid.replace(mainObject['user'][0], ' @w@');
 				var passX = braid.replace(mainObject['user'][1], ' @w@');
                 if (typeof callback === "function") {
-                    that.aj("","none",callback,[userX,passX]);
+                    that.aj("","generateAuthToken",function(d){
+                    
+                    	//set local user information
+                    	that.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
+                    	that.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
+                    	
+                    	that.userObject.pass = d; //set pass to token
+                    	localStorage.setItem('cennyToken',JSON.stringify([d,that.user.clientID,that.userObject.user])); //set token in localStorage
+
+                    	callback(d); //call provided callback
+                    },[userX,passX]);
+                    
                 } else {
-                    that.aj("","none",function(){},[userX,passX]);
+                   that.aj("","generateAuthToken",function(d){
+                   		
+                   		//set local user information
+                   		that.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
+                   		that.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
+                   		
+                   		that.userObject.pass = d; //set pass to token
+                   		localStorage.setItem('cennyToken',JSON.stringify([d,that.user.clientID,that.userObject.user])); //set token in localStorage
+
+                   },[userX,passX]);
                 }
                 
 			}
@@ -438,13 +480,10 @@ function Cenny(mainObject) {
 
 	};
     
-    this.user.password = function(newPassword,callback){
-    	that.aj("&newPassword="+braid.replace(newPassword,' @w@'),"newPass",callback);
-    };
-    
     this.user.signout = function() { //signs into default user.
         that.userObject.pass = "default";
         that.userObject.user = "default";
+        that.aj("","generateAuthToken",function(d){});
     };
     
     this.user.create = function(mainObject, callback) {
@@ -487,28 +526,13 @@ function Cenny(mainObject) {
             that.aj("&otherUser=" + username, "getEmailOther", callback); 
         }
     };
-	
-	
-	 //returns list users.
-	 
-    this.user.list = function(callback) {
-        that.aj("","listUsers", function(d){
-        
-        d = d.split("@SEPCENNYUSER@");
-        var output = [];
-        for (var i = 0; i < d.length - 1; i++) {
-        	output.push(d[i]);
-        }
-        callback(output);
-        });
-    };
     
    
 	//END USER STUFF
 	
 	
 	
-	//START OFFLINE AWESOMENESS - - - - - - - - 
+	//START OFFLINE - - - - - - - - 
 	
 	this.offline = {};
 	this.offline.update = function(object) {
@@ -642,7 +666,7 @@ function Cenny(mainObject) {
 	},7000); //updates offline object every 8 sec
 	
 	
-	//END OFFLINE AWESOMENESS - - - - - - - - 
+	//END OFFLINE - - - - - - - - 
 	
 	function watchBackendProperty(callback, pArray) {
 		var lastData = "";
@@ -665,7 +689,7 @@ function Cenny(mainObject) {
 					lastData = JSON.stringify(output);
 				}
 			},pArray);
-		}, 400);
+		}, 450);
 	}
 	
 	

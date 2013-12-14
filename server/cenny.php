@@ -1,4 +1,4 @@
-<?php
+<?php 
 	
 	/* * * * * * * * * * * * * * * * * *
 	 *
@@ -30,6 +30,21 @@
 	
 	
 	}
+	
+	
+	function genToken()
+	{
+		$length=56;
+	    $chars ="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890#$%";//length:36
+	    $final_rand='';
+	    for($i=0;$i<$length; $i++)
+	    {
+	        $final_rand .= $chars[ rand(0,strlen($chars)-1)];
+	 
+	    }
+	    return $final_rand;
+	}
+	
 	
 	function delete_files($dir) {
 	  if (is_dir($dir)) {
@@ -77,7 +92,7 @@
 	$groupName = $_POST['groupName'];
 	$groupKey = $_POST['groupKey'];
 	
-	$userName = $_POST['userName'];
+	$userName =  $_POST['userName'];
 	$userPass = $_POST['userPass'];
     
     
@@ -92,9 +107,66 @@
 	//############################################################### GROUP / USER ##########################################################################
 	//#######################################################################################################################################################
 	
+	
+	//make sure groupName & userName are valid
+	$userNameValid = true;
+	$groupNameValid = true;
+	if (strpos($userName, '/') !== false) {
+		$userNameValid = false;
+	} else if (strpos($userName, '.') !== false) {
+		$userNameValid = false;
+	} else if (strpos($userName, '?') !== false) {
+		$userNameValid = false;
+	} else if (strpos($userName, '!') !== false) {
+		$userNameValid = false;
+	} else if (strpos($userName, '#') !== false) {
+		$userNameValid = false;
+	} else if (strpos($userName, '$') !== false) {
+		$userNameValid = false;
+	} else if (strpos($userName, '<') !== false) {
+		$userNameValid = false;
+	} else if (strpos($userName, '>') !== false) {
+		$userNameValid = false;
+	} else if (strpos($userName, '%') !== false) {
+		$userNameValid = false;
+	} else if (strpos($userName, '*') !== false) {
+		$userNameValid = false;
+	} else if (strpos($userName, ' ') !== false) {
+		$userNameValid = false;
+	}
+	
+	if (strpos($groupName, '/') !== false) {
+		$groupNameValid = false;
+	} else if (strpos($groupName, '.') !== false) {
+		$groupNameValid = false;
+	} else if (strpos($groupName, '?') !== false) {
+		$groupNameValid = false;
+	} else if (strpos($groupName, '!') !== false) {
+		$groupNameValid = false;
+	} else if (strpos($groupName, '#') !== false) {
+		$groupNameValid = false;
+	} else if (strpos($groupName, '$') !== false) {
+		$groupNameValid = false;
+	} else if (strpos($groupName, '<') !== false) {
+		$groupNameValid = false;
+	} else if (strpos($groupName, '>') !== false) {
+		$groupNameValid = false;
+	} else if (strpos($groupName, '%') !== false) {
+		$groupNameValid = false;
+	} else if (strpos($groupName, '*') !== false) {
+		$groupNameValid = false;
+	} else if (strpos($groupName, ' ') !== false) {
+		$groupNameValid = false;
+	}
+	
+	
+	//continue only if username / groupname valid
+	if ($groupNameValid === true && $userNameValid === true) {
+	
 	// groups
 	
 	if (file_exists("$directory/$groupName/")) {
+
 		$orginalKey = openFile("$directory/$groupName/key.txt", 10000);
 		if ($orginalKey === $groupKey) {
 			$group_loggedin = true;
@@ -112,10 +184,16 @@
 	
 	if (file_exists("$directory/$groupName/$userName/")) {
 		$orginalPass = openFile("$directory/$groupName/$userName/pass.txt", 10000);
+		$token = openFile("$directory/$groupName/$userName/token.txt", 10000);
 		if ($orginalPass === $userPass) {
-			$user_loggedin = true;
+			$user_loggedin = true;		} else if ($token !== ""){
+			if ($token === $userPass) {
+				$user_loggedin = true;
+			} else {
+				echo '{"error":"user incorrect"}';
+			}
 		} else {
-			echo '{"error":"user pass incorrect"}';
+			echo '{"error":"user incorrect"}';
 		}
 		
 	} else {
@@ -178,6 +256,13 @@
   				
             }
             
+		} else if ($action === "generateAuthToken") {
+			if ($userName !== "default") {
+				$token = genToken();
+				saveFile("$directory/$groupName/$userName/token.txt", $token);
+				echo json_encode($token);
+			}
+		
 		} else if ($action === "changePass") {
 			if ($userName !== "default") {
 				$newPass = $_POST['newPass'];
@@ -323,40 +408,32 @@
 					$outputData = array();
 					$markedFDProps = array();
 		
-					foreach($clientData as $cpName => $cpData) {
-						if ($cpName === "DELETE") {
-							for($x=0;$x<count($cpData);$x++) {
-  								array_push($markedFDProps, $cpData[$x]);
-  							}
- 						}
+					
+					foreach($openedData as $opName => $opData) {
+			
+					//check if should be deleted
+					$shouldBeDeleted = false;
+					foreach($clientData as $cpName => $cpData) {	
+					if ($cpName === "DELETE") {
+						for ($i = 0; $i < count($cpData); $i++) {//go though 'DELETE' array
+							if ($cpData[$i]===$opName) { //mark to be deleted
+									$shouldBeDeleted = true;
+							}
+						}//end 'DELETE' array search
 					}
+					}//end $clientData foreach
+					if ($souldBeDeleted === false) { //only push to output object if it should stay
+						$outputData[$opName] = $opData;
+					}
+					} //end $openData foreach
 					
-					foreach ($openedData as $opName => $opData) {
-					foreach ($clientData as $cpName => $cpData) {
-  						if ($opName === $cpName) {
-  							if ($cpName !== "DELETE") {//do not push DELETE property to main Object
-  								$outputData[$cpName] = $cpData;
-  							}
-  						} else {
-  							if ($cpName !== "DELETE") {//do not push DELETE property to main Object
-  								$outputData[$cpName] = $cpData;
-  							}
-  							$toBeDeleted = false;
-  							for($x=0;$x<count($markedFDProps);$x++) { //check if property is markted to be deleted.
-  								if ($opName === $markedFDProps[$x]) {
-  									$toBeDeleted = true;
-  								}
-  							}
-  							if ($toBeDeleted === false) {
-  								$outputData[$opName] = $opData;
-  							}
- 						}
- 						
- 					}
-  					}
-		
+					foreach($clientData as $cpName => $cpData) { //push all clientData (from cenny.js) properties to output object
+						if ($cpName !== 'DELETE') {//do not store 'DELETE' property
+							$outputData[$cpName] = $cpData;
+						}
+					}
 					saveFile("$directory/$groupName/$otherUser/data.txt", json_encode($outputData));
-					
+			
 					echo json_encode("updated");
 					
 				} else {
@@ -376,38 +453,30 @@
 			$outputData = array();
 			$markedFDProps = array();
 
-			foreach($clientData as $cpName => $cpData) {
+			
+			foreach($openedData as $opName => $opData) {
+			
+			//check if should be deleted
+			$shouldBeDeleted = false;
+			foreach($clientData as $cpName => $cpData) {	
 				if ($cpName === "DELETE") {
-					for($x=0;$x<count($cpData);$x++) {
-  						array_push($markedFDProps, $cpData[$x]);
-  					}
- 				}
+					for ($i = 0; $i < count($cpData); $i++) {//go though 'DELETE' array
+						if ($cpData[$i]===$opName) { //mark to be deleted
+							$shouldBeDeleted = true;
+						}
+					}//end 'DELETE' array search
+				}
+			}//end $clientData foreach
+			if ($shouldBeDeleted === false) { //only push to output object if it should stay
+				$outputData[$opName] = $opData;
 			}
-					
-			foreach ($openedData as $opName => $opData) {
-			foreach ($clientData as $cpName => $cpData) {
-  				if ($opName === $cpName) {
-  					if ($cpName !== "DELETE") {//do not push DELETE property to main Object
-  						$outputData[$cpName] = $cpData;
-  					}
-  				} else {
-  					if ($cpName !== "DELETE") {//do not push DELETE property to main Object
-  						$outputData[$cpName] = $cpData;
-  					}
-  					$toBeDeleted = false;
-  					for($x=0;$x<count($markedFDProps);$x++) { //check if property is markted to be deleted.
-  						if ($opName === $markedFDProps[$x]) {
-  							$toBeDeleted = true;
-  						}
-  					}
-  					if ($toBeDeleted === false) {
-  						$outputData[$opName] = $opData;
-  					}
- 				}
- 				
- 			}
-  			}
-
+			} //end $openData foreach
+			
+			foreach($clientData as $cpName => $cpData) { //push all clientData (from cenny.js) properties to output object
+				if ($cpName !== 'DELETE') {//do not store 'DELETE' property
+					$outputData[$cpName] = $cpData;
+				}
+			}
 			saveFile("$directory/$groupName/$userName/data.txt", json_encode($outputData));
 			
 			echo json_encode("updated");
@@ -493,9 +562,6 @@
             
             saveFile("$directory/$groupName/$userName/email.txt", $clientData);
                   
-        } else if ($action === "listUsers") {
-            $users = openFile("$directory/$groupName/userlist.txt", 500000);
-            echo json_encode($users);
         } else {
             echo json_encode("finished");
         }
@@ -505,9 +571,8 @@
 	}//close authentication if statement
 	//########################################################################################################################
 	
-	
-	
-	
-
+	} else {// userName or groupName invalid
+		echo json_encode('username or group name invalid');
+	}
 
 ?>
