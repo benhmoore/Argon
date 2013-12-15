@@ -12,11 +12,11 @@ ___
 
 ###Security
 
-Cenny.js was built from the ground up to be incredibly secure. All requests to the server must be authenticated, timely, and validated before any action is taken. All requests also must pass through an authentication barrier before any code is executed. 
+Cenny.js was built from the ground up to be incredibly secure. All requests to the server must be authenticated, timely, and validated before any action is taken. All requests must pass through an authentication barrier before any code is executed.
 
 Building a secure platform using Javascript is tough, if not impossible. Cenny.js gets around this by doing a second round of validation, authentication, and scanning on the server, making it impossible for an invalid request to infiltrate the backend. 
 
-Best of all, because Cenny.js is an open source project, if an issue ever arises, there's an amazing community that can fix it.
+Best of all, because Cenny.js is an open source project, if an issue ever arises, there's an amazing community that can help.
 
 ___
 
