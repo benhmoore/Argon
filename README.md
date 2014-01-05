@@ -5,9 +5,6 @@ Building a chat web app? Use Cenny.js to store, send, and receive messages in re
 
 If a user goes offline while using your web app, dont' worry. Any actions they take while offline will be gracefully synced when they get back online. And while they're offline, the majority of Cenny.js features will function normally (like .set(), .update(), .get(), etc). Best of all, you don't have to add a single line of code, all this happens automatically. If your not into that kind of thing, we'll get into how to disable it in the permissions section.
 
-
-##Simple demo: http://byteaspect.com/cidar
-
 ___
 
 ###Security
