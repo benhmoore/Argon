@@ -5,8 +5,17 @@ Building a chat web app? Use Cenny.js to store, send, and receive messages in re
 
 If a user goes offline while using your web app, dont' worry. Any actions they take while offline will be gracefully synced when they get back online. And while they're offline, the majority of Cenny.js features will function normally (like .set(), .update(), .get(), etc). Best of all, you don't have to add a single line of code, all this happens automatically. If your not into that kind of thing, we'll get into how to disable it in the permissions section.
 
+___
 
-##Simple demo: http://byteaspect.com/cidar
+###Security
+
+Cenny.js was built from the ground up to be incredibly secure. All requests to the server must be authenticated, timely, and validated before any action is taken. All requests must pass through an authentication barrier before any code is executed.
+
+Building a secure platform using Javascript is tough, if not impossible. Cenny.js gets around this by doing a second round of validation, authentication, and scanning on the server, making it impossible for an invalid request to infiltrate the backend. 
+
+Best of all, because Cenny.js is an open source project, if an issue ever arises, there's an amazing community that can help.
+
+___
 
 Cenny.js was built to work with your web app, it is extremely flexible and works with almost any setup. Everything is done through a single JS script. No Javascript dependancies, just two files: Cenny.js, and a PHP file for the server. Oh, and no database required. Cenny.js is proudly file based, no specials needed.
 
@@ -191,7 +200,7 @@ This snippet continuously watches the properties ```sixty``` and ```propertyN```
 
 ##Users & Their Methods
 
-Cenny.js provides many methods for user operations: .create(), .signin(), .signout(), .password(), .info(), .setEmail(), .getEmail(), .remove(), and .list().  These methods are located under the ```.user``` object.
+Cenny.js provides many methods for user operations: .create(), .signin(), .signout(), .password(), .info(), .setEmail(), .getEmail(), and .remove(). These methods are located under the ```.user``` object.
 
 
 ###.user.create()
@@ -311,21 +320,6 @@ This snippet passes the email of the current user to the callback function, if i
 ```javascript
 server.user.remove();
 ```  
-
-
-###.user.list()
-
-.user.list() passes an Array of every user's username in the current group to the callback function.
-
-####Syntax:
-```javascript
-server.user.list(callback);
-```  
-
-####Simulated output:
-```javascript
-['username','default', etc]
-```
 
 
 ##Permissions
@@ -469,11 +463,6 @@ x.user.setEmail( 'email' );
 Get user email (if allowed).
 ```javascript
 x.user.getEmail( callback, 'username' );
-```
-
-List all usernames.
-```javascript
-x.user.list( callback );
 ```
 
 Signout of current user.
