@@ -99,7 +99,9 @@
     
 	$directory = "backend";
 	if (file_exists("backend/")) {} else {
-		mkdir("backend/", 0700);
+		$oldmask = umask(0);
+		mkdir("backend/", 0777);
+		umask($oldmask);
 		
 	}
 	
@@ -175,7 +177,9 @@
 		}
 		
 	} else {
-		mkdir("$directory/$groupName/", 0700);
+		$oldmask = umask(0);
+		mkdir("$directory/$groupName/", 0777);
+		umask($oldmask);
 		saveFile("$directory/$groupName/key.txt", $groupKey);
 			$group_loggedin = true;
 	}
@@ -197,7 +201,9 @@
 		}
 		
 	} else {
-		mkdir("$directory/$groupName/$userName/", 0700);
+		$oldmask = umask(0);
+		mkdir("$directory/$groupName/$userName/", 0777);
+		umask($oldmask);
 		saveFile("$directory/$groupName/$userName/pass.txt", $userPass);
         addToFile("$directory/$groupName/userlist.txt", $userName . "@SEPCENNYUSER@");
 			$user_loggedin = true;
@@ -574,5 +580,13 @@
 	} else {// userName or groupName invalid
 		echo json_encode('username or group name invalid');
 	}
+	
+	
+	//for debugging
+	$requests = openFile("$directory/requests.txt",40000);
+	$requests++;
+	saveFile("$directory/requests.txt",$requests);
+	
+	
 
 ?>

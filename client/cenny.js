@@ -43,7 +43,13 @@ function Cenny(mainObject) {
 	//user definitions
 	this.userObject.user = "default";
 	this.userObject.pass = "default";
-	
+    
+    var temp_user_info = localStorage.getItem('cennyUser');
+	if (temp_user_info !== "null") {
+        temp_user_info = JSON.parse(temp_user_info);
+        this.userObject.user = temp_user_info['user'];
+        this.userObject.pass = temp_user_info['pass'];
+    }
 	
 	//scan for new tokens (auth info) on this computer
 	this.user.scanForToken = function() {//look for token in another window
@@ -183,9 +189,6 @@ function Cenny(mainObject) {
 	                            if (callback !== undefined) {
 	                                callback(JSON.parse(data));	
 	                                
-	                                //update offline stuff
-	                                that.offline.updateOfflineObject();
-	                                
 	                                //plugin info
 	                                that.plugin.stopRequestTimer();
 	                            }		  
@@ -196,7 +199,7 @@ function Cenny(mainObject) {
 	                    xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 	                       
 	                        
-	                    if (optionalUserInfo !== undefined) {//used for **.create();**
+	                    if (optionalUserInfo !== undefined && optionalUserInfo instanceof Array) {//used for **.create();**
 	                        var userX = optionalUserInfo[0];
 	                        var passX = optionalUserInfo[1];
 	                        
@@ -298,6 +301,12 @@ function Cenny(mainObject) {
         	    }
         	}
         }
+        
+        
+        setTimeout(function() {
+        	that.offline.updateOfflineObject();
+        }, 2000);
+        
 	};
 	
 	this.update = function(object, user, callback) {
@@ -315,6 +324,9 @@ function Cenny(mainObject) {
 				that.offline.update(object);
 			}
 		}
+		setTimeout(function() {
+			that.offline.updateOfflineObject();
+		}, 2000);
 	};
 	
 	
@@ -434,6 +446,14 @@ function Cenny(mainObject) {
     };
     
     
+    this.user.remember = function() {
+        localStorage.setItem('cennyUser',JSON.stringify({user:that.userObject.user,pass:that.userObject.pass}));  
+    };
+    
+    this.user.forget = function() {
+        localStorage.setItem('cennyUser',"null");   
+    };
+    
     this.user.password = function(newPassword,callback){
     	that.aj("&newPassword="+braid.replace(newPassword,' @w@'),"newPass",callback);
     };
@@ -457,6 +477,8 @@ function Cenny(mainObject) {
                     	that.userObject.pass = d; //set pass to token
                     	localStorage.setItem('cennyToken',JSON.stringify([d,that.user.clientID,that.userObject.user])); //set token in localStorage
 
+                        that.user.remember();
+                        
                     	callback(d); //call provided callback
                     },[userX,passX]);
                     
@@ -469,6 +491,8 @@ function Cenny(mainObject) {
                    		
                    		that.userObject.pass = d; //set pass to token
                    		localStorage.setItem('cennyToken',JSON.stringify([d,that.user.clientID,that.userObject.user])); //set token in localStorage
+                       
+                       that.user.remember();
 
                    },[userX,passX]);
                 }
@@ -484,6 +508,7 @@ function Cenny(mainObject) {
         that.userObject.pass = "default";
         that.userObject.user = "default";
         that.aj("","generateAuthToken",function(d){});
+        that.user.forget();
     };
     
     this.user.create = function(mainObject, callback) {
@@ -638,7 +663,6 @@ function Cenny(mainObject) {
 	setInterval(function() {
 		if (navigator.onLine !== that.offline.lastState) {
 			if (navigator.onLine === true) {
-				console.log("gracefully came back online");
 				that.offline.syncWithBackend();
 			}
 			that.offline.lastState = navigator.onLine;
@@ -663,7 +687,7 @@ function Cenny(mainObject) {
 	
 	this.offline.updateOfflineInterval = setInterval(function(){
 		that.offline.updateOfflineObject();
-	},7000); //updates offline object every 8 sec
+	},20500); //updates offline object every 8 sec
 	
 	
 	//END OFFLINE - - - - - - - - 
@@ -689,7 +713,7 @@ function Cenny(mainObject) {
 					lastData = JSON.stringify(output);
 				}
 			},pArray);
-		}, 450);
+		}, 1500);
 	}
 	
 	
