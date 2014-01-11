@@ -31,7 +31,6 @@
 	
 	}
 	
-	
 	function genToken()
 	{
 		$length=56;
