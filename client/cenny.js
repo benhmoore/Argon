@@ -44,10 +44,12 @@ function Cenny(mainObject) {
 	this.userObject.pass = "default";
     
     var temp_user_info = localStorage.getItem('cennyUser');
-	if (temp_user_info !== "null") {
-        temp_user_info = JSON.parse(temp_user_info);
-        this.userObject.user = temp_user_info['user'];
-        this.userObject.pass = temp_user_info['pass'];
+    temp_user_info = JSON.parse(temp_user_info);
+	if (temp_user_info !== "null" && temp_user_info !== null) {
+        if (typeof temp_user_info === "object") {
+            this.userObject.user = temp_user_info['user'];
+            this.userObject.pass = temp_user_info['pass'];
+        }
     }
 	
 	//scan for new tokens (auth info) on this computer
@@ -177,6 +179,28 @@ function Cenny(mainObject) {
         }
        	if (navigator.onLine === true) { 
 	        //check username before sending request
+	        
+	        var shouldContinue = true;
+	        
+	        if (optionalUserInfo !== undefined) {
+	        	if (optionalUserInfo[0].length > 2 && optionalUserInfo[0].length < 25) {
+	        		if (/^\w+$/.test(optionalUserInfo[0])) {
+	        			if (optionalUserInfo[1].length > 3) {
+	        			
+	        			} else {
+	        				callback({error:'password invalid length'});
+	        				shouldContinue = false;
+	        			}
+	        		} else {
+	        			callback({error:'username contains invalid chars'});
+	        			shouldContinue = false;
+	        		}
+	        	} else {
+	        		callback({error:'username length invalid'});
+	        		shouldContinue = false;
+	        	}
+	        }
+	        if (shouldContinue === true) {
 	        if (that.userObject.user.length > 2 && that.userObject.user.length < 25) {
 	            if (/^\w+$/.test(that.userObject.user)) {
 	                if (that.userObject.pass.length > 3) {    
@@ -225,6 +249,7 @@ function Cenny(mainObject) {
 	        } else {
 	            callback({error: 'username length unsuitable.'});   
 	        }
+	        }//end should continue
         } else { //is offline
         
         }
@@ -468,7 +493,9 @@ function Cenny(mainObject) {
 				var passX = braid.replace(mainObject['user'][1], ' @w@');
                 if (typeof callback === "function") {
                     that.aj("","generateAuthToken",function(d){
-                    
+                    if (d['error'] !== undefined) {
+                    	callback(d);
+                    } else {
                     	//set local user information
                     	that.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
                     	that.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
@@ -479,11 +506,14 @@ function Cenny(mainObject) {
                         that.user.remember();
                         
                     	callback(d); //call provided callback
+                    }
                     },[userX,passX]);
                     
                 } else {
                    that.aj("","generateAuthToken",function(d){
-                   		
+                   	if (d['error'] !== undefined) {
+                   		callback(d);
+                   	} else {
                    		//set local user information
                    		that.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
                    		that.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
@@ -492,7 +522,7 @@ function Cenny(mainObject) {
                    		localStorage.setItem('cennyToken',JSON.stringify([d,that.user.clientID,that.userObject.user])); //set token in localStorage
                        
                        that.user.remember();
-
+					}
                    },[userX,passX]);
                 }
                 

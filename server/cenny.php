@@ -34,7 +34,7 @@
 	function genToken()
 	{
 		$length=56;
-	    $chars ="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890#$%";//length:36
+	    $chars ="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";//length:36
 	    $final_rand='';
 	    for($i=0;$i<$length; $i++)
 	    {
