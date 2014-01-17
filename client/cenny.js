@@ -409,6 +409,7 @@ function Cenny(mainObject) {
         that.aj("", "removeUser", callback);
         that.userObject.user = "default";
         that.userObject.pass = "default";
+        that.user.forget();
     };
     
     this.user.permissions = function(permObj,callback) {
