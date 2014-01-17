@@ -684,7 +684,19 @@ function Cenny(mainObject) {
     setTimeout(function() {
         var updateData = JSON.parse(localStorage.getItem('cennyOfflineUpdate'));
         if (updateData !== {}) {
-            that.offline.syncWithBackend();   
+            var shouldSync = true;
+            var x = localStorage.getItem('lastOffline');
+            if (x !== null) {
+                if (x === "false") {
+                    shouldSync = false;
+                }
+            } else {
+                shouldSync = false;
+            }
+            if (shouldSync === true) {
+                console.log("should sync, because the computer went offline, updated some properties, closed the session, and is now back");
+                that.offline.syncWithBackend();
+            }
         }
     }, 100);
 
@@ -693,6 +705,9 @@ function Cenny(mainObject) {
         if (navigator.onLine !== that.offline.lastState) {
             if (navigator.onLine === true) {
                 that.offline.syncWithBackend();
+                localStorage.setItem('lastOffline', "false");
+            } else {
+                localStorage.setItem('lastOffline', "true");
             }
             that.offline.lastState = navigator.onLine;
         }
@@ -711,13 +726,9 @@ function Cenny(mainObject) {
         }
     };
 
-    //start offline updating
-    setTimeout(this.offline.updateOfflineObject, 1000);
-
     this.offline.updateOfflineInterval = setInterval(function(){
         that.offline.updateOfflineObject();
-    },20500); //updates offline object every 8 sec
-
+    },30500); //updates offline object every 30.5 seconds
 
     //END OFFLINE - - - - - - - -
 
