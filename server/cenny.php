@@ -34,7 +34,7 @@
 	function genToken()
 	{
 		$length=56;
-	    $chars ="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";//length:36
+	    $chars ="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890.";//length:36
 	    $final_rand='';
 	    for($i=0;$i<$length; $i++)
 	    {
@@ -110,55 +110,16 @@
 	
 	
 	//make sure groupName & userName are valid
-	$userNameValid = true;
-	$groupNameValid = true;
-	if (strpos($userName, '/') !== false) {
-		$userNameValid = false;
-	} else if (strpos($userName, '.') !== false) {
-		$userNameValid = false;
-	} else if (strpos($userName, '?') !== false) {
-		$userNameValid = false;
-	} else if (strpos($userName, '!') !== false) {
-		$userNameValid = false;
-	} else if (strpos($userName, '#') !== false) {
-		$userNameValid = false;
-	} else if (strpos($userName, '$') !== false) {
-		$userNameValid = false;
-	} else if (strpos($userName, '<') !== false) {
-		$userNameValid = false;
-	} else if (strpos($userName, '>') !== false) {
-		$userNameValid = false;
-	} else if (strpos($userName, '%') !== false) {
-		$userNameValid = false;
-	} else if (strpos($userName, '*') !== false) {
-		$userNameValid = false;
-	} else if (strpos($userName, ' ') !== false) {
-		$userNameValid = false;
-	}
+	$userNameValid = false;
+	$groupNameValid = false;
 	
-	if (strpos($groupName, '/') !== false) {
-		$groupNameValid = false;
-	} else if (strpos($groupName, '.') !== false) {
-		$groupNameValid = false;
-	} else if (strpos($groupName, '?') !== false) {
-		$groupNameValid = false;
-	} else if (strpos($groupName, '!') !== false) {
-		$groupNameValid = false;
-	} else if (strpos($groupName, '#') !== false) {
-		$groupNameValid = false;
-	} else if (strpos($groupName, '$') !== false) {
-		$groupNameValid = false;
-	} else if (strpos($groupName, '<') !== false) {
-		$groupNameValid = false;
-	} else if (strpos($groupName, '>') !== false) {
-		$groupNameValid = false;
-	} else if (strpos($groupName, '%') !== false) {
-		$groupNameValid = false;
-	} else if (strpos($groupName, '*') !== false) {
-		$groupNameValid = false;
-	} else if (strpos($groupName, ' ') !== false) {
-		$groupNameValid = false;
-	}
+
+	if(preg_match('/^\w{5,}$/', $userName)) {
+        $userNameValid = true;
+    }
+	if(preg_match('/^\w{5,}$/', $groupName)) {
+        $groupNameValid = true;
+    }
 	
 	
 	//continue only if username / groupname valid
