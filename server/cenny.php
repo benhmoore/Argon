@@ -33,7 +33,7 @@ function openFile($url, $size) {
 
 function genToken()
 {
-    $length=56;
+    $length=57;
     $chars ="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890.";//length:36
     $final_rand='';
     for($i=0;$i<$length; $i++)
@@ -108,18 +108,35 @@ if (file_exists("backend/")) {} else {
 //make sure groupName & userName are valid
 $userNameValid = false;
 $groupNameValid = false;
+$userPassValid = true;
 
 
+//pass
+if (strlen($userPass) > 60) {
+    $userPassValid = false;
+} else if (strlen($userPass) < 5) {
+    $userPassValid = false;
+}
+
+//username
 if(preg_match('/^\w{5,}$/', $userName)) {
     $userNameValid = true;
 }
+if (strlen($userName) > 22) {
+    $userNameValid = false;
+}
+
+//group
 if(preg_match('/^\w{5,}$/', $groupName)) {
     $groupNameValid = true;
+}
+if (strlen($groupName) > 22) {
+    $groupNameValid = false;
 }
 
 
 //continue only if username / groupname valid
-if ($groupNameValid === true && $userNameValid === true) {
+if ($groupNameValid === true && $userNameValid === true && $userPassValid === true) {
 
     // groups
 

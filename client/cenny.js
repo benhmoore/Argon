@@ -17,8 +17,67 @@
 //BRAID.JS IMPLEMENTATION | YOU MAY IGNORE THIS
 var braid={};braid.vnumber=.02;braid.version=function(){console.log(braid.vnumber)};braid.search=function(e,t,n,r){if(n!==undefined){if(n===false){t=t.toLowerCase();e=e.toLowerCase();if(r!==false){t=braid.replace(t,"aeiouyAEIOUY@wa@");e=braid.replace(e,"aeiouyAEIOUY@wa@")}}}var i=[];var t=t.split("");var e=e.split("");var s;var o=0;for(var u=0;u<t.length;u++){if(t[u]===e[0]){for(var a=0;a<e.length;a++){s=u+a;if(t[s]===e[a]){if(a===e.length-1){var f=s-e.length+1;i.push(f);o++}}}}}if(o===0){return false}else{return i}};braid.replace=function(e,t){var n=t;var t={};t.full=n;var r=false,i=false;t.groups=t.full.split("@n@");if(e instanceof Array){var s=[];r=true;for(var o=0;o<e.length;o++){var u=e[o];if(u===parseInt(u)){u=u.toString();i=true}for(var a=0;a<t.groups.length;a++){var f=t.groups[a];var l=braid.search("@wa@",f,true);if(l===false){var c=f.split("@w@");var h=c[0];var p=c[1];u=deiwo3replace(h,p,u)}else{var c=f.split("@wa@");var h=c[0];if(braid.search("!NUM!",h,true)!==false){h="12345678910"}if(braid.search("!VOWEL!",h,true)!==false){h="aeiouyAEIOUY"}if(braid.search("!SPECIAL!",h,true)!==false){h="~`@#$%^&*()_+-={}|[]:;<>"}h=h.split("");var p=c[1];for(var d=0;d<h.length;d++){u=deiwo3replace(h[d],p,u)}}}if(i===true){u=parseInt(u)}s.push(u);i=false}}else{if(e===parseInt(e)){e=e.toString();i=true}for(var a=0;a<t.groups.length;a++){var f=t.groups[a];var l=braid.search("@wa@",f,true);if(l===false){var c=f.split("@w@");var h=c[0];var p=c[1];e=deiwo3replace(h,p,e)}else{var c=f.split("@wa@");var h=c[0];if(braid.search("!NUM!",h,true)!==false){h="12345678910"}if(braid.search("!VOWEL!",h,true)!==false){h="aeiouyAEIOUY"}h=h.split("");var p=c[1];for(var d=0;d<h.length;d++){e=deiwo3replace(h[d],p,e)}}}if(i===true){e=parseInt(e)}}if(r===false){return e}else{return s}};var deiwo3replace=function(e,t,n){return n.replace(new RegExp(e,"g"),t)};braid.help=function(e){if(!e){console.log('Incorrect santex. Make sure to use the first parameter as a keyword. Example: braid.help("braid.replace"). \n|TIP: You can use this function in the console for quick help.')}else{if(braid.search("replace",e,false)!==false){console.log("*SANTEX FOR braid.replace()*\n\n"+"|RETURNS: braid.replace() will return the output after completing actions on the string.\n"+"|SANTEX: var VARIABLE = braid.replace('this is a test','this@w@that@n@is@w@was');\n"+"|OUTPUT: 'that was a test'\n"+"|NOTE: Using the parameter 'key' (second parameter), '@w@' is used as 'with', so 'apple@w@grape' means 'replace apple with grape'.\n"+"| '@n@ is used as 'next.' It is used to seperate instructions, as follows, 'apple@w@grape@n@cherry@w@bannana'.\n"+"| You can use '@wa@' instead of '@w@' to replace all instances of each character with another, like so, 'aeiouy@wa@#'\n"+"| If the string were 'abcdefghijklmnopqrstuvwxyz', this would output '#bcd#fgh#jklmn#pqrst#vwx#z'.\n"+"| *Input can be an Array, Integer, or String.\n")}else if(braid.search("search",e,false)!==false){console.log("*SANTEX FOR braid.search()*\n\n"+"|RETURNS: if braid.search() finds a match to query, it will return the positions of all matches in an array.\n"+"| If it does not find a match, it will return *false*.\n"+"|SANTEX: var VARIABLE = braid.search('query','complete string',false,false);\n"+"|OUTPUT: *false*\n"+"|NOTE: The third (3) parameter should be *true* or *false*, if *true* the search will be case sensitive, if *false* the search will not.\n| Setting this to false will also search by just consonants, instead of both consonants and vowels.\n"+"| The fourth (4) parameter can be set to *false* to disable the removal of vowels when searching with the third (3) parameter equal to *true*.\n")}else{console.log("~No help available on this topic. Please make sure to check your spelling.\nSANTEX: braid.help('braid.complementary'), etc.\n    ")}}}
 
+//used for basic tasks
+var Mg = {};
+Mg.validate = {};
+Mg.validate.username = function(username) {
 
-//CENNY.JS STARTS HERE - - - -
+    var result = {isValid:true,reasons:[],type:'username'};
+
+    if (typeof username !== "string") {
+        result.isValid = false;
+        result.reasons.push("Username is not a valid string");
+    } else {
+
+        if (username.match(/^[A-Za-z0-9_]+$/)) {} else {
+            result.isValid = false;
+            result.reasons.push("Username contains special characters");
+        }
+
+    }
+    if (username.length > 24) {
+        result.isValid = false;
+        result.reasons.push("Username too long");
+    }
+    if (username.length < 5) {
+        result.isValid = false;
+        result.reasons.push("Username too short");
+    }
+
+
+    return result;
+};
+
+Mg.validate.password = function(password) {
+
+    var result = {isValid:true,reasons:[],type:'password'};
+
+    if (typeof password !== "string") {
+        result.isValid = false;
+        result.reasons.push("Password is not a valid string");
+    } else {
+        if (password.match(/^[A-Za-z]+$/)) {
+            result.isValid = false;
+            result.reasons.push("Password must contain at least one special character");
+        }
+    }
+    if (password.length > 60) {
+        result.isValid = false;
+        result.reasons.push("Password too long");
+    }
+    if (password.length < 5) {
+        result.isValid = false;
+        result.reasons.push("Password too short");
+    }
+
+
+    return result;
+
+};
+
+
+
+//CENNY.JS ---------
 
 
 function Cenny(mainObject) {
@@ -76,35 +135,30 @@ function Cenny(mainObject) {
     this.user.scanForToken();
 
 
-    //url to cenny.php (preset until set)
+    //url to cenny.php (until set)
     this.url = document.URL + "cenny.php";
 
-    //#######################################################################################################################################################
-    //######################################################## SET UP MAIN OBJECT ###########################################################################
-    //#######################################################################################################################################################
+    //SETUP MAIN OBJECT
     if (mainObject instanceof Object) {
-        if (mainObject['group'] !== undefined && mainObject['group'] instanceof Array) {
+        if (mainObject.group !== undefined && mainObject.group instanceof Array) {
 
-            this.groupObject.group = braid.replace(mainObject['group'][0], " @w@");
-            this.groupObject.key = braid.replace(mainObject['group'][1], " @w@");
+            this.groupObject.group = braid.replace(mainObject.group[0], " @w@");
+            this.groupObject.key = braid.replace(mainObject.group[1], " @w@");
 
         }
-        if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
+        if (mainObject.user !== undefined && mainObject.user instanceof Array) {
 
-            this.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
-            this.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
+            this.userObject.user = braid.replace(mainObject.user[0], ' @w@');
+            this.userObject.pass = braid.replace(mainObject.user[1], ' @w@');
         }
 
-        if (mainObject['url'] !== undefined) {
-            this.url = mainObject['url'];
+        if (mainObject.url !== undefined) {
+            this.url = mainObject.url;
         }
     } else {
-        console.log("mainObject should be an Object.");
+        console.warn("mainObject should be an Object.");
     }
 
-    //#######################################################################################################################################################
-    //############################################# USED FOR PLUGINS ########################################################################################
-    //#######################################################################################################################################################
 
     this.plugin = {};
     this.plugin.requests = 0;
@@ -123,9 +177,9 @@ function Cenny(mainObject) {
 
 
         return {group:[that.groupObject.group, that.groupObject.key], user:that.user.info(), requests:that.plugin.requests, requestTime:averageRT};
-    }
+    };
 
-    //test if a user's connection speed is sufficient
+    //tests user's connection speed
     this.plugin.testConnectionSpeed = function(callback,wantedMS) {
         that.plugin.requestTimes = [];
         if (navigator.onLine === true) {
@@ -137,9 +191,9 @@ function Cenny(mainObject) {
                                 that.get(function(d){
                                     that.get(function(d){
                                         var cInfoData = that.plugin.cInfo();
-                                        if (cInfoData['requestTime'] + 300 >= wantedMS && cInfoData['requestTime'] - 300 <= wantedMS) {
+                                        if (cInfoData.requestTime + 300 >= wantedMS && cInfoData.requestTime - 300 <= wantedMS) {
                                             callback(true);
-                                        } else if (cInfoData['requestTime'] < wantedMS) {
+                                        } else if (cInfoData.requestTime < wantedMS) {
                                             callback(true);
                                         } else {
                                             callback(false);
@@ -167,14 +221,13 @@ function Cenny(mainObject) {
         that.plugin.currentRequestTime = 0;
     };
 
-    //#######################################################################################################################################################
-    //############################################# USED FOR ALL PLUGIN AJAX REQUESTS (& .GET() / .SET())####################################################
-    //#######################################################################################################################################################
+
+    //SERVER REQUEST METHOD
 
     this.aj = function(sendData, action, callback, optionalUserInfo) {
         if (callback === undefined || typeof callback !== "function") {
-            var callback = function(d) {
-                console.log(d);   
+            callback = function(d) {
+                console.info(d);
             };
         }
         if (navigator.onLine === true) {
@@ -183,7 +236,7 @@ function Cenny(mainObject) {
             var shouldContinue = true;
 
             if (optionalUserInfo !== undefined) {
-                if (optionalUserInfo[0].length > 2 && optionalUserInfo[0].length < 25) {
+                if (optionalUserInfo[0].length > 2 && optionalUserInfo[0].length < 23) {
                     if (/^\w+$/.test(optionalUserInfo[0])) {
                         if (optionalUserInfo[1].length > 3) {
 
@@ -201,7 +254,7 @@ function Cenny(mainObject) {
                 }
             }
             if (shouldContinue === true) {
-                if (that.userObject.user.length > 2 && that.userObject.user.length < 25) {
+                if (that.userObject.user.length > 2 && that.userObject.user.length < 23) {
                     if (/^\w+$/.test(that.userObject.user)) {
                         if (that.userObject.pass.length > 3) {
                             var xmlhttp;
@@ -256,10 +309,6 @@ function Cenny(mainObject) {
 
     };
 
-    //#######################################################################################################################################################
-    //######################################################### GET DATA FROM BACKEND #######################################################################
-    //#######################################################################################################################################################
-
     this.get = function(callback, user) { //if user variable is array, it will be treated as property list, if it's a string, it will be treated as a username.
         var isOnline = navigator.onLine;
         if (isOnline === true) {
@@ -268,7 +317,7 @@ function Cenny(mainObject) {
             } else if (user instanceof Array) {
                 var propertyString = "";
                 for (var i = 0; i < user.length;i++) {
-                    if (user[i + 1] !== undefined) { //to keep things like "user@n@" <-- (no user next, but still "@n@")
+                    if (user[i + 1] !== undefined) { //"user@n@" <-- (no user next, but still "@n@")
                         propertyString+=user[i] + "@n@";
                     } else {
                         propertyString+=user[i];
@@ -302,7 +351,7 @@ function Cenny(mainObject) {
         var isOnline = navigator.onLine;
         if (isOnline === true) {
             if (object instanceof Object) {
-                object['cennyJS'] = true; //for smashing bugs
+                object['cennyJS'] = true;
                 if (user === undefined || user === '') {
                     that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "set", callback);
                 } else if (typeof user === "function") { //for backwards compat
@@ -315,7 +364,7 @@ function Cenny(mainObject) {
         } else if (isOnline === false) { //user offline
             if (object instanceof Object) {
 
-                object['cennyJS'] = true; //for smashing bugs
+                object['cennyJS'] = true;
 
                 if (user === undefined || user === '') {
                     that.offline.set(object);
@@ -336,14 +385,14 @@ function Cenny(mainObject) {
     this.update = function(object, user, callback) {
         var isOnline = navigator.onLine;
         if (isOnline === true) {
-            object['cennyJS'] = true; //for smashing bugs
+            object['cennyJS'] = true;
             if (user === undefined || user === "" || typeof user === "function") {
                 that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "update", user);
             } else {
                 that.aj("&otherUser=" + braid.replace(user, " @w@") + "&data=" + encodeURIComponent(JSON.stringify(object)), "updateOther", callback);
             }
         } else if (isOnline === false) {//offline
-            object['cennyJS'] = true; //for smashing bugs
+            object['cennyJS'] = true;
             if (user === undefined || user === "" || typeof user === "function") {
                 that.offline.update(object);
             }
@@ -354,7 +403,7 @@ function Cenny(mainObject) {
     };
 
 
-    //USER STUFF
+    //USER
 
     this.user.remove = function(callback) {
         that.aj("", "removeUser", callback);
@@ -374,7 +423,7 @@ function Cenny(mainObject) {
         //read
         if (read instanceof Array) {
             for (var i = 0; i < read.length;i++) {
-                if (read[i + 1] !== undefined) { //to keep things like "user@n@" <-- (no user next, but still "@n@")
+                if (read[i + 1] !== undefined) {
                     readString+=read[i] + "@n@";
                 } else {
                     readString+=read[i];  
@@ -393,7 +442,7 @@ function Cenny(mainObject) {
         //write
         if (write instanceof Array) {
             for (var i = 0; i < write.length;i++) {
-                if (write[i + 1] !== undefined) { //to keep things like "user@n@" <-- (no user next, but still "@n@")
+                if (write[i + 1] !== undefined) {
                     writeString+=write[i] + "@n@";
                 } else {
                     writeString+=write[i];
@@ -412,7 +461,7 @@ function Cenny(mainObject) {
         //emailRead
         if (emailRead instanceof Array) {
             for (var i = 0; i < emailRead.length;i++) {
-                if (emailRead[i + 1] !== undefined) { //to keep things like "user@n@" <-- (no user next, but still "@n@")
+                if (emailRead[i + 1] !== undefined) {
                     emailReadString+=emailRead[i] + "@n@";
                 } else {
                     emailReadString+=emailRead[i];
@@ -445,7 +494,7 @@ function Cenny(mainObject) {
                 var propertyString = "";
                 if (permObj[key] instanceof Array) {
                     for (var i = 0; i < permObj[key].length; i++) {
-                        if (permObj[key][i + 1] !== undefined) { //to keep things like "user@n@" <-- (no user next, but still "@n@")
+                        if (permObj[key][i + 1] !== undefined) {
                             propertyString+=permObj[key][i] + "@n@";
                         } else {
                             propertyString+=permObj[key][i];  
@@ -528,7 +577,7 @@ function Cenny(mainObject) {
                 
             }
         } else {
-            console.log("mainObject should be an Object.");
+            console.warn("mainObject should be an Object.");
         }
 
     };
@@ -543,13 +592,22 @@ function Cenny(mainObject) {
     this.user.create = function(mainObject, callback) {
         if (mainObject instanceof Object) {
             if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
-                var userX = braid.replace(mainObject['user'][0], ' @w@');
-                var passX = braid.replace(mainObject['user'][1], ' @w@');
-                
-                that.aj("","none",callback,[userX,passX]);
+                var usrValid = Mg.validate.username(mainObject['user'][0]);
+                var passValid = Mg.validate.password(mainObject['user'][1]);
+                if (usrValid.isValid === true) {
+                    if (passValid.isValid === true) {
+                        var userX = braid.replace(mainObject['user'][0], ' @w@');
+                        var passX = braid.replace(mainObject['user'][1], ' @w@');
+                        that.aj("","none",callback,[userX,passX]);
+                    } else {
+                        callback(passValid);
+                    }
+                } else {
+                    callback(usrValid);
+                }
             }
         } else {
-            console.log("mainObject should be an Object.");
+            console.warn("mainObject should be an Object.");
         }
     }
     
@@ -564,7 +622,7 @@ function Cenny(mainObject) {
         if (filter.test(email) === true) {
             that.aj("&data=" + email, "setEmail", callback); 
         } else {
-            if (callback !== undefined){callback("Email invalid.");}else{console.log("email invalid.")}; 
+            if (callback !== undefined){callback("Email invalid.");}else{console.error("email invalid.")};
         }
         
     };
@@ -694,7 +752,7 @@ function Cenny(mainObject) {
                 shouldSync = false;
             }
             if (shouldSync === true) {
-                console.log("should sync, because the computer went offline, updated some properties, closed the session, and is now back");
+                localStorage.setItem("lastOffline","false");
                 that.offline.syncWithBackend();
             }
         }
