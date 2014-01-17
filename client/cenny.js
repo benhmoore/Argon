@@ -10,7 +10,7 @@
  *                                                                                                                                                 *
  * - - - | THIS FILE AND ALL OTHERS INCLUDED IN THIS PROJECT RELEASED UNDER AN MIT LICENSE                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
- //LoadFive | loadfive.com | @loadfive
+//LoadFive | loadfive.com | @loadfive
 
 
 
@@ -22,345 +22,345 @@ var braid={};braid.vnumber=.02;braid.version=function(){console.log(braid.vnumbe
 
 
 function Cenny(mainObject) {
-	
-	//****
-		this.user = {};
-		this.user.clientID = Math.floor(Math.random() * 32973);
-		
-		this.group = {};
-        this.secure = {};
-	//****
 
-	this.groupObject = {};
-	
-	//group definitions
-	this.groupObject.group = "default";
-	this.groupObject.key = "default";
-	
-	this.userObject = {};
-	
-	//user definitions
-	this.userObject.user = "default";
-	this.userObject.pass = "default";
+    //****
+    this.user = {};
+    this.user.clientID = Math.floor(Math.random() * 32973);
+
+    this.group = {};
+    this.secure = {};
+    //****
+
+    this.groupObject = {};
+
+    //group definitions
+    this.groupObject.group = "default";
+    this.groupObject.key = "default";
+
+    this.userObject = {};
+
+    //user definitions
+    this.userObject.user = "default";
+    this.userObject.pass = "default";
     
     var temp_user_info = localStorage.getItem('cennyUser');
     temp_user_info = JSON.parse(temp_user_info);
-	if (temp_user_info !== "null" && temp_user_info !== null) {
+    if (temp_user_info !== "null" && temp_user_info !== null) {
         if (typeof temp_user_info === "object") {
-            this.userObject.user = temp_user_info['user'];
-            this.userObject.pass = temp_user_info['pass'];
+            this.userObject.user = temp_user_info.user;
+            this.userObject.pass = temp_user_info.pass;
         }
     }
-	
-	//scan for new tokens (auth info) on this computer
-	this.user.scanForToken = function() {//look for token in another window
-		var lastTokenMeta = [];
-		setInterval(function() {
-			var token = localStorage.getItem('cennyToken');
-			token = JSON.parse(token);
-			if (token !== null && token !== undefined && token !== []) {
-				if (token[2] === that.userObject.user) {
-					if (lastTokenMeta !== token[0]) {
-					if (token[1] !== that.user.clientID) {//if this client did not set token
-                        if (that.userObject.pass !== token[0]) {
-				            that.userObject.pass = token[0];
-                            lastTokenMeta = token[0];
+
+    //scan for new tokens (auth info) on this computer
+    this.user.scanForToken = function() {//look for token in another window
+        var lastTokenMeta = [];
+        setInterval(function() {
+            var token = localStorage.getItem('cennyToken');
+            token = JSON.parse(token);
+            if (token !== null && token !== undefined && token !== []) {
+                if (token[2] === that.userObject.user) {
+                    if (lastTokenMeta !== token[0]) {
+                        if (token[1] !== that.user.clientID) {//if this client did not set token
+                            if (that.userObject.pass !== token[0]) {
+                                that.userObject.pass = token[0];
+                                lastTokenMeta = token[0];
+                            }
+
                         }
-						
-					}
-					}
-				}
-			}
-		}, 500);
-	};
-	this.user.scanForToken();
-	
+                    }
+                }
+            }
+        }, 500);
+    };
+    this.user.scanForToken();
+
 
     //url to cenny.php (preset until set)
-	this.url = document.URL + "cenny.php";
-	
-	//#######################################################################################################################################################
-	//######################################################## SET UP MAIN OBJECT ###########################################################################
-	//#######################################################################################################################################################
-	if (mainObject instanceof Object) {
-		if (mainObject['group'] !== undefined && mainObject['group'] instanceof Array) {
-			
-			this.groupObject.group = braid.replace(mainObject['group'][0], " @w@");
-			this.groupObject.key = braid.replace(mainObject['group'][1], " @w@");
-			
-		} 
-		if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
-			
-			this.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
-			this.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');   
-		}
+    this.url = document.URL + "cenny.php";
 
-		if (mainObject['url'] !== undefined) {
-			this.url = mainObject['url'];
-		}
-	} else {
-		console.log("mainObject should be an Object.");
-	}
-	
-	//#######################################################################################################################################################
-	//############################################# USED FOR PLUGINS ########################################################################################
     //#######################################################################################################################################################
-		
-	this.plugin = {};
-	this.plugin.requests = 0;
-	this.plugin.requestTimes = []; //(in milliseconds)
-	this.plugin.currentRequestTime = 0;
-	
-	//returns info on current Cenny instance
-	this.plugin.cInfo = function() {
-	
-		//generate average request times
-		var averageRT = 0;
-		for (var i = 0; i < that.plugin.requestTimes.length; i++) {
-			averageRT+=that.plugin.requestTimes[i];
-		}
-		averageRT = averageRT / that.plugin.requestTimes.length;
-		
-		
-		return {group:[that.groupObject.group, that.groupObject.key], user:that.user.info(), requests:that.plugin.requests, requestTime:averageRT};
-	}
-	
-	//test if a user's connection speed is sufficient
-	this.plugin.testConnectionSpeed = function(callback,wantedMS) {
-		that.plugin.requestTimes = [];
-		if (navigator.onLine === true) {
-		that.get(function(d){
-			that.get(function(d){
-				that.get(function(d){
-					that.get(function(d){
-						that.get(function(d){
-							that.get(function(d){
-								that.get(function(d){
-									var cInfoData = that.plugin.cInfo();
-									if (cInfoData['requestTime'] + 300 >= wantedMS && cInfoData['requestTime'] - 300 <= wantedMS) {
-										callback(true);
-									} else if (cInfoData['requestTime'] < wantedMS) {
-										callback(true);
-									} else {
-										callback(false);
-									}
-								});
-							});
-						});
-					});
-				});
-			});
-		});
-		}
-		
-	};
-	
-	this.plugin.startRequestTimer = function() {
-		that.plugin.requestTimer = setInterval(function() {
-			that.plugin.currentRequestTime++;
-		},1);
-	
-	};
-	this.plugin.stopRequestTimer = function() {
-		clearInterval(that.plugin.requestTimer);
-		that.plugin.requestTimes.push(that.plugin.currentRequestTime);
-		that.plugin.currentRequestTime = 0;	
-	};
-	
-	//#######################################################################################################################################################
-	//############################################# USED FOR ALL PLUGIN AJAX REQUESTS (& .GET() / .SET())####################################################
+    //######################################################## SET UP MAIN OBJECT ###########################################################################
     //#######################################################################################################################################################
-	
-	this.aj = function(sendData, action, callback, optionalUserInfo) {
+    if (mainObject instanceof Object) {
+        if (mainObject['group'] !== undefined && mainObject['group'] instanceof Array) {
+
+            this.groupObject.group = braid.replace(mainObject['group'][0], " @w@");
+            this.groupObject.key = braid.replace(mainObject['group'][1], " @w@");
+
+        }
+        if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
+
+            this.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
+            this.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
+        }
+
+        if (mainObject['url'] !== undefined) {
+            this.url = mainObject['url'];
+        }
+    } else {
+        console.log("mainObject should be an Object.");
+    }
+
+    //#######################################################################################################################################################
+    //############################################# USED FOR PLUGINS ########################################################################################
+    //#######################################################################################################################################################
+
+    this.plugin = {};
+    this.plugin.requests = 0;
+    this.plugin.requestTimes = []; //(in milliseconds)
+    this.plugin.currentRequestTime = 0;
+
+    //returns info on current Cenny instance
+    this.plugin.cInfo = function() {
+
+        //generate average request times
+        var averageRT = 0;
+        for (var i = 0; i < that.plugin.requestTimes.length; i++) {
+            averageRT+=that.plugin.requestTimes[i];
+        }
+        averageRT = averageRT / that.plugin.requestTimes.length;
+
+
+        return {group:[that.groupObject.group, that.groupObject.key], user:that.user.info(), requests:that.plugin.requests, requestTime:averageRT};
+    }
+
+    //test if a user's connection speed is sufficient
+    this.plugin.testConnectionSpeed = function(callback,wantedMS) {
+        that.plugin.requestTimes = [];
+        if (navigator.onLine === true) {
+            that.get(function(d){
+                that.get(function(d){
+                    that.get(function(d){
+                        that.get(function(d){
+                            that.get(function(d){
+                                that.get(function(d){
+                                    that.get(function(d){
+                                        var cInfoData = that.plugin.cInfo();
+                                        if (cInfoData['requestTime'] + 300 >= wantedMS && cInfoData['requestTime'] - 300 <= wantedMS) {
+                                            callback(true);
+                                        } else if (cInfoData['requestTime'] < wantedMS) {
+                                            callback(true);
+                                        } else {
+                                            callback(false);
+                                        }
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        }
+
+    };
+
+    this.plugin.startRequestTimer = function() {
+        that.plugin.requestTimer = setInterval(function() {
+            that.plugin.currentRequestTime++;
+        },1);
+
+    };
+    this.plugin.stopRequestTimer = function() {
+        clearInterval(that.plugin.requestTimer);
+        that.plugin.requestTimes.push(that.plugin.currentRequestTime);
+        that.plugin.currentRequestTime = 0;
+    };
+
+    //#######################################################################################################################################################
+    //############################################# USED FOR ALL PLUGIN AJAX REQUESTS (& .GET() / .SET())####################################################
+    //#######################################################################################################################################################
+
+    this.aj = function(sendData, action, callback, optionalUserInfo) {
         if (callback === undefined || typeof callback !== "function") {
             var callback = function(d) {
                 console.log(d);   
             };
         }
-       	if (navigator.onLine === true) { 
-	        //check username before sending request
-	        
-	        var shouldContinue = true;
-	        
-	        if (optionalUserInfo !== undefined) {
-	        	if (optionalUserInfo[0].length > 2 && optionalUserInfo[0].length < 25) {
-	        		if (/^\w+$/.test(optionalUserInfo[0])) {
-	        			if (optionalUserInfo[1].length > 3) {
-	        			
-	        			} else {
-	        				callback({error:'password invalid length'});
-	        				shouldContinue = false;
-	        			}
-	        		} else {
-	        			callback({error:'username contains invalid chars'});
-	        			shouldContinue = false;
-	        		}
-	        	} else {
-	        		callback({error:'username length invalid'});
-	        		shouldContinue = false;
-	        	}
-	        }
-	        if (shouldContinue === true) {
-	        if (that.userObject.user.length > 2 && that.userObject.user.length < 25) {
-	            if (/^\w+$/.test(that.userObject.user)) {
-	                if (that.userObject.pass.length > 3) {    
-	                    var xmlhttp;
-	                    xmlhttp=new XMLHttpRequest();
-	                    xmlhttp.onreadystatechange=function(){
-	                        if (xmlhttp.readyState==4 && xmlhttp.status==200) {
-	                            var data = xmlhttp.responseText;
-	                            if (callback !== undefined) {
-	                                callback(JSON.parse(data));	
-	                                
-	                                //plugin info
-	                                that.plugin.stopRequestTimer();
-	                            }		  
-	                        }
-	                             
-	                    };
-	                    xmlhttp.open("POST",that.url,true);
-	                    xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-	                       
-	                        
-	                    if (optionalUserInfo !== undefined && optionalUserInfo instanceof Array) {//used for **.create();**
-	                        var userX = optionalUserInfo[0];
-	                        var passX = optionalUserInfo[1];
-	                        
-	                        
-	                        xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + userX + "&userPass=" + passX);
-	                        
-	                    } else { //otherwise, use global user info
-	                        
-	                        xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass);
-	                    }
-	                    
-	                    
-	                    //plugin info
-	                    that.plugin.startRequestTimer();
-	                    that.plugin.requests++; //add to requests
-	                    //end plugin info
-	                
-	                } else {
-	                    callback({error: 'pass length insufficient.'});   
-	                }
-	            } else {
-	               callback({error: 'username contains invalid characters.'});   
-	            }
-	        } else {
-	            callback({error: 'username length unsuitable.'});   
-	        }
-	        }//end should continue
+        if (navigator.onLine === true) {
+            //check username before sending request
+
+            var shouldContinue = true;
+
+            if (optionalUserInfo !== undefined) {
+                if (optionalUserInfo[0].length > 2 && optionalUserInfo[0].length < 25) {
+                    if (/^\w+$/.test(optionalUserInfo[0])) {
+                        if (optionalUserInfo[1].length > 3) {
+
+                        } else {
+                            callback({error:'password invalid length'});
+                            shouldContinue = false;
+                        }
+                    } else {
+                        callback({error:'username contains invalid chars'});
+                        shouldContinue = false;
+                    }
+                } else {
+                    callback({error:'username length invalid'});
+                    shouldContinue = false;
+                }
+            }
+            if (shouldContinue === true) {
+                if (that.userObject.user.length > 2 && that.userObject.user.length < 25) {
+                    if (/^\w+$/.test(that.userObject.user)) {
+                        if (that.userObject.pass.length > 3) {
+                            var xmlhttp;
+                            xmlhttp=new XMLHttpRequest();
+                            xmlhttp.onreadystatechange=function(){
+                                if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+                                    var data = xmlhttp.responseText;
+                                    if (callback !== undefined) {
+                                        callback(JSON.parse(data));
+
+                                        //plugin info
+                                        that.plugin.stopRequestTimer();
+                                    }
+                                }
+
+                            };
+                            xmlhttp.open("POST",that.url,true);
+                            xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+
+
+                            if (optionalUserInfo !== undefined && optionalUserInfo instanceof Array) {//used for **.create();**
+                                var userX = optionalUserInfo[0];
+                                var passX = optionalUserInfo[1];
+
+
+                                xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + userX + "&userPass=" + passX);
+
+                            } else { //otherwise, use global user info
+
+                                xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass);
+                            }
+
+
+                            //plugin info
+                            that.plugin.startRequestTimer();
+                            that.plugin.requests++; //add to requests
+                            //end plugin info
+
+                        } else {
+                            callback({error: 'pass length insufficient.'});
+                        }
+                    } else {
+                        callback({error: 'username contains invalid characters.'});
+                    }
+                } else {
+                    callback({error: 'username length unsuitable.'});
+                }
+            }//end should continue
         } else { //is offline
-        
+
         }
-	
-	};
-	
-	//#######################################################################################################################################################
-	//######################################################### GET DATA FROM BACKEND #######################################################################
-	//#######################################################################################################################################################
-	
-	this.get = function(callback, user) { //if user variable is array, it will be treated as property list, if it's a string, it will be treated as a username.
+
+    };
+
+    //#######################################################################################################################################################
+    //######################################################### GET DATA FROM BACKEND #######################################################################
+    //#######################################################################################################################################################
+
+    this.get = function(callback, user) { //if user variable is array, it will be treated as property list, if it's a string, it will be treated as a username.
         var isOnline = navigator.onLine;
         if (isOnline === true) {
-	        if (user === undefined || user === '') {
-	            that.aj("&getProperties=all", "get", callback);
-	        } else if (user instanceof Array) {
-	            var propertyString = "";
-	            for (var i = 0; i < user.length;i++) {
-	                if (user[i + 1] !== undefined) { //to keep things like "user@n@" <-- (no user next, but still "@n@")
-	                propertyString+=user[i] + "@n@";
-	                } else {
-	                    propertyString+=user[i];  
-	                }
-	            }
-	            that.aj("&getProperties=" + propertyString, "get", callback); 
-	        } else {
-	        	that.aj("&otherUser=" + braid.replace(user, " @w@"), "getOther", callback);
-	        }
+            if (user === undefined || user === '') {
+                that.aj("&getProperties=all", "get", callback);
+            } else if (user instanceof Array) {
+                var propertyString = "";
+                for (var i = 0; i < user.length;i++) {
+                    if (user[i + 1] !== undefined) { //to keep things like "user@n@" <-- (no user next, but still "@n@")
+                        propertyString+=user[i] + "@n@";
+                    } else {
+                        propertyString+=user[i];
+                    }
+                }
+                that.aj("&getProperties=" + propertyString, "get", callback);
+            } else {
+                that.aj("&otherUser=" + braid.replace(user, " @w@"), "getOther", callback);
+            }
         } else if (isOnline === false) { //user offline
-        	var offlineObject = that.offline.getOfflineObject();
-        	if (user === undefined || user === '') {
-        	    callback(offlineObject);
-        	} else if (user instanceof Array) { //specific properties
-        		var finalObject = {};
-        	    for (var i = 0; i < user.length;i++) {
-        	        for (key in offlineObject) {
-        	        	if (user[i] === key) {
-        	        		finalObject[key] = offlineObject[key];
-        	        	}
-        	        }
-        	    }
-        	    callback(finalObject);
-        	} else {//inform that getting data from another user is not possible when offline
-        		callback({error:'getting properties from user while offline is not possible'});
-        	}
+            var offlineObject = that.offline.getOfflineObject();
+            if (user === undefined || user === '') {
+                callback(offlineObject);
+            } else if (user instanceof Array) { //specific properties
+                var finalObject = {};
+                for (var i = 0; i < user.length;i++) {
+                    for (key in offlineObject) {
+                        if (user[i] === key) {
+                            finalObject[key] = offlineObject[key];
+                        }
+                    }
+                }
+                callback(finalObject);
+            } else {//inform that getting data from another user is not possible when offline
+                callback({error:'getting properties from user while offline is not possible'});
+            }
         }
-	};
-	
-	this.set = function(object, user, callback) {
-		var isOnline = navigator.onLine;
-		if (isOnline === true) {
-	        if (object instanceof Object) {
-	        	object['cennyJS'] = true; //for smashing bugs
-	            if (user === undefined || user === '') {
-	                that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "set", callback);
-	            } else if (typeof user === "function") { //for backwards compat
-	                that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "set", user);  
-	            } else {
-	                that.aj("&otherUser=" + braid.replace(user, " @w@") + "&data=" + encodeURIComponent(JSON.stringify(object)),"setOther",callback);
-	            }
-	        }
-	        
+    };
+
+    this.set = function(object, user, callback) {
+        var isOnline = navigator.onLine;
+        if (isOnline === true) {
+            if (object instanceof Object) {
+                object['cennyJS'] = true; //for smashing bugs
+                if (user === undefined || user === '') {
+                    that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "set", callback);
+                } else if (typeof user === "function") { //for backwards compat
+                    that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "set", user);
+                } else {
+                    that.aj("&otherUser=" + braid.replace(user, " @w@") + "&data=" + encodeURIComponent(JSON.stringify(object)),"setOther",callback);
+                }
+            }
+
         } else if (isOnline === false) { //user offline
-        	if (object instanceof Object) {
-        		
-        		object['cennyJS'] = true; //for smashing bugs
-        	
-        	    if (user === undefined || user === '') {
-        	        that.offline.set(object); 
-        	    } else if (typeof user === "function") { //for backwards compat
-        	        that.offline.set(object);
-        	        user("updated (offline)");   
-        	    }
-        	}
+            if (object instanceof Object) {
+
+                object['cennyJS'] = true; //for smashing bugs
+
+                if (user === undefined || user === '') {
+                    that.offline.set(object);
+                } else if (typeof user === "function") { //for backwards compat
+                    that.offline.set(object);
+                    user("updated (offline)");
+                }
+            }
         }
         
         
         setTimeout(function() {
-        	that.offline.updateOfflineObject();
+            that.offline.updateOfflineObject();
         }, 2000);
         
-	};
-	
-	this.update = function(object, user, callback) {
-		var isOnline = navigator.onLine;
-		if (isOnline === true) {
-			object['cennyJS'] = true; //for smashing bugs
-			if (user === undefined || user === "" || typeof user === "function") {
-				that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "update", user);
-			} else {
-				that.aj("&otherUser=" + braid.replace(user, " @w@") + "&data=" + encodeURIComponent(JSON.stringify(object)), "updateOther", callback);
-			}
-		} else if (isOnline === false) {//offline
-			object['cennyJS'] = true; //for smashing bugs
-			if (user === undefined || user === "" || typeof user === "function") {
-				that.offline.update(object);
-			}
-		}
-		setTimeout(function() {
-			that.offline.updateOfflineObject();
-		}, 2000);
-	};
-	
-	
-	//USER STUFF
-	
-	this.user.remove = function(callback) {
-		that.aj("", "removeUser", callback);
-		that.userObject.user = "default";
-		that.userObject.pass = "default";
-	};
+    };
+
+    this.update = function(object, user, callback) {
+        var isOnline = navigator.onLine;
+        if (isOnline === true) {
+            object['cennyJS'] = true; //for smashing bugs
+            if (user === undefined || user === "" || typeof user === "function") {
+                that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "update", user);
+            } else {
+                that.aj("&otherUser=" + braid.replace(user, " @w@") + "&data=" + encodeURIComponent(JSON.stringify(object)), "updateOther", callback);
+            }
+        } else if (isOnline === false) {//offline
+            object['cennyJS'] = true; //for smashing bugs
+            if (user === undefined || user === "" || typeof user === "function") {
+                that.offline.update(object);
+            }
+        }
+        setTimeout(function() {
+            that.offline.updateOfflineObject();
+        }, 2000);
+    };
+
+
+    //USER STUFF
+
+    this.user.remove = function(callback) {
+        that.aj("", "removeUser", callback);
+        that.userObject.user = "default";
+        that.userObject.pass = "default";
+    };
     
     this.user.permissions = function(permObj,callback) {
         var read = permObj.read;
@@ -375,7 +375,7 @@ function Cenny(mainObject) {
         if (read instanceof Array) {
             for (var i = 0; i < read.length;i++) {
                 if (read[i + 1] !== undefined) { //to keep things like "user@n@" <-- (no user next, but still "@n@")
-                readString+=read[i] + "@n@";
+                    readString+=read[i] + "@n@";
                 } else {
                     readString+=read[i];  
                 }
@@ -392,13 +392,13 @@ function Cenny(mainObject) {
         
         //write
         if (write instanceof Array) {
-        for (var i = 0; i < write.length;i++) {
-            if (write[i + 1] !== undefined) { //to keep things like "user@n@" <-- (no user next, but still "@n@")
-                writeString+=write[i] + "@n@";
-            } else {
-                writeString+=write[i];  
+            for (var i = 0; i < write.length;i++) {
+                if (write[i + 1] !== undefined) { //to keep things like "user@n@" <-- (no user next, but still "@n@")
+                    writeString+=write[i] + "@n@";
+                } else {
+                    writeString+=write[i];
+                }
             }
-        }
         } else if (write === true) {
             writeString = "allowAll";
         } else if (write === false) {
@@ -411,13 +411,13 @@ function Cenny(mainObject) {
         
         //emailRead
         if (emailRead instanceof Array) {
-        for (var i = 0; i < emailRead.length;i++) {
-            if (emailRead[i + 1] !== undefined) { //to keep things like "user@n@" <-- (no user next, but still "@n@")
-                emailReadString+=emailRead[i] + "@n@";
-            } else {
-                emailReadString+=emailRead[i];  
+            for (var i = 0; i < emailRead.length;i++) {
+                if (emailRead[i + 1] !== undefined) { //to keep things like "user@n@" <-- (no user next, but still "@n@")
+                    emailReadString+=emailRead[i] + "@n@";
+                } else {
+                    emailReadString+=emailRead[i];
+                }
             }
-        }
         } else if (emailRead === true) {
             emailReadString = "allowAll";
         } else if (emailRead === false) {
@@ -446,7 +446,7 @@ function Cenny(mainObject) {
                 if (permObj[key] instanceof Array) {
                     for (var i = 0; i < permObj[key].length; i++) {
                         if (permObj[key][i + 1] !== undefined) { //to keep things like "user@n@" <-- (no user next, but still "@n@")
-                             propertyString+=permObj[key][i] + "@n@";
+                            propertyString+=permObj[key][i] + "@n@";
                         } else {
                             propertyString+=permObj[key][i];  
                         }
@@ -479,59 +479,59 @@ function Cenny(mainObject) {
     };
     
     this.user.password = function(newPassword,callback){
-    	that.aj("&newPassword="+braid.replace(newPassword,' @w@'),"newPass",callback);
+        that.aj("&newPassword="+braid.replace(newPassword,' @w@'),"newPass",callback);
     };
-	
-	this.user.signin = function(mainObject,callback) {
-		if (mainObject instanceof Object) {
-			if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
+
+    this.user.signin = function(mainObject,callback) {
+        if (mainObject instanceof Object) {
+            if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
                 
                 //once signed in, check if should update backend with offline data
                 that.offline.syncWithBackend();
                 
                 var userX = braid.replace(mainObject['user'][0], ' @w@');
-				var passX = braid.replace(mainObject['user'][1], ' @w@');
+                var passX = braid.replace(mainObject['user'][1], ' @w@');
                 if (typeof callback === "function") {
                     that.aj("","generateAuthToken",function(d){
-                    if (d['error'] !== undefined) {
-                    	callback(d);
-                    } else {
-                    	//set local user information
-                    	that.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
-                    	that.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
-                    	
-                    	that.userObject.pass = d; //set pass to token
-                    	localStorage.setItem('cennyToken',JSON.stringify([d,that.user.clientID,that.userObject.user])); //set token in localStorage
+                        if (d['error'] !== undefined) {
+                            callback(d);
+                        } else {
+                            //set local user information
+                            that.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
+                            that.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
 
-                        that.user.remember();
-                        
-                    	callback(d); //call provided callback
-                    }
+                            that.userObject.pass = d; //set pass to token
+                            localStorage.setItem('cennyToken',JSON.stringify([d,that.user.clientID,that.userObject.user])); //set token in localStorage
+
+                            that.user.remember();
+
+                            callback(d); //call provided callback
+                        }
                     },[userX,passX]);
                     
                 } else {
-                   that.aj("","generateAuthToken",function(d){
-                   	if (d['error'] !== undefined) {
-                   		callback(d);
-                   	} else {
-                   		//set local user information
-                   		that.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
-                   		that.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
-                   		
-                   		that.userObject.pass = d; //set pass to token
-                   		localStorage.setItem('cennyToken',JSON.stringify([d,that.user.clientID,that.userObject.user])); //set token in localStorage
-                       
-                       that.user.remember();
-					}
-                   },[userX,passX]);
+                    that.aj("","generateAuthToken",function(d){
+                        if (d['error'] !== undefined) {
+                            callback(d);
+                        } else {
+                            //set local user information
+                            that.userObject.user = braid.replace(mainObject['user'][0], ' @w@');
+                            that.userObject.pass = braid.replace(mainObject['user'][1], ' @w@');
+
+                            that.userObject.pass = d; //set pass to token
+                            localStorage.setItem('cennyToken',JSON.stringify([d,that.user.clientID,that.userObject.user])); //set token in localStorage
+
+                            that.user.remember();
+                        }
+                    },[userX,passX]);
                 }
                 
-			}
-		} else {
-			console.log("mainObject should be an Object.");
-		}
+            }
+        } else {
+            console.log("mainObject should be an Object.");
+        }
 
-	};
+    };
     
     this.user.signout = function() { //signs into default user.
         that.userObject.pass = "default";
@@ -542,15 +542,15 @@ function Cenny(mainObject) {
     
     this.user.create = function(mainObject, callback) {
         if (mainObject instanceof Object) {
-			if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
-				var userX = braid.replace(mainObject['user'][0], ' @w@');
-				var passX = braid.replace(mainObject['user'][1], ' @w@');
+            if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
+                var userX = braid.replace(mainObject['user'][0], ' @w@');
+                var passX = braid.replace(mainObject['user'][1], ' @w@');
                 
                 that.aj("","none",callback,[userX,passX]);
-			}
-		} else {
-			console.log("mainObject should be an Object.");
-		}
+            }
+        } else {
+            console.log("mainObject should be an Object.");
+        }
     }
     
     this.user.info = function() {
@@ -580,105 +580,105 @@ function Cenny(mainObject) {
             that.aj("&otherUser=" + username, "getEmailOther", callback); 
         }
     };
+
     
-   
-	//END USER STUFF
-	
-	
-	
-	//START OFFLINE - - - - - - - - 
-	
-	this.offline = {};
-	this.offline.update = function(object) {
-		var offlineQueueObject = localStorage.getItem('cennyOfflineUpdate');
-		if (offlineQueueObject === undefined || offlineQueueObject === null) { 
-			offlineQueueObject = {};
-		} else { 
-			offlineQueueObject = JSON.parse(offlineQueueObject);
-		}
-		
-		for (key in object) {
-			if (key === "DELETE") {
-				var offlineObject = JSON.parse(localStorage.getItem('cennyOffline'));
-				for (var i = 0; i < object[key].length; i++) {
-					delete offlineQueueObject[object[key][i]];
-					delete offlineObject[object[key][i]];
-				}
-				localStorage.setItem('cennyOffline',JSON.stringify(offlineObject));
-			} else {
-				offlineQueueObject[key] = object[key];
-			}
-		}
-		
-		offlineQueueObject = JSON.stringify(offlineQueueObject);
-		localStorage.setItem('cennyOfflineUpdate', offlineQueueObject);	
-    
+    //END USER STUFF
+
+
+
+    //START OFFLINE - - - - - - - -
+
+    this.offline = {};
+    this.offline.update = function(object) {
+        var offlineQueueObject = localStorage.getItem('cennyOfflineUpdate');
+        if (offlineQueueObject === undefined || offlineQueueObject === null) {
+            offlineQueueObject = {};
+        } else {
+            offlineQueueObject = JSON.parse(offlineQueueObject);
+        }
+
+        for (key in object) {
+            if (key === "DELETE") {
+                var offlineObject = JSON.parse(localStorage.getItem('cennyOffline'));
+                for (var i = 0; i < object[key].length; i++) {
+                    delete offlineQueueObject[object[key][i]];
+                    delete offlineObject[object[key][i]];
+                }
+                localStorage.setItem('cennyOffline',JSON.stringify(offlineObject));
+            } else {
+                offlineQueueObject[key] = object[key];
+            }
+        }
+
+        offlineQueueObject = JSON.stringify(offlineQueueObject);
+        localStorage.setItem('cennyOfflineUpdate', offlineQueueObject);
+
         that.offline.setDataUsername();
         
-	};
+    };
     
     this.offline.setDataUsername = function() { //so that data isn't updated in the wrong user
         localStorage.setItem('cennyOfflineUsername', that.userObject.user);
     };
-	
-	this.offline.set = function(object) {
-		object = JSON.stringify(object);
-		localStorage.setItem('cennyOffline', object);	
-		localStorage.setItem('cennyOfflineUpdate', object);
+
+    this.offline.set = function(object) {
+        object = JSON.stringify(object);
+        localStorage.setItem('cennyOffline', object);
+        localStorage.setItem('cennyOfflineUpdate', object);
         
         that.offline.setDataUsername();
         
-	};
-	
-	this.offline.syncWithBackend = function() {
-		that.aj("", "getOfflinePerm", function(d){
-			if (d !== "blockAll") {
-				var isOnline = navigator.onLine;
-				if (isOnline === true) {
-					var offlineObject = localStorage.getItem('cennyOfflineUpdate');
-				    var dataUsername = localStorage.getItem('cennyOfflineUsername');//username that set data
-					if (offlineObject === undefined || offlineObject === null) { 
-						offlineObject = {};
-					} else { 
-						offlineObject = JSON.parse(offlineObject);
-					}
-				    if (dataUsername === that.userObject.user) {
-				        that.update(offlineObject);
-				        localStorage.setItem('cennyOfflineUpdate', JSON.stringify({})); //clear update queue
-				    }
-				}
-			} else {
-				localStorage.setItem('cennyOfflineUpdate', JSON.stringify({})); //clear update queue
-			}
-			
-		});
-	};
-	
-	this.offline.getOfflineObject = function() { //used for get / modified
-		var offlineObjectUpdate = localStorage.getItem('cennyOfflineUpdate');
-		var offlineObject = localStorage.getItem('cennyOffline');
-		if (offlineObject === undefined || offlineObject === null) { 
-			offlineObject = {};
-		} else { 
-			offlineObject = JSON.parse(offlineObject);	
-		}
-		if (offlineObjectUpdate === undefined || offlineObjectUpdate === null) { 
-			offlineObjectUpdate = {};
-		} else { 
-			offlineObjectUpdate = JSON.parse(offlineObjectUpdate);	
-		}
-		
-		var finalObject = {};
-		
-		for (key in offlineObject) {
-			finalObject[key] = offlineObject[key];
-		}
-		for (key in offlineObjectUpdate) {
-			finalObject[key] = offlineObjectUpdate[key];
-		}
-		
-		return finalObject;
-	};
+    };
+
+    this.offline.syncWithBackend = function() {
+        that.aj("", "getOfflinePerm", function(d){
+            if (d !== "blockAll") {
+                var isOnline = navigator.onLine;
+                if (isOnline === true) {
+                    var offlineObject = localStorage.getItem('cennyOfflineUpdate');
+                    var dataUsername = localStorage.getItem('cennyOfflineUsername');//username that set data
+                    if (offlineObject === undefined || offlineObject === null) {
+                        offlineObject = {};
+                    } else {
+                        offlineObject = JSON.parse(offlineObject);
+                    }
+                    if (dataUsername === that.userObject.user) {
+                        that.update(offlineObject);
+                        localStorage.setItem('cennyOfflineUpdate', JSON.stringify({})); //clear update queue
+                    }
+                }
+            } else {
+                localStorage.setItem('cennyOfflineUpdate', JSON.stringify({})); //clear update queue
+            }
+
+        });
+    };
+
+    this.offline.getOfflineObject = function() { //used for get / modified
+        var offlineObjectUpdate = localStorage.getItem('cennyOfflineUpdate');
+        var offlineObject = localStorage.getItem('cennyOffline');
+        if (offlineObject === undefined || offlineObject === null) {
+            offlineObject = {};
+        } else {
+            offlineObject = JSON.parse(offlineObject);
+        }
+        if (offlineObjectUpdate === undefined || offlineObjectUpdate === null) {
+            offlineObjectUpdate = {};
+        } else {
+            offlineObjectUpdate = JSON.parse(offlineObjectUpdate);
+        }
+
+        var finalObject = {};
+
+        for (key in offlineObject) {
+            finalObject[key] = offlineObject[key];
+        }
+        for (key in offlineObjectUpdate) {
+            finalObject[key] = offlineObjectUpdate[key];
+        }
+
+        return finalObject;
+    };
     
     //check if should sync with backend
     setTimeout(function() {
@@ -687,73 +687,73 @@ function Cenny(mainObject) {
             that.offline.syncWithBackend();   
         }
     }, 100);
-	
-	this.offline.lastState = navigator.onLine;
-	setInterval(function() {
-		if (navigator.onLine !== that.offline.lastState) {
-			if (navigator.onLine === true) {
-				that.offline.syncWithBackend();
-			}
-			that.offline.lastState = navigator.onLine;
-		}
-	
-	},300);
-	
-	this.offline.updateOfflineObject = function() {
-		var isOnline = navigator.onLine;
-		if (isOnline === true) {
-			that.get(function(d) {
-				var offlineObject = d;
-				localStorage.setItem('cennyOffline', JSON.stringify(offlineObject));
-			});
-		} else {
-			//user offline
-		}
-	};
-	
-	//start offline updating
-	setTimeout(this.offline.updateOfflineObject, 1000);
-	
-	this.offline.updateOfflineInterval = setInterval(function(){
-		that.offline.updateOfflineObject();
-	},20500); //updates offline object every 8 sec
-	
-	
-	//END OFFLINE - - - - - - - - 
-	
-	function watchBackendProperty(callback, pArray) {
-		var lastData = "";
-		setInterval(function() {
-			that.get(function(d){
-		        
-			var output = {};
-				if (pArray !== undefined) {
-					for (var i = 0; i < pArray.length; i++) {
-						output[pArray[i]] = d[pArray[i]];
-					}
-				} else {
-					output = d;
-				}
-				
-				var vexput = JSON.stringify(output); //for comparing.
-				
-				if (vexput !== lastData) {
-					callback(output);	
-					lastData = JSON.stringify(output);
-				}
-			},pArray);
-		}, 1500);
-	}
-	
-	
-	
-	this.modified = function(callback, pArray) {
-		var x = new watchBackendProperty(callback, pArray);
-	};
-	
-    
-	var that = this;
-	
-   
+
+    this.offline.lastState = navigator.onLine;
+    setInterval(function() {
+        if (navigator.onLine !== that.offline.lastState) {
+            if (navigator.onLine === true) {
+                that.offline.syncWithBackend();
+            }
+            that.offline.lastState = navigator.onLine;
+        }
+
+    },300);
+
+    this.offline.updateOfflineObject = function() {
+        var isOnline = navigator.onLine;
+        if (isOnline === true) {
+            that.get(function(d) {
+                var offlineObject = d;
+                localStorage.setItem('cennyOffline', JSON.stringify(offlineObject));
+            });
+        } else {
+            //user offline
+        }
+    };
+
+    //start offline updating
+    setTimeout(this.offline.updateOfflineObject, 1000);
+
+    this.offline.updateOfflineInterval = setInterval(function(){
+        that.offline.updateOfflineObject();
+    },20500); //updates offline object every 8 sec
+
+
+    //END OFFLINE - - - - - - - -
+
+    function watchBackendProperty(callback, pArray) {
+        var lastData = "";
+        setInterval(function() {
+            that.get(function(d){
+
+                var output = {};
+                if (pArray !== undefined) {
+                    for (var i = 0; i < pArray.length; i++) {
+                        output[pArray[i]] = d[pArray[i]];
+                    }
+                } else {
+                    output = d;
+                }
+
+                var vexput = JSON.stringify(output); //for comparing.
+
+                if (vexput !== lastData) {
+                    callback(output);
+                    lastData = JSON.stringify(output);
+                }
+            },pArray);
+        }, 1500);
+    }
+
+
+
+    this.modified = function(callback, pArray) {
+        var x = new watchBackendProperty(callback, pArray);
+    };
+
+
+    var that = this;
+
+
 
 };
