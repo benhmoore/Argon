@@ -61,7 +61,7 @@ Mg.validate.password = function(password) {
             result.reasons.push("Password must contain at least one special character");
         }
     }
-    if (password.length > 60) {
+    if (password.length > 70) {
         result.isValid = false;
         result.reasons.push("Password too long");
     }
@@ -236,9 +236,9 @@ function Cenny(mainObject) {
             var shouldContinue = true;
 
             if (optionalUserInfo !== undefined) {
-                if (optionalUserInfo[0].length > 2 && optionalUserInfo[0].length < 23) {
+                if (optionalUserInfo[0].length > 2 && optionalUserInfo[0].length < 25) {
                     if (/^\w+$/.test(optionalUserInfo[0])) {
-                        if (optionalUserInfo[1].length > 3) {
+                        if (optionalUserInfo[1].length > 4) {
 
                         } else {
                             callback({error:'password invalid length'});
@@ -254,15 +254,15 @@ function Cenny(mainObject) {
                 }
             }
             if (shouldContinue === true) {
-                if (that.userObject.user.length > 2 && that.userObject.user.length < 23) {
+                if (that.userObject.user.length > 2 && that.userObject.user.length < 25) {
                     if (/^\w+$/.test(that.userObject.user)) {
-                        if (that.userObject.pass.length > 3) {
+                        if (that.userObject.pass.length > 4) {
                             var xmlhttp;
                             xmlhttp=new XMLHttpRequest();
                             xmlhttp.onreadystatechange=function(){
                                 if (xmlhttp.readyState==4 && xmlhttp.status==200) {
                                     var data = xmlhttp.responseText;
-                                    if (callback !== undefined) {
+                                    if (callback !== undefined && data !== "") {
                                         callback(JSON.parse(data));
 
                                         //plugin info

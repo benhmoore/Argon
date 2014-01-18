@@ -33,8 +33,8 @@ function openFile($url, $size) {
 
 function genToken()
 {
-    $length=57;
-    $chars ="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890.";//length:36
+    $length=66;
+    $chars ="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-.!,";//length:36
     $final_rand='';
     for($i=0;$i<$length; $i++)
     {
@@ -112,7 +112,7 @@ $userPassValid = true;
 
 
 //pass
-if (strlen($userPass) > 60) {
+if (strlen($userPass) > 70) {
     $userPassValid = false;
 } else if (strlen($userPass) < 5) {
     $userPassValid = false;
