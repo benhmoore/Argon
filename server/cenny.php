@@ -15,6 +15,12 @@
 	 *
 	 *
 	/* * * * * * * * * * * * * * * * * */
+	
+	
+function is_assoc($var)
+{
+        return is_array($var) && array_diff_key($var,array_keys(array_keys($var)));
+}
 
 function openFile($url, $size) {
     if (file_exists($url)) {
@@ -267,15 +273,17 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
                     if ($openedData !== "") {
                         echo $openedData;
                     } else {
-                        echo '{"error":"user is empty."}';
+                        echo '{"error":"user is empty"}';
                     }
                 } else { //check if any property allows $userName read access
                     $openedPropertyPerm = openFile("$directory/$groupName/$otherUser/propertyPerm.txt", 50000);
                     $openedData = openFile("$directory/$groupName/$otherUser/data.txt", 500000); //actual data
                     $openedData = json_decode($openedData);
                     $permissionProperties = json_decode($openedPropertyPerm);
-
+                    
                     $isThere = false;
+					if (is_assoc($permissionProperties) === true) { //make sure permissions are set
+                    
                     $outputObj = array(); //create obj for properties user is given access to.
 
                     foreach ($permissionProperties as $propertyName => $propertyValue) {
@@ -302,6 +310,10 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 
 
                     }
+                    
+                    } else { //permissions are not set
+                    	//do nothing
+                    }
 
                     if ($isThere === true) { //if $userName is found in properties do this
                         $outputObj = json_encode($outputObj); //encode output obj to json
@@ -312,7 +324,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 
                 }
             } else {
-                echo '{"error":"user does not exist."}';
+                echo '{"error":"user does not exist"}';
             }
 
         } else if ($action === "getEmailOther") {
