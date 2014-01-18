@@ -200,7 +200,7 @@ This snippet continuously watches the properties ```sixty``` and ```propertyN```
 
 ##Users & Their Methods
 
-Cenny.js provides many methods for user operations: .create(), .signin(), .signout(), .password(), .info(), .setEmail(), .getEmail(), and .remove(). These methods are located under the ```.user``` object.
+Cenny.js provides many methods for user operations: .create(), .signin(), .signout(), .password(), .info(), .metadata(), .setEmail(), .getEmail(), and .remove(). These methods are located under the ```.user``` object.
 
 
 ###.user.create()
@@ -279,6 +279,17 @@ This snippet returns an array of information about the 'default' user.
 ####Simulated output:
 ```javascript
 ['default', 'default'] // [username, password]
+```
+
+
+###.user.metadata()
+
+.user.metadata() returns an object that contains metadata on what is inside the main Object of a user, using Knwl.js (http://github.com/loadfive/Knwl.js).
+
+####Syntax:
+
+```javascript
+server.user.metadata(callback);
 ```
 
 
@@ -369,16 +380,23 @@ If a user has given full or per-property read access to at least the current use
 ```javascript
 server.get( callback, 'username'); //get data from user 'username'
 ```
+
 **!Word of thumb**: If the second parameter of .get() is an array, it will be treated as a list of properties to be retrieved, however, if it is a string, it will be treated as a username (like above):
 ```javascript
 server.get(function(d){ console.log(d); }, 'toby') //gets data from USER 'toby' 
 server.get(function(d){ console.log(d); }, ['MsgCount','ip']) //gets only properties 'MsgCount' and 'ip' from server.
 ```
 
-
 If a user has given at least the current user emailRead access, .user.getEmail() can be used to retrieve the user's email:
 ```javascript
 server.user.getEmail( callback, 'username'); //get user "username"'s email
+```
+
+##Getting Metadata Of Another User
+
+If a user has given full or per-property read access to at least the current user, ```.user.metadata()``` can be used on that user:
+```javascript
+server.user.metadata( callback, 'username'); //get metadata of user 'username'
 ```
 
 ____
@@ -453,6 +471,16 @@ x.user.create( {user:['username', 'password']}, callback );
 Get user info.
 ```javascript
 x.user.info() //returns array: [username,password]
+```
+
+Get user metadata.
+```javascript
+x.user.metadata( callback ) //returns obj
+```
+
+Get another user's metadata (if allowed).
+```javascript
+x.user.metadata( callback, 'username' ) //returns obj
 ```
 
 Set user email.
