@@ -152,7 +152,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
         if ($orginalKey === $groupKey) {
             $group_loggedin = true;
         } else {
-            echo '{"error":"group key incorrect"}';
+            echo '{"cenError":"group key incorrect"}';
         }
 
     } else {
@@ -169,14 +169,15 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
         $orginalPass = openFile("$directory/$groupName/$userName/pass.txt", 10000);
         $token = openFile("$directory/$groupName/$userName/token.txt", 10000);
         if ($orginalPass === $userPass) {
-            $user_loggedin = true;		} else if ($token !== ""){
+            $user_loggedin = true;
+        } else if ($token !== ""){
             if ($token === $userPass) {
                 $user_loggedin = true;
             } else {
-                echo '{"error":"user incorrect"}';
+                echo '{"cenError":"user incorrect"}';
             }
         } else {
-            echo '{"error":"user incorrect"}';
+            echo '{"cenError":"user incorrect"}';
         }
 
     } else {
@@ -214,7 +215,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
                 if ($openedData !== "") {
                     echo $openedData;
                 } else {
-                    echo '{"error":"user is empty"}';
+                    echo '{"cenError":"user is empty"}';
                 }
 
             } else {
@@ -235,7 +236,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
                     echo $outputObj;
 
                 } else {//opened data is empty
-                    echo '{"error":"user is empty"}';
+                    echo '{"cenError":"user is empty"}';
                 }
 
 
@@ -273,7 +274,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
                     if ($openedData !== "") {
                         echo $openedData;
                     } else {
-                        echo '{"error":"user is empty"}';
+                        echo '{"cenError":"user is empty"}';
                     }
                 } else { //check if any property allows $userName read access
                     $openedPropertyPerm = openFile("$directory/$groupName/$otherUser/propertyPerm.txt", 50000);
@@ -319,12 +320,12 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
                         $outputObj = json_encode($outputObj); //encode output obj to json
                         echo $outputObj;
                     } else { //otherwise, present error
-                        echo '{"error":"access not granted"}';
+                        echo '{"cenError":"access not granted"}';
                     }
 
                 }
             } else {
-                echo '{"error":"user does not exist"}';
+                echo '{"cenError":"user does not exist"}';
             }
 
         } else if ($action === "getEmailOther") {
@@ -345,13 +346,13 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
                     if ($openedEmail !== "") {
                         echo json_encode($openedEmail);
                     } else {
-                        echo '{"error":"email not set."}';
+                        echo '{"cenError":"email not set."}';
                     }
                 } else {
-                    echo '{"error":"email access not granted."}';
+                    echo '{"cenError":"email access not granted."}';
                 }
             } else {
-                echo '{"error":"user "' + $otherUser + '" does not exist."}';
+                echo '{"cenError":"user "' + $otherUser + '" does not exist."}';
             }
 
         } else if ($action === "setOther") {
@@ -371,10 +372,10 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
                     saveFile("$directory/$groupName/$otherUser/data.txt", $clientData);
                     echo json_encode("saved to user " . $otherUser . " in group " . $groupName);
                 } else {
-                    echo '{"error":"write access not granted."}';
+                    echo '{"cenError":"write access not granted."}';
                 }
             } else {
-                echo '{"error":"user does not exist."}';
+                echo '{"cenError":"user does not exist."}';
             }
 
         } else if ($action === "updateOther") {
@@ -428,10 +429,10 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
                     echo json_encode("updated");
 
                 } else {
-                    echo '{"error":"write access not granted."}';
+                    echo '{"cenError":"write access not granted."}';
                 }
             } else {
-                echo '{"error":"user does not exist."}';
+                echo '{"cenError":"user does not exist."}';
             }
 
         }  else if ($action === "update") {
@@ -563,7 +564,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
     //########################################################################################################################
 
 } else {// userName or groupName invalid
-    echo json_encode('username or group name invalid');
+    echo '{"cenError":"username or groupname invalid"}';
 }
 
 

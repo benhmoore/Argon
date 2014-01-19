@@ -563,7 +563,7 @@ function Cenny(mainObject) {
                 var passX = braid.replace(mainObject['user'][1], ' @w@');
                 if (typeof callback === "function") {
                     that.aj("","generateAuthToken",function(d){
-                        if (d['error'] !== undefined) {
+                        if (d.cenError !== undefined) {
                             callback(d);
                         } else {
                             //set local user information
@@ -581,7 +581,7 @@ function Cenny(mainObject) {
                     
                 } else {
                     that.aj("","generateAuthToken",function(d){
-                        if (d['error'] !== undefined) {
+                        if (d.cenError !== undefined) {
                             callback(d);
                         } else {
                             //set local user information
@@ -664,7 +664,7 @@ function Cenny(mainObject) {
     this.user.metadata = function(callback,user) {
     	if (user !== undefined) {
 	    	that.get(function(d){
-	    		if (d.error !== "user incorrect" && d.error !== "access not granted" && d.error !== "user is empty" && d.error !== "user does not exist") {
+	    		if (d.cenError === undefined) {
 	    			var metaOBJ = {};
 	    			for (key in d) {
 	    				var str = d[key];
@@ -676,12 +676,12 @@ function Cenny(mainObject) {
 	    			}
 	    			callback(metaOBJ);
 	    		} else {
-	    			callback(d);
+	    			callback(d.cenError);
 	    		}
 	    	},user);
     	} else {
     		that.get(function(d){
-    			if (d.error !== "user incorrect" && d.error !== "user is empty") {
+    			if (d.cenError === undefined) {
     				var metaOBJ = {};
     				for (key in d) {
     					var str = d[key];
@@ -693,7 +693,7 @@ function Cenny(mainObject) {
     				}
     				callback(metaOBJ);
     			} else {
-    				callback(d);
+    				callback(d.cenError);
     			}
     		});
     	}
