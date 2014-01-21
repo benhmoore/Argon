@@ -209,19 +209,19 @@ Cenny.js provides many methods for user operations: .create(), .signin(), .signo
 
 ####Syntax:
 ```javascript
-server.user.create({user:['username','password'});
+server.user.create({user:['username','password'}, callback);
 ```
 
 ####What's happening:
 
-This snippet creates the user 'username' with the password 'password'.
+This snippet creates the user 'username' with the password 'password'. Information about the creation attempt will be passed to the callback.
 
 
 ###.user.signin()
 
 .user.signin() as the same suggests, is used to sign into the specified user. Once a user is signed in, methods like .get() or .update() will begin operating on this user, instead of the previous user.
 
-**!Word of thumb**: if a user does not already exist, it will be created.
+~~**!Word of thumb**: if a user does not already exist, it will be created.~~ A user must exist (must have been created with ```.user.create()```) before it can be signed into.
 
 ####Syntax:
 ```javascript
