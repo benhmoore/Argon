@@ -180,15 +180,13 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
             echo '{"cenError":"user incorrect"}';
         }
 
-    } else if ($userName === "default") {
+    } else {
         $oldmask = umask(0);
         mkdir("$directory/$groupName/$userName/", 0777);
         umask($oldmask);
         saveFile("$directory/$groupName/$userName/pass.txt", $userPass);
         addToFile("$directory/$groupName/userlist.txt", $userName . "@SEPCENNYUSER@");
         $user_loggedin = true;
-    } else {
-    	echo '{"cenError":"user does not exist"}';
     }
 
 
@@ -222,7 +220,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 
             } else {
                 $getProperties = splitString($getProperties, "@n@");
-                if ($openedData !== "" && is_assoc($openedData) === true) {
+                if ($openedData !== "") {
                     $openedData = json_decode($openedData);
                     $outputObj = array();
 
@@ -402,34 +400,31 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
                     $outputData = array();
                     $markedFDProps = array();
 
-					if (is_assoc($openedData) === true) {
-	                    foreach($openedData as $opName => $opData) {
 
-	                        //check if should be deleted
-	                        $shouldBeDeleted = false;
-	                        foreach($clientData as $cpName => $cpData) {
-	                            if ($cpName === "DELETE") {
-	                                for ($i = 0; $i < count($cpData); $i++) {//go though 'DELETE' array
-	                                    if ($cpData[$i]===$opName) { //mark to be deleted
-	                                        $shouldBeDeleted = true;
-	                                    }
-	                                }//end 'DELETE' array search
-	                            }
-	                        }//end $clientData foreach
-	                        if ($souldBeDeleted === false) { //only push to output object if it should stay
-	                            $outputData[$opName] = $opData;
-	                        }
-	                    } //end $openData foreach
+                    foreach($openedData as $opName => $opData) {
 
-	                    foreach($clientData as $cpName => $cpData) { //push all clientData (from cenny.js) properties to output object
-	                        if ($cpName !== 'DELETE') {//do not store 'DELETE' property
-	                            $outputData[$cpName] = $cpData;
-	                        }
-	                    }
-	                    saveFile("$directory/$groupName/$otherUser/data.txt", json_encode($outputData));
-	                } else {
-	                	saveFile("$directory/$groupName/$otherUser/data.txt", json_encode($clientData));
-	                }
+                        //check if should be deleted
+                        $shouldBeDeleted = false;
+                        foreach($clientData as $cpName => $cpData) {
+                            if ($cpName === "DELETE") {
+                                for ($i = 0; $i < count($cpData); $i++) {//go though 'DELETE' array
+                                    if ($cpData[$i]===$opName) { //mark to be deleted
+                                        $shouldBeDeleted = true;
+                                    }
+                                }//end 'DELETE' array search
+                            }
+                        }//end $clientData foreach
+                        if ($souldBeDeleted === false) { //only push to output object if it should stay
+                            $outputData[$opName] = $opData;
+                        }
+                    } //end $openData foreach
+
+                    foreach($clientData as $cpName => $cpData) { //push all clientData (from cenny.js) properties to output object
+                        if ($cpName !== 'DELETE') {//do not store 'DELETE' property
+                            $outputData[$cpName] = $cpData;
+                        }
+                    }
+                    saveFile("$directory/$groupName/$otherUser/data.txt", json_encode($outputData));
 
                     echo json_encode("updated");
 
@@ -450,7 +445,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
             $outputData = array();
             $markedFDProps = array();
 
-			if (is_assoc($openedData) === true) {
+
             foreach($openedData as $opName => $opData) {
 
                 //check if should be deleted
@@ -468,7 +463,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
                     $outputData[$opName] = $opData;
                 }
             } //end $openData foreach
-			}
+
             foreach($clientData as $cpName => $cpData) { //push all clientData (from cenny.js) properties to output object
                 if ($cpName !== 'DELETE') {//do not store 'DELETE' property
                     $outputData[$cpName] = $cpData;
@@ -560,64 +555,64 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
             saveFile("$directory/$groupName/$userName/email.txt", $clientData);
 
         } else if ($action === "userExists") {
-        	if (file_exists("$directory/$groupName/$clientData/")) {
-        		echo 'true';
-        	} else {
-        		echo 'false';
-        	}
-        } else if ($action === "createuser") {
-            $info = json_decode($clientData);
+                	if (file_exists("$directory/$groupName/$clientData/")) {
+                		echo 'true';
+                	} else {
+                		echo 'false';
+                	}
+                } else if ($action === "createuser") {
+                    $info = json_decode($clientData);
 
-            foreach ($info as $pName => $pData) {
-	            if ($pName === "username") {
-	            	$newUsername = $pData;
-	            } else if ($pName === "password") {
-	            	$newPassword = $pData;
-	            }
-            }
-
-
-            if (file_exists("$directory/$groupName/$newUsername/")) {
-                echo '{"cenError":"user ' . $newUsername . ' already exists"}';
-            } else {
-
-                $newPasswordValid = true;
-                $newUsernameValid = false;
-
-                //pass
-                if (strlen($newPassword) > 70) {
-                    $newPasswordValid = false;
-                } else if (strlen($newPassword) < 5) {
-                    $newPasswordValid = false;
-                }
-
-                //username
-                if(preg_match('/^\w{5,}$/', $newUsername)) {
-                    $newUsernameValid = true;
-                }
-                if (strlen($newUsername) > 22) {
-                    $newUsernameValid = false;
-                }
-
-                if ($newPasswordValid === true) {
-                    if ($newUsernameValid === true) {
-                        $oldmask = umask(0);
-                        mkdir("$directory/$groupName/$newUsername/", 0777);
-                        umask($oldmask);
-                        saveFile("$directory/$groupName/$newUsername/pass.txt", $newPassword);
-                        addToFile("$directory/$groupName/userlist.txt", $newUsername . "@SEPCENNYUSER@");
-                        echo '{"info":"user created"}';
-                    } else {
-                         echo '{"cenError":"username invalid"}';
+                    foreach ($info as $pName => $pData) {
+        	            if ($pName === "username") {
+        	            	$newUsername = $pData;
+        	            } else if ($pName === "password") {
+        	            	$newPassword = $pData;
+        	            }
                     }
-                } else {
-                     echo '{"cenError":"password invalid"}';
-                }
-            }
 
-        } else {
-            echo  '{"cenError":"' . $action . ' is not a valid action"}';
-        }
+
+                    if (file_exists("$directory/$groupName/$newUsername/")) {
+                        echo '{"cenError":"user ' . $newUsername . ' already exists"}';
+                    } else {
+
+                        $newPasswordValid = true;
+                        $newUsernameValid = false;
+
+                        //pass
+                        if (strlen($newPassword) > 70) {
+                            $newPasswordValid = false;
+                        } else if (strlen($newPassword) < 5) {
+                            $newPasswordValid = false;
+                        }
+
+                        //username
+                        if(preg_match('/^\w{5,}$/', $newUsername)) {
+                            $newUsernameValid = true;
+                        }
+                        if (strlen($newUsername) > 22) {
+                            $newUsernameValid = false;
+                        }
+
+                        if ($newPasswordValid === true) {
+                            if ($newUsernameValid === true) {
+                                $oldmask = umask(0);
+                                mkdir("$directory/$groupName/$newUsername/", 0777);
+                                umask($oldmask);
+                                saveFile("$directory/$groupName/$newUsername/pass.txt", $newPassword);
+                                addToFile("$directory/$groupName/userlist.txt", $newUsername . "@SEPCENNYUSER@");
+                                echo '{"info":"user created"}';
+                            } else {
+                                 echo '{"cenError":"username invalid"}';
+                            }
+                        } else {
+                             echo '{"cenError":"password invalid"}';
+                        }
+                    }
+
+                } else {
+                    echo  '{"cenError":"' . $action . ' is not a valid action"}';
+                }
         // - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - /
 
 
