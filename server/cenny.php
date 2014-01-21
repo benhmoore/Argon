@@ -559,6 +559,12 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
             
             saveFile("$directory/$groupName/$userName/email.txt", $clientData);
 
+        } else if ($action === "userExists") {
+        	if (file_exists("$directory/$groupName/$clientData/")) {
+        		echo 'true';
+        	} else {
+        		echo 'false';
+        	}
         } else if ($action === "createuser") {
             $info = json_decode($clientData);
 
@@ -610,7 +616,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
             }
 
         } else {
-            echo $action;
+            echo  '{"cenError":"' . $action . ' is not a valid action"}';
         }
         // - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - /
 

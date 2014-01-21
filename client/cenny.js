@@ -243,7 +243,7 @@ function Cenny(mainObject) {
 
     //SERVER REQUEST METHOD
 
-    this.aj = function(sendData, action, callback) {
+    this.aj = function(sendData, action, callback, optionalUserInfo) {
         if (callback === undefined || typeof callback !== "function") {
             callback = function(d) {
                 console.info(d);
@@ -251,6 +251,28 @@ function Cenny(mainObject) {
         }
         if (navigator.onLine === true) {
             //check username before sending request
+
+            var shouldContinue = true;
+
+            if (optionalUserInfo !== undefined) {
+                if (optionalUserInfo[0].length > 2 && optionalUserInfo[0].length < 25) {
+                    if (/^\w+$/.test(optionalUserInfo[0])) {
+                        if (optionalUserInfo[1].length > 4) {
+
+                        } else {
+                            callback({error:'password invalid length'});
+                            shouldContinue = false;
+                        }
+                    } else {
+                        callback({error:'username contains invalid chars'});
+                        shouldContinue = false;
+                    }
+                } else {
+                    callback({error:'username length invalid'});
+                    shouldContinue = false;
+                }
+            }
+            if (shouldContinue === true) {
                 if (that.userObject.user.length > 2 && that.userObject.user.length < 25) {
                     if (/^\w+$/.test(that.userObject.user)) {
                         if (that.userObject.pass.length > 4) {
@@ -271,7 +293,20 @@ function Cenny(mainObject) {
                             };
                             xmlhttp.open("POST",that.url,true);
                             xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-                            xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass);
+
+
+                            if (optionalUserInfo !== undefined && optionalUserInfo instanceof Array) {//used for **.create();**
+                                var userX = optionalUserInfo[0];
+                                var passX = optionalUserInfo[1];
+
+
+                                xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + userX + "&userPass=" + passX);
+
+                            } else { //otherwise, use global user info
+
+                                xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass);
+                            }
+
 
                             //plugin info
                             that.plugin.startRequestTimer();
@@ -287,6 +322,7 @@ function Cenny(mainObject) {
                 } else {
                     callback({error: 'username length unsuitable.'});
                 }
+            }//end should continue
         } else { //is offline
 
         }
@@ -574,6 +610,17 @@ function Cenny(mainObject) {
         that.user.forget();
     };
     
+    this.user.exists = function(username, callback) {
+    	that.aj(username, "userExists",function(d){
+    		if (d === 'true') {
+    			callback(true);
+    		} else {
+    			callback(false);
+    		}
+
+    	});
+    };
+
     this.user.create = function(mainObject, callback) {
         if (mainObject instanceof Object) {
             if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
