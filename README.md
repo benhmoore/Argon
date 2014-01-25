@@ -329,7 +329,7 @@ This snippet passes the email of the current user to the callback function, if i
 
 ####Syntax:
 ```javascript
-server.user.remove();
+server.user.remove( userPassword );
 ```  
 
 
@@ -451,7 +451,7 @@ x.modified( function(d) {}, ['property1', '2', 'three'] );
 
 Remove user.
 ```javascript
-x.user.remove();
+x.user.remove( userPassword, callback );
 ```
 
 Signin to another user. 
@@ -526,12 +526,5 @@ ___
 ####Created by Ben Moore (@benmooredaily) as a part of LoadFive (@loadfive).
 
 Thanks to all of you for suggesting ideas, giving heads ups on bugs, and contributing.
-
-
-
-
-
-
-
 
 
