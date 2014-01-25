@@ -241,14 +241,9 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 			if ($userName !== "default") {
 				$newPass = $_POST['newPass'];
 				saveFile("$directory/$groupName/$userName/pass.txt", $newPass);
-<<<<<<< HEAD
 				echo '{"cenInfo":"password changed"}';
 			} else {
 				echo '{"cenError":"cannot modify default user password"}';
-=======
-			} else {
-				echo json_encode("Cannot modify default user's password");
->>>>>>> 932edc459d685aded53c1b84a268053b59f506be
 			}
 		} else if ($action === "getOther") {
 
@@ -278,11 +273,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 					$permissionProperties = json_decode($openedPropertyPerm);
 
 					$isThere = false;
-<<<<<<< HEAD
 					if ($permissionProperties !== "") {//make sure permissions are set
-=======
-					if (is_assoc($permissionProperties) === true) {//make sure permissions are set
->>>>>>> 932edc459d685aded53c1b84a268053b59f506be
 
 						$outputObj = array();
 						//create obj for properties user is given access to.
@@ -352,11 +343,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 					echo '{"cenError":"email access not granted."}';
 				}
 			} else {
-<<<<<<< HEAD
 				echo '{"cenError":"user "' . $otherUser . '" does not exist."}';
-=======
-				echo '{"cenError":"user "' + $otherUser + '" does not exist."}';
->>>>>>> 932edc459d685aded53c1b84a268053b59f506be
 			}
 
 		} else if ($action === "setOther") {
@@ -374,11 +361,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 				}
 				if ($userFoundInP === true || $openedWrite === "allowAll") {
 					saveFile("$directory/$groupName/$otherUser/data.txt", $clientData);
-<<<<<<< HEAD
 					echo '{"cenInfo":"set"}';
-=======
-					echo json_encode("saved to user " . $otherUser . " in group " . $groupName);
->>>>>>> 932edc459d685aded53c1b84a268053b59f506be
 				} else {
 					echo '{"cenError":"write access not granted."}';
 				}
@@ -403,11 +386,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 					$openedData = openFile("$directory/$groupName/$otherUser/data.txt", 500000);
 					$openedData = json_decode($openedData);
 					
-<<<<<<< HEAD
 					if ($openedData === "") {
-=======
-					if (is_assoc($openedData) !== true) {
->>>>>>> 932edc459d685aded53c1b84a268053b59f506be
 						$openedData = array();
 					}
 
@@ -441,11 +420,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 					}
 					saveFile("$directory/$groupName/$otherUser/data.txt", json_encode($outputData));
 
-<<<<<<< HEAD
 					echo '{"cenInfo":"updated"}';
-=======
-					echo json_encode("updated");
->>>>>>> 932edc459d685aded53c1b84a268053b59f506be
 
 				} else {
 					echo '{"cenError":"write access not granted."}';
@@ -459,14 +434,8 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 			$openedData = openFile("$directory/$groupName/$userName/data.txt", 500000);
 			$openedData = json_decode($openedData);
 			
-<<<<<<< HEAD
 			if ($openedData === "") {
 				$openedData = array();
-=======
-			if (is_assoc($openedData) !== true) {
-				$openedData = '"{}"';
-				$openedData = json_decode($openedData);
->>>>>>> 932edc459d685aded53c1b84a268053b59f506be
 			}
 
 			$clientData = json_decode($clientData);
@@ -499,20 +468,12 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 			}
 			saveFile("$directory/$groupName/$userName/data.txt", json_encode($outputData));
 
-<<<<<<< HEAD
 			echo '{"cenInfo":"updated"}';
-=======
-			echo json_encode("updated");
->>>>>>> 932edc459d685aded53c1b84a268053b59f506be
 
 		} else if ($action === "set") {
 
 			saveFile("$directory/$groupName/$userName/data.txt", $clientData);
-<<<<<<< HEAD
 			echo '{"cenInfo":"set"}';
-=======
-			echo json_encode("saved to user " . $userName . " in group " . $groupName);
->>>>>>> 932edc459d685aded53c1b84a268053b59f506be
 
 		} else if ($action === "permissions") {
 			if ($userName !== "default") {//make sure no permissions are set on default user
@@ -560,28 +521,18 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 
 					saveFile("$directory/$groupName/$userName/propertyPerm.txt", json_encode($outputPermProperties));
 				}
-<<<<<<< HEAD
 				echo '{"cenInfo":"permissions updated"}';
 			} else {
 				echo '{"cenError":"permissions cannot be edited on default user"}';
-=======
-				echo json_encode("Permissions updated");
-			} else {
-				echo json_encode("Permissions cannot be edited on default user");
->>>>>>> 932edc459d685aded53c1b84a268053b59f506be
 			}
 
 		} else if ($action === "getOfflinePerm") {
 			$openedPerm = openFile("$directory/$groupName/$userName/offlinePerm.txt", 50000);
 			echo json_encode($openedPerm);
 		} else if ($action === "removeUser") {
-<<<<<<< HEAD
 			
 			$userToRemovePass = openFile("$directory/$groupName/$userName/pass.txt", 50000);
 			if ($userToRemovePass === $clientData) {
-=======
-
->>>>>>> 932edc459d685aded53c1b84a268053b59f506be
 			//remove user directory
 			delete_files("$directory/$groupName/$userName/");
 
@@ -591,17 +542,9 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 			saveFile("$directory/$groupName/userlist.txt", $users);
 
 			echo json_encode("removed user " . $userName . " in group " . $groupName);
-<<<<<<< HEAD
 			} else {
 				echo '{"cenError":"user pass incorrect"}';
 			}
-=======
-
-		} else if ($action === "removeGroup") {
-
-			delete_files("$directory/$groupName/");
-			echo json_encode("removed group " . $groupName . " and all users within.");
->>>>>>> 932edc459d685aded53c1b84a268053b59f506be
 
 		} else if ($action === "setEmail") {
 
