@@ -642,8 +642,8 @@ function Cenny(mainObject) {
 	};
 
 	this.user.exists = function (username, callback) {
-		that.aj(username, "userExists", function (d) {
-			if (d === 'true') {
+		that.aj("&data=" + username, "userExists", function (d) {
+			if (d === true) {
 				callback(true);
 			} else {
 				callback(false);
