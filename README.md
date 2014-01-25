@@ -56,13 +56,15 @@ Cenny.js was built to work with your web app, it is extremely flexible and works
 
 7. Reading & Writing Another User
 
-8. Simple Documentation
+8. Debugging
+
+9. Simple Documentation
 
 __
 
-9. Security Measures
+10. Security Measures
 
-10. Contributors & Credits
+11. Contributors & Credits
 
 
 ##Setup & Stuff You Should Know 
@@ -400,6 +402,113 @@ server.user.metadata( callback, 'username'); //get metadata of user 'username'
 ```
 
 ____
+
+##Debugging 
+
+###.stats.get()
+
+Cenny.js provides the method ```.stats.get()`` for debugging purposes. This method returns an object containing information on all requests made to the server.
+
+####Simulated Output:
+```javascript
+
+{
+  "log": [
+    [
+      "update",
+      "&data=%7B%22cennyJS%22%3Atrue%7D",
+      "16:57:51"
+    ],
+    [
+      "get",
+      "&getProperties=all",
+      "16:57:53"
+    ],
+    [
+      "createuser",
+      "&data={\"username\":\"benmooredaily\",\"password\":\"1867309200ipod210!\"}",
+      "16:58:00"
+    ],
+    [
+      "getOfflinePerm",
+      "",
+      "16:58:00"
+    ],
+    [
+      "generateAuthToken",
+      "",
+      "16:58:00"
+    ],
+    [
+      "get",
+      "&getProperties=all",
+      "16:58:01"
+    ],
+    [
+      "get",
+      "&getProperties=all",
+      "16:58:20"
+    ]
+  ],
+  "totalRequests": 7,
+  "update": {
+    "count": 1,
+    "log": [
+      [
+        "&data=%7B%22cennyJS%22%3Atrue%7D",
+        "16:57:51"
+      ]
+    ]
+  },
+  "get": {
+    "count": 3,
+    "log": [
+      [
+        "&getProperties=all",
+        "16:57:53"
+      ],
+      [
+        "&getProperties=all",
+        "16:58:01"
+      ],
+      [
+        "&getProperties=all",
+        "16:58:20"
+      ]
+    ]
+  },
+  "createuser": {
+    "count": 1,
+    "log": [
+      [
+        "&data={\"username\":\"benmooredaily\",\"password\":\"1867309200ipod210!\"}",
+        "16:58:00"
+      ]
+    ]
+  },
+  "getOfflinePerm": {
+    "count": 1,
+    "log": [
+      [
+        "",
+        "16:58:00"
+      ]
+    ]
+  },
+  "generateAuthToken": {
+    "count": 1,
+    "log": [
+      [
+        "",
+        "16:58:00"
+      ]
+    ]
+  }
+}
+
+```
+
+___
 
 ##Simple Documentation
 
