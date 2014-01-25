@@ -407,7 +407,25 @@ ____
 
 ###.stats.get()
 
-Cenny.js provides the method ```.stats.get()`` for debugging purposes. This method returns an object containing information on all requests made to the server.
+Cenny.js provides the method ```.stats.get()``` for debugging purposes. This method returns an object containing information on all requests made to the server.
+
+####Format:
+
+```javascript
+{
+  "request type": {
+    "count": "numerOfRequests",
+    "log": [
+      [
+        "requestData",
+        "requestTime"
+      ]
+    ]
+  }
+}
+
+```
+
 
 ####Simulated Output:
 ```javascript
