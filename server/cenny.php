@@ -180,13 +180,15 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
             echo '{"cenError":"user incorrect"}';
         }
 
-    } else {
+    } else if ($userName === "default") {
         $oldmask = umask(0);
-        mkdir("$directory/$groupName/$userName/", 0777);
+        mkdir("$directory/$groupName/default/", 0777);
         umask($oldmask);
-        saveFile("$directory/$groupName/$userName/pass.txt", $userPass);
-        addToFile("$directory/$groupName/userlist.txt", $userName . "@SEPCENNYUSER@");
+        saveFile("$directory/$groupName/default/pass.txt", $userPass);
+        addToFile("$directory/$groupName/userlist.txt", 'default' . "@SEPCENNYUSER@");
         $user_loggedin = true;
+    } else {
+    	echo '{"cenError":"user does not exist"}';
     }
 
 
@@ -562,7 +564,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
                 	}
                 } else if ($action === "createuser") {
                     $info = json_decode($clientData);
-
+        
                     foreach ($info as $pName => $pData) {
         	            if ($pName === "username") {
         	            	$newUsername = $pData;
@@ -570,22 +572,22 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
         	            	$newPassword = $pData;
         	            }
                     }
-
-
+        
+        
                     if (file_exists("$directory/$groupName/$newUsername/")) {
                         echo '{"cenError":"user ' . $newUsername . ' already exists"}';
                     } else {
-
+        
                         $newPasswordValid = true;
                         $newUsernameValid = false;
-
+        
                         //pass
                         if (strlen($newPassword) > 70) {
                             $newPasswordValid = false;
                         } else if (strlen($newPassword) < 5) {
                             $newPasswordValid = false;
                         }
-
+        
                         //username
                         if(preg_match('/^\w{5,}$/', $newUsername)) {
                             $newUsernameValid = true;
@@ -593,7 +595,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
                         if (strlen($newUsername) > 22) {
                             $newUsernameValid = false;
                         }
-
+        
                         if ($newPasswordValid === true) {
                             if ($newUsernameValid === true) {
                                 $oldmask = umask(0);
@@ -609,11 +611,12 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
                              echo '{"cenError":"password invalid"}';
                         }
                     }
-
+        
                 } else {
                     echo  '{"cenError":"' . $action . ' is not a valid action"}';
                 }
         // - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - /
+
 
     }//close authentication if statement
     //########################################################################################################################
