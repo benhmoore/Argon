@@ -288,6 +288,8 @@ This snippet returns an array of information about the 'default' user.
 
 .user.metadata() returns an object that contains metadata on what is inside the main Object of a user, using Knwl.js (http://github.com/loadfive/Knwl.js).
 
+**!Issue scout**: Knwl.js must be included before ```.user.metadata()``` will function.
+
 ####Syntax:
 
 ```javascript
