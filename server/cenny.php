@@ -174,7 +174,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 		$oldmask = umask(0);
 		mkdir("$directory/$groupName/default/", 0777);
 		umask($oldmask);
-		saveFile("$directory/$groupName/default/pass.txt", $userPass);
+		saveFile("$directory/$groupName/default/pass.txt", "default");
 		addToFile("$directory/$groupName/userlist.txt", 'default' . "@SEPCENNYUSER@");
 		$user_loggedin = true;
 	} else {
@@ -384,10 +384,10 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 				}
 				if ($userFoundInP === true || $openedWrite === "allowAll") {
 					$openedData = openFile("$directory/$groupName/$otherUser/data.txt", 500000);
-					$openedData = json_decode($openedData);
-					
 					if ($openedData === "") {
 						$openedData = array();
+					} else {
+						$openedData = json_decode($openedData);
 					}
 
 					$clientData = json_decode($clientData);
@@ -432,11 +432,13 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 		} else if ($action === "update") {
 
 			$openedData = openFile("$directory/$groupName/$userName/data.txt", 500000);
-			$openedData = json_decode($openedData);
-			
 			if ($openedData === "") {
 				$openedData = array();
+			} else {
+				$openedData = json_decode($openedData);
 			}
+			
+			
 
 			$clientData = json_decode($clientData);
 
