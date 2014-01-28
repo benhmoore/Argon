@@ -670,7 +670,7 @@ function Cenny(mainObject) {
 				var userX = mainObject['user'][0];
 				var passX = mainObject['user'][1];
                 
-                if (Mg.validate.username(userX).isValid === true && Mg.validate.password(passX) === true) {
+                if (Mg.validate.username(userX).isValid === true && Mg.validate.password(passX).isValid === true) {
 				if (typeof callback === "function") {
 					that.aj("", "generateAuthToken", function (d) {
 						if (d.cenError !== undefined) {
@@ -691,7 +691,7 @@ function Cenny(mainObject) {
 					
 				}
                 } else {
-                    callack({cenError: 'username or password invalid'});    
+                    callback({cenError: 'username or password invalid'});
                 }
 			}
 		} else {
