@@ -187,10 +187,12 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 		//**********************************************
 		//get actions / data from request
 		$action = $_POST['action'];
-		$clientData = $_POST['data'];
-		//formatting
-		$clientData = str_replace("\'", "'", $clientData);
-		$clientData = str_replace('\"', '"', $clientData);
+		if (isset($_POST['data'])) {
+			$clientData = $_POST['data'];
+			//formatting
+			$clientData = str_replace("\'", "'", $clientData);
+			$clientData = str_replace('\"', '"', $clientData);
+		}
 		//**********************************************
 
 		// - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - /
