@@ -82,10 +82,35 @@ Mg.convertData = function (data) {
 	}
 };
 
-
-
 //CENNY.JS ---------
+Mg.isBusy = false;
+function requestQueue(requestBody,callback,urlX) {
+    var x = setInterval(function() {
+        
+        if (Mg.isBusy === false) {
+                Mg.isBusy = true;
+                var xmlhttp;
+				xmlhttp = new XMLHttpRequest();
+				xmlhttp.onreadystatechange = function () {
+					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                        
+                        Mg.isBusy = false;
+                        
+						var data = xmlhttp.responseText;
+						if (callback !== undefined && data !== "") {
+                            
+							callback(Mg.convertData(data));
+						}
+					}
 
+				};
+				xmlhttp.open("POST", urlX, true);
+				xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xmlhttp.send(requestBody);
+                clearInterval(x);
+        }
+    },10);
+};
 
 function Cenny(mainObject) {
 
@@ -207,70 +232,8 @@ function Cenny(mainObject) {
 	} else {
 		console.warn("mainObject should be an Object.");
 	}
-
-
-	this.plugin = {};
-	this.plugin.requests = 0;
-	this.plugin.requestTimes = []; //(in milliseconds)
-	this.plugin.currentRequestTime = 0;
-
-	//returns info on current Cenny instance
-	this.plugin.cInfo = function () {
-
-		//generate average request times
-		var averageRT = 0;
-		for (var i = 0; i < that.plugin.requestTimes.length; i++) {
-			averageRT += that.plugin.requestTimes[i];
-		}
-		averageRT = averageRT / that.plugin.requestTimes.length;
-
-
-		return { group: [that.groupObject.group, that.groupObject.key], user: that.user.info(), requests: that.plugin.requests, requestTime: averageRT };
-	};
-
-	//tests user's connection speed
-	this.plugin.testConnectionSpeed = function (callback, wantedMS) {
-		that.plugin.requestTimes = [];
-		if (navigator.onLine === true) {
-			that.get(function (d) {
-				that.get(function (d) {
-					that.get(function (d) {
-						that.get(function (d) {
-							that.get(function (d) {
-								that.get(function (d) {
-									that.get(function (d) {
-										var cInfoData = that.plugin.cInfo();
-										if (cInfoData.requestTime + 300 >= wantedMS && cInfoData.requestTime - 300 <= wantedMS) {
-											callback(true);
-										} else if (cInfoData.requestTime < wantedMS) {
-											callback(true);
-										} else {
-											callback(false);
-										}
-									});
-								});
-							});
-						});
-					});
-				});
-			});
-		}
-
-	};
-
-	this.plugin.startRequestTimer = function () {
-		that.plugin.requestTimer = setInterval(function () {
-			that.plugin.currentRequestTime++;
-		}, 1);
-
-	};
-	this.plugin.stopRequestTimer = function () {
-		clearInterval(that.plugin.requestTimer);
-		that.plugin.requestTimes.push(that.plugin.currentRequestTime);
-		that.plugin.currentRequestTime = 0;
-	};
-
-
+    
+    
 	//SERVER REQUEST METHOD
 
 	this.aj = function (sendData, action, callback, optionalUserInfo) {
@@ -310,31 +273,13 @@ function Cenny(mainObject) {
 			}
 			
 			if (shouldContinue === true) {
-				var xmlhttp;
-				xmlhttp = new XMLHttpRequest();
-				xmlhttp.onreadystatechange = function () {
-					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-						var data = xmlhttp.responseText;
-						if (callback !== undefined && data !== "") {
-
-							callback(Mg.convertData(data));
-
-							//plugin info
-							that.plugin.stopRequestTimer();
-						}
-					}
-
-				};
-				xmlhttp.open("POST", that.url, true);
-				xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-
 
 				if (optionalUserInfo !== undefined && optionalUserInfo instanceof Array) { //used for **.create();**
 					var userX = optionalUserInfo[0];
 					var passX = optionalUserInfo[1];
 
 
-					xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + userX + "&userPass=" + passX);
+					var new_request = new requestQueue("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + userX + "&userPass=" + passX, callback, that.url);
 					
 					that.stats.obj.log.push([action,sendData,that.stats.getTime()]);
 					if (that.stats.obj[action] === undefined) {
@@ -352,7 +297,7 @@ function Cenny(mainObject) {
 						if (/^\w+$/.test(that.userObject.user)) {
 							if (that.userObject.pass.length > 4) {
 
-								xmlhttp.send("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass);
+								var new_request = new requestQueue("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass, callback, that.url);
 								
 								that.stats.obj.log.push([action,sendData,that.stats.getTime()]);
 								if (that.stats.obj[action] === undefined) {
@@ -381,12 +326,6 @@ function Cenny(mainObject) {
 						});
 					}
 				}
-
-
-				//plugin info
-				that.plugin.startRequestTimer();
-				that.plugin.requests++; //add to requests
-				//end plugin info
 
 			} //end should continue
 		} else { //is offline
@@ -477,7 +416,7 @@ function Cenny(mainObject) {
 		}, 2000);
 
 	};
-
+	
 	this.update = function (object, user, callback) {
 		var isOnline = navigator.onLine;
 		if (isOnline === true) {
