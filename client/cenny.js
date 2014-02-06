@@ -93,8 +93,9 @@ function requestQueue(requestBody,callback,urlX) {
 				xmlhttp = new XMLHttpRequest();
 				xmlhttp.onreadystatechange = function () {
 					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                        
-                        Mg.isBusy = false;
+                        setTimeout(function() {
+                        	Mg.isBusy = false;
+						},70);
                         
 						var data = xmlhttp.responseText;
 						if (callback !== undefined && data !== "") {
@@ -334,9 +335,8 @@ function Cenny(mainObject) {
 
 	};
 
-	this.get = function (callback, user) { //if user variable is array, it will be treated as property list, if it's a string, it will be treated as a username.
-		var isOnline = navigator.onLine;
-		if (isOnline === true) {
+	this.get = function (callback, user) {
+		if (navigator.onLine === true) {
 			if (user === undefined || user === '') {
 				that.aj("&getProperties=all", "get", callback);
 			} else if (user instanceof Array) {

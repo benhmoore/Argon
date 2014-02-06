@@ -22,10 +22,8 @@ function is_assoc($var) {
 
 function openFile($url, $size) {
 	if (file_exists($url)) {
-		$myFile = $url;
-		$fh = fopen($myFile, 'r');
-		$dataToReturn = fread($fh, $size);
-		fclose($fh);
+		$file = $url;
+		$dataToReturn = file_get_contents($file);
 	} else {
 		saveFile($url, "");
 		$dataToReturn = "";
@@ -68,11 +66,12 @@ function splitString($stringX, $by) {
 }
 
 function saveFile($url, $dataToSave) {
-	$myFile = $url;
-	$fh = fopen($myFile, 'w') or die($myFile);
-	fwrite($fh, $dataToSave);
-	fclose($fh);
-
+	$file = $url;
+	if (strlen($dataToSave) < 1948576) { //maxiumum file size
+		file_put_contents($file, $dataToSave);
+	} else {
+		echo '{"cenError":"not enough available storage"}';
+	}
 }
 
 function addToFile($url, $dataToSave) {
@@ -107,6 +106,7 @@ if (file_exists("backend/")) {
 $userNameValid = false;
 $groupNameValid = false;
 $userPassValid = true;
+
 
 //pass
 if (strlen($userPass) > 70) {
