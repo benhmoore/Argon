@@ -336,7 +336,8 @@ function Cenny(mainObject) {
 	};
 
 	this.get = function (callback, user) {
-		if (navigator.onLine === true) {
+        var isOnline = navigator.onLine;
+		if (isOnline === true) {
 			if (user === undefined || user === '') {
 				that.aj("&getProperties=all", "get", callback);
 			} else if (user instanceof Array) {
