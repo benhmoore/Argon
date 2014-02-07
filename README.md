@@ -1,10 +1,5 @@
 #Cenny.js | The plug 'n play backend for web apps.
 Building a chat web app? Use Cenny.js to store, send, and receive messages in real-time. Building a multiplayer game? Cenny.js can keep player positions synced in real-time. User goes offline while using your web app? No problem, Cenny.js will sync new data to the backend when a connection is established, and while the user is offline, Cenny.js will still be useable.
-
-###Introducing Offline Mode
-
-If a user goes offline while using your web app, dont' worry. Any actions they take while offline will be gracefully synced when they get back online. And while they're offline, the majority of Cenny.js features will function normally (like .set(), .update(), .get(), etc). Best of all, you don't have to add a single line of code, all this happens automatically. If your not into that kind of thing, we'll get into how to disable it in the permissions section.
-
 ___
 
 ###Security
@@ -339,10 +334,10 @@ server.user.remove( userPassword );
 
 ##Permissions
 
-Permissions can be setup for the current user to, for instance, allow certain users to read from the current user, block all users from reading from the current user, allow a list of users to write to the current user, allow a certain property to be read from, block syncing of offline data, and more. Permissions are modified and set using the method .user.permissions().
+Permissions can be setup for the current user to, for instance, allow certain users to read from the current user, block all users from reading from the current user, allow a list of users to ```.update()``` the current user, allow a certain property to be read from, block syncing of offline data, and more. Permissions are modified and set using the method .user.permissions().
 
 
-By default, when a user is created, permissions are set to block both read and write attempts from other users. These settings can easily be modified.
+By default, when a user is created, permissions are set to block all ```.get()```,```.update()```, and ```.set()``` attempts from other users. These settings can easily be modified.
 
 
 ###.user.permissions()
@@ -350,50 +345,40 @@ By default, when a user is created, permissions are set to block both read and w
 ####Syntax:
 ```javascript
 server.user.permissions({
-write:['user1','user2','user3','etc'], //allows these users to write to this user.
-read:false, //blocks all users from reading from this user.
-emailRead:false, //blocks all users from viewing the current user's email
-allowOffline:false //block offline mode syncing
-});
-```
-
-
-These properties - "read", "write", "emailRead", and "allowOffline" - can be set to ```true``` to allow any user access, ```false``` to block all access, or - with an exception to "allowOffline" - to an Array of certain users to allow access. "allowOffline" sets whether the current user can sync offline data, this is useful if the user in question is used by more than one client. Individual properties can also be set to allow read access using the same syntax:
-```javascript
-server.user.permissions({
-friendCount:true, //allows anyone to read the 'friendCount' property.
-privateMessageCount:['admin'] //allows only user 'admin' read access to this property.
+".set":['user1','user2','user3','etc'], //allows these users to use .set() on this user.
+".get":false, //blocks all users from reading from this user.
+".update":true,//allows all users to use .update() on this user.
+/****/
+propertyX: ['user2'], //allows only user 'user2' to read this property
+propertyY: true, //allows any user to read this property
+propertyZ: false, //blocks any user from reading this property
 
 });
 ```
-**!Word of thumb**: When a specific property is given permissions, those permissions override the existing read access permissions, for just that property.
+**!Word of thumb**: When a specific property is given permissions, those permissions override the existing read access permissions, for just that property. So even if ```.get``` is set to false, if a specific property is set to true or to an array of users, it can still be accessed.
 
 
-##Reading & Writing Another User
+##Accessing / Modifying Another User
+
+If userA has given userB permission to use ```.get()``` to retrieve its properties, userB can specify userA's username in the second parameter of ```.get()```:
 
 
-If another user has given write access to at least the current user, ```.set()``` or ```.update()``` can be used on that user's properties:
 ```javascript
-server.set( {}, 'username'); //set properties in user 'username'
-
-server.update( {}, 'username'); //update properties in user 'username'
+server.get( callback, 'otherUsername');
 ```
 
+If userA has given userB permission to use ```.update()``` on its properties, userB can specify userA's username in the second parameter of ```.update()```:
 
-If a user has given full or per-property read access to at least the current user, ```.get()``` can be used on that user:
+
 ```javascript
-server.get( callback, 'username'); //get data from user 'username'
+server.update( {}, 'otherUsername');
 ```
 
-**!Word of thumb**: If the second parameter of .get() is an array, it will be treated as a list of properties to be retrieved, however, if it is a string, it will be treated as a username (like above):
-```javascript
-server.get(function(d){ console.log(d); }, 'toby') //gets data from USER 'toby' 
-server.get(function(d){ console.log(d); }, ['MsgCount','ip']) //gets only properties 'MsgCount' and 'ip' from server.
-```
+If userA has given userB permission to use ```.set()``` on its properties, userB can specify userA's username in the second parameter of ```.set()```:
 
-If a user has given at least the current user emailRead access, .user.getEmail() can be used to retrieve the user's email:
+
 ```javascript
-server.user.getEmail( callback, 'username'); //get user "username"'s email
+server.set( {}, 'otherUsername');
 ```
 
 ##Getting Metadata Of Another User
