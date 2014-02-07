@@ -78,6 +78,12 @@ Mg.convertData = function (data) {
 	if (isJSON === true) {
 		return JSON.parse(data);
 	} else {
+		if (data.search("}{") !== -1) {
+			data = data.replace(/}{/g, ',');	
+			if (Mg.isJSON(data) === true) {
+				return JSON.parse(data);	
+			}
+		}
 		return data;
 	}
 };
@@ -249,36 +255,24 @@ function Cenny(mainObject) {
 			var shouldContinue = true;
 
 			if (optionalUserInfo !== undefined) {
-				if (optionalUserInfo[0].length > 2 && optionalUserInfo[0].length < 25) {
-					if (/^\w+$/.test(optionalUserInfo[0])) {
-						if (optionalUserInfo[1].length > 4) {
+				if (Mg.validate.username(optionalUserInfo[0]).isValid === true) {
+						if (Mg.validate.password(optionalUserInfo[1]).isValid === true) {
 
 						} else {
-							callback({
-								cenError: 'password invalid length'
-							});
+							callback(Mg.validate.password(optionalUserInfo[1]));
 							shouldContinue = false;
 						}
-					} else {
-						callback({
-							cenError: 'username contains invalid chars'
-						});
-						shouldContinue = false;
-					}
 				} else {
-					callback({
-						cenError: 'username length invalid'
-					});
+					callback(Mg.validate.username(optionalUserInfo[0]));
 					shouldContinue = false;
 				}
 			}
 			
 			if (shouldContinue === true) {
 
-				if (optionalUserInfo !== undefined && optionalUserInfo instanceof Array) { //used for **.create();**
+				if (optionalUserInfo !== undefined && optionalUserInfo instanceof Array) { //used for **.create() / .signin()**
 					var userX = optionalUserInfo[0];
 					var passX = optionalUserInfo[1];
-
 
 					var new_request = new requestQueue("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + userX + "&userPass=" + passX, callback, that.url);
 					
@@ -294,10 +288,9 @@ function Cenny(mainObject) {
 
 				} else { //otherwise, use global user info
 
-					if (that.userObject.user.length > 2 && that.userObject.user.length < 25) {
-						if (/^\w+$/.test(that.userObject.user)) {
-							if (that.userObject.pass.length > 4) {
-
+					if (Mg.validate.username(that.userObject.user).isValid === true) {
+							if (Mg.validate.password(that.userObject.pass).isValid === true || (that.userObject.user === "default" && that.userObject.pass === "default")) {
+								
 								var new_request = new requestQueue("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass, callback, that.url);
 								
 								that.stats.obj.log.push([action,sendData,that.stats.getTime()]);
@@ -309,30 +302,17 @@ function Cenny(mainObject) {
 								that.stats.obj[action].count++;
 								that.stats.obj[action].log.push([sendData,that.stats.getTime()]);
 								that.stats.obj.totalRequests++;
-								
 
 							} else {
-								callback({
-									cenError: 'pass length insufficient.'
-								});
+								callback(Mg.validate.password(that.userObject.pass));
 							}
-						} else {
-							callback({
-								cenError: 'username contains invalid characters.'
-							});
-						}
 					} else {
-						callback({
-							cenError: 'username length unsuitable.'
-						});
+						callback(Mg.validate.username(that.userObject.user));
 					}
 				}
 
 			} //end should continue
-		} else { //is offline
-			that.log.push([action,sendData]);
-		}
-
+		} // is offline
 	};
 
 	this.get = function (callback, user) {
@@ -446,9 +426,14 @@ function Cenny(mainObject) {
 	//USER
 
 	this.user.remove = function (password, callback) {
+		if (callback === undefined) {
+			callback = function(d) {
+				console.log(d);	
+			}
+		}
 		if (password !== undefined) {
 			that.aj("&data=" + encodeURIComponent(password), "removeUser", function(d) {
-				if (d.cenError !== "user pass incorrect") {
+				if (d.cenError === undefined) {
 					that.userObject.user = "default";
 					that.userObject.pass = "default";
 					that.user.forget();
@@ -457,115 +442,25 @@ function Cenny(mainObject) {
 			});
 			
 		} else {
-			console.error("must provide user password");	
+			callback({cenError:"provide user password"});	
 		}
 	};
 
 	this.user.permissions = function (permObj, callback) {
-		var read = permObj.read;
-		var write = permObj.write;
-		var emailRead = permObj.emailRead;
-		var offlinePerm = permObj.allowOffline;
-		var readString = "";
-		var writeString = "";
-		var emailReadString = "";
-
-		//read
-		if (read instanceof Array) {
-			for (var i = 0; i < read.length; i++) {
-				if (read[i + 1] !== undefined) {
-					readString += read[i] + "@n@";
-				} else {
-					readString += read[i];
+		that.aj("","getPermissions",function(d) {
+			if (d.cenError !== "permissions cannot be retrieved for default user") {
+				var newPermObj = {};
+				for (key in d) {
+					newPermObj[key] = d[key];
 				}
-			}
-		} else if (read === true) {
-			readString = "allowAll";
-		} else if (read === false) {
-			readString = "blockAll";
-		} else if (read === undefined) {
-			readString = "DoNotEdit";
-		} else {
-			readString = "blockAll";
-		}
-
-		//write
-		if (write instanceof Array) {
-			for (var i = 0; i < write.length; i++) {
-				if (write[i + 1] !== undefined) {
-					writeString += write[i] + "@n@";
-				} else {
-					writeString += write[i];
+				for (key in permObj) {
+					newPermObj[key] = permObj[key];
 				}
+				that.aj("&data="+ JSON.stringify(newPermObj),"setPermissions", callback);
+			} else {
+				callback({cenError:"permissions cannot be edited on default user"});
 			}
-		} else if (write === true) {
-			writeString = "allowAll";
-		} else if (write === false) {
-			writeString = "blockAll";
-		} else if (write === undefined) {
-			writeString = "DoNotEdit";
-		} else {
-			writeString = "blockAll";
-		}
-
-		//emailRead
-		if (emailRead instanceof Array) {
-			for (var i = 0; i < emailRead.length; i++) {
-				if (emailRead[i + 1] !== undefined) {
-					emailReadString += emailRead[i] + "@n@";
-				} else {
-					emailReadString += emailRead[i];
-				}
-			}
-		} else if (emailRead === true) {
-			emailReadString = "allowAll";
-		} else if (emailRead === false) {
-			emailReadString = "blockAll";
-		} else if (emailRead === undefined) {
-			emailReadString = "DoNotEdit";
-		} else {
-			emailReadString = "allowAll";
-		}
-
-		if (offlinePerm === true) {
-			offlinePerm = "allowAll";
-		} else if (offlinePerm === false) {
-			offlinePerm = "blockAll";
-		} else if (offlinePerm === undefined) {
-			offlinePerm = "DoNotEdit";
-		} else {
-			offlinePerm = "allowAll";
-		}
-
-		var propertyObj = {};
-		for (key in permObj) {
-
-			if (key !== "read" && key !== "write" && key !== "emailRead" && key !== "allowOffline") {
-				var propertyString = "";
-				if (permObj[key] instanceof Array) {
-					for (var i = 0; i < permObj[key].length; i++) {
-						if (permObj[key][i + 1] !== undefined) {
-							propertyString += permObj[key][i] + "@n@";
-						} else {
-							propertyString += permObj[key][i];
-						}
-					}
-
-				} else if (permObj[key] === true) {
-					propertyString = "allowAll";
-				} else if (permObj[key] === false) {
-					propertyString = "blockAll";
-				} else {
-					propertyString = "blockAll";
-				}
-				propertyObj[key] = propertyString;
-			}
-		}
-		if (propertyObj === {}) {
-			propertyObj = "DoNotEdit";
-		}
-
-		that.aj('&write=' + writeString + '&read=' + readString + '&offlinePerm=' + offlinePerm + '&emailRead=' + emailReadString + '&propertyObj=' + JSON.stringify(propertyObj), "permissions", callback);
+		});
 	};
 
 
@@ -603,7 +498,7 @@ function Cenny(mainObject) {
         if (that.stats.isAllowed() === true) {
 		if (mainObject instanceof Object) {
 			if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
-
+				if (mainObject['user'][0] !== that.userObject.user) {
 				//once signed in, check if should update backend with offline data
 				that.offline.syncWithBackend();
                 
@@ -625,7 +520,7 @@ function Cenny(mainObject) {
 
 							that.user.remember();
 
-							callback(true); //call provided callback
+							callback({cenInfo:'signed in'}); //call provided callback
 						}
 					}, [userX, passX]);
 					
@@ -633,6 +528,9 @@ function Cenny(mainObject) {
                 } else {
                     callback({cenError: 'username or password invalid'});
                 }
+				} else {
+					callback({cenError: 'already signed in'});	
+				}
 			}
 		} else {
 			console.warn("mainObject should be an Object.");
@@ -706,35 +604,6 @@ function Cenny(mainObject) {
 	this.user.info = function () {
 		return [that.userObject.user, that.userObject.pass];
 	};
-
-
-	this.user.setEmail = function (email, callback) {
-		var filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-
-		if (filter.test(email) === true) {
-			that.aj("&data=" + email, "setEmail", callback);
-		} else {
-			if (callback !== undefined) {
-				callback("Email invalid.");
-			} else {
-				console.error("email invalid.")
-			};
-		}
-
-	};
-
-	this.user.getEmail = function (callback, username) {
-		if (username === undefined) {
-			var username = that.user.info();
-			username = username[0];
-		}
-        if (Mg.validate.username(username).isValid === true) {
-            that.aj("&otherUser=" + username, "getEmailOther", callback);
-        } else {
-            callback({cenError:'username invalid'});   
-        }
-	};
-
 
 	this.user.metadata = function (callback, user) {
         
@@ -831,8 +700,6 @@ function Cenny(mainObject) {
 	};
 
 	this.offline.syncWithBackend = function () {
-		that.aj("", "getOfflinePerm", function (d) {
-			if (d !== "blockAll") {
 				var isOnline = navigator.onLine;
 				if (isOnline === true) {
 					var offlineObject = localStorage.getItem('cennyOfflineUpdate');
@@ -847,11 +714,6 @@ function Cenny(mainObject) {
 						localStorage.setItem('cennyOfflineUpdate', JSON.stringify({})); //clear update queue
 					}
 				}
-			} else {
-				localStorage.setItem('cennyOfflineUpdate', JSON.stringify({})); //clear update queue
-			}
-
-		});
 	};
 
 	this.offline.getOfflineObject = function () { //used for get / modified

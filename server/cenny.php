@@ -252,15 +252,25 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 			$otherUser = $_POST['otherUser'];
 
 			if (file_exists("$directory/$groupName/$otherUser/")) {
-				$openedRead = openFile("$directory/$groupName/$otherUser/read.txt", 1000);
-				$arrayX = splitString($openedRead, "@n@");
+				$openedRead = openFile("$directory/$groupName/$otherUser/permissions.txt", 1000);
+				$permissionProperties = json_decode($openedRead,true);
+				
+				$dotGet_permissions = false;
 				$userFoundInP = false;
-				for ($x = 0; $x < count($arrayX); $x++) {//look for current user in $otherUser's perms
-					if ($arrayX[$x] === $userName) {
-						$userFoundInP = true;
+				
+				if ($permissionProperties !== null && $permissionProperties !== "") {
+					if (isset($permissionProperties['.get'])) {
+						$dotGet_permissions = $permissionProperties['.get'];
+					}
+					if (is_array($dotGet_permissions) === true) {
+						for ($i = 0; $i < count($dotGet_permissions); $i++) {
+							if ($dotGet_permissions[$i] === $userName) {
+								$userFoundInP = true;
+							}
+						}
 					}
 				}
-				if ($userFoundInP === true || $openedRead === "allowAll") {
+				if ($userFoundInP === true || $dotGet_permissions === true) {
 					$openedData = openFile("$directory/$groupName/$otherUser/data.txt", 500000);
 					if ($openedData !== "") {
 						echo $openedData;
@@ -268,31 +278,34 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 						echo '{"cenError":"user is empty"}';
 					}
 				} else {//check if any property allows $userName read access
-					$openedPropertyPerm = openFile("$directory/$groupName/$otherUser/propertyPerm.txt", 50000);
+					$openedPropertyPerm = openFile("$directory/$groupName/$otherUser/permissions.txt", 50000);
 					$openedData = openFile("$directory/$groupName/$otherUser/data.txt", 500000);
 					//actual data
 					$openedData = json_decode($openedData);
 					$permissionProperties = json_decode($openedPropertyPerm);
 
 					$isThere = false;
-					if ($permissionProperties !== "") {//make sure permissions are set
+					if ($permissionProperties !== null && $permissionProperties !== "") {//make sure permissions are set
 
 						$outputObj = array();
 						//create obj for properties user is given access to.
 
 						foreach ($permissionProperties as $propertyName => $propertyValue) {
-							$propertyUsers = splitString($propertyValue, "@n@");
-							for ($x = 0; $x < count($propertyUsers); $x++) {//look for current user in $otherUser's perms
-								if ($propertyUsers[$x] === $userName) {
-
-									$isThere = true;
-									foreach ($openedData as $dataPropertyName => $dataPropertyData) {
-										if ($propertyName === $dataPropertyName) {
-											$outputObj[$propertyName] = $dataPropertyData;
+							if ($propertyName !== ".get" && $propertyName !== ".set" && $propertyName !== ".update") {
+								
+								$propertyUsers = $propertyValue;
+									if (is_array($propertyUsers) === true) {
+									for ($x = 0; $x < count($propertyUsers); $x++) {//look for current user in $otherUser's perms
+										if ($propertyUsers[$x] === $userName) {
+											$isThere = true;
+											foreach ($openedData as $dataPropertyName => $dataPropertyData) {
+												if ($propertyName === $dataPropertyName) {
+													$outputObj[$propertyName] = $dataPropertyData;
+												}
+											}
 										}
 									}
-
-								} else if ($propertyValue === "allowAll") {
+								} else if ($propertyValue === true) {
 									$isThere = true;
 									foreach ($openedData as $dataPropertyName => $dataPropertyData) {
 										if ($propertyName === $dataPropertyName) {
@@ -300,8 +313,10 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 										}
 									}
 								}
+								
+							} else { //is .set, .get, or .update
+								
 							}
-
 						}
 
 					} else {//permissions are not set
@@ -313,7 +328,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 						//encode output obj to json
 						echo $outputObj;
 					} else {//otherwise, present error
-						echo '{"cenError":"access not granted"}';
+						echo '{"cenError":".get() permission not granted."}';
 					}
 
 				}
@@ -321,51 +336,34 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 				echo '{"cenError":"user does not exist"}';
 			}
 
-		} else if ($action === "getEmailOther") {
-
-			$otherUser = $_POST['otherUser'];
-
-			if (file_exists("$directory/$groupName/$otherUser/")) {
-				$openedRead = openFile("$directory/$groupName/$otherUser/emailRead.txt", 1000);
-				$arrayX = splitString($openedRead, "@n@");
-				$userFoundInP = false;
-				for ($x = 0; $x < count($arrayX); $x++) {//look for current user in $otherUser's perms
-					if ($arrayX[$x] === $userName) {
-						$userFoundInP = true;
-					}
-				}
-				if ($userFoundInP === true || $openedRead === "allowAll" || $otherUser === $userName || $openedRead === "") {
-					$openedEmail = openFile("$directory/$groupName/$otherUser/email.txt", 1000);
-					if ($openedEmail !== "") {
-						echo json_encode($openedEmail);
-					} else {
-						echo '{"cenError":"email not set."}';
-					}
-				} else {
-					echo '{"cenError":"email access not granted."}';
-				}
-			} else {
-				echo '{"cenError":"user "' . $otherUser . '" does not exist."}';
-			}
-
 		} else if ($action === "setOther") {
 
 			$otherUser = $_POST['otherUser'];
 
 			if (file_exists("$directory/$groupName/$otherUser/")) {
-				$openedWrite = openFile("$directory/$groupName/$otherUser/write.txt", 1000);
-				$arrayX = splitString($openedWrite, "@n@");
+				$openedWrite = openFile("$directory/$groupName/$otherUser/permissions.txt", 1000);
+				$permissionProperties = json_decode($openedWrite,true);
+				
+				$dotSet_permissions = false;
 				$userFoundInP = false;
-				for ($x = 0; $x < count($arrayX); $x++) {//look for current user in $otherUser's perms
-					if ($arrayX[$x] === $userName) {
-						$userFoundInP = true;
+				
+				if ($permissionProperties !== null && $permissionProperties !== "") {
+					if (isset($permissionProperties['.set'])) {
+						$dotSet_permissions = $permissionProperties['.set'];
+					}
+					if (is_array($dotSet_permissions) === true) {
+						for ($i = 0; $i < count($dotSet_permissions); $i++) {
+							if ($dotSet_permissions[$i] === $userName) {
+								$userFoundInP = true;
+							}
+						}
 					}
 				}
-				if ($userFoundInP === true || $openedWrite === "allowAll") {
+				if ($userFoundInP === true || $dotSet_permissions === true) {
 					saveFile("$directory/$groupName/$otherUser/data.txt", $clientData);
 					echo '{"cenInfo":"set"}';
 				} else {
-					echo '{"cenError":"write access not granted."}';
+					echo '{"cenError":".set() permission not granted."}';
 				}
 			} else {
 				echo '{"cenError":"user does not exist."}';
@@ -376,15 +374,25 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 			$otherUser = $_POST['otherUser'];
 
 			if (file_exists("$directory/$groupName/$otherUser/")) {
-				$openedWrite = openFile("$directory/$groupName/$otherUser/write.txt", 1000);
-				$arrayX = splitString($openedWrite, "@n@");
+				$openedWrite = openFile("$directory/$groupName/$otherUser/permissions.txt", 1000);
+				$permissionProperties = json_decode($openedWrite,true);
+				
+				$dotUpdate_permissions = false;
 				$userFoundInP = false;
-				for ($x = 0; $x < count($arrayX); $x++) {//look for current user in $otherUser's perms
-					if ($arrayX[$x] === $userName) {
-						$userFoundInP = true;
+				
+				if ($permissionProperties !== null && $permissionProperties !== "") {
+					if (isset($permissionProperties['.update'])) {
+						$dotUpdate_permissions = $permissionProperties['.update'];
+					}
+					if (is_array($dotUpdate_permissions) === true) {
+						for ($i = 0; $i < count($dotUpdate_permissions); $i++) {
+							if ($dotUpdate_permissions[$i] === $userName) {
+								$userFoundInP = true;
+							}
+						}
 					}
 				}
-				if ($userFoundInP === true || $openedWrite === "allowAll") {
+				if ($userFoundInP === true || $dotUpdate_permissions === true) {
 					$openedData = openFile("$directory/$groupName/$otherUser/data.txt", 500000);
 					if ($openedData === "") {
 						$openedData = array();
@@ -410,7 +418,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 								}//end 'DELETE' array search
 							}
 						}//end $clientData foreach
-						if ($souldBeDeleted === false) {//only push to output object if it should stay
+						if ($shouldBeDeleted === false) {//only push to output object if it should stay
 							$outputData[$opName] = $opData;
 						}
 					}//end $openData foreach
@@ -425,7 +433,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 					echo '{"cenInfo":"updated"}';
 
 				} else {
-					echo '{"cenError":"write access not granted."}';
+					echo '{"cenError":".update() permission not granted."}';
 				}
 			} else {
 				echo '{"cenError":"user does not exist."}';
@@ -479,60 +487,26 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 			saveFile("$directory/$groupName/$userName/data.txt", $clientData);
 			echo '{"cenInfo":"set"}';
 
-		} else if ($action === "permissions") {
+		} else if ($action === "setPermissions") {
 			if ($userName !== "default") {//make sure no permissions are set on default user
-				$read = $_POST['read'];
-				$write = $_POST['write'];
-				$emailRead = $_POST['emailRead'];
-				$offlinePerm = $_POST['offlinePerm'];
-				$propertyObj = $_POST['propertyObj'];
-				//for specific properties
-
-				if ($read !== "DoNotEdit") {
-					saveFile("$directory/$groupName/$userName/read.txt", $read);
-				}
-				if ($write !== "DoNotEdit") {
-					saveFile("$directory/$groupName/$userName/write.txt", $write);
-				}
-				if ($emailRead !== "DoNotEdit") {
-					saveFile("$directory/$groupName/$userName/emailRead.txt", $emailRead);
-				}
-				if ($offlinePerm !== "DoNotEdit") {
-					saveFile("$directory/$groupName/$userName/offlinePerm.txt", $offlinePerm);
-				}
-				if ($propertyObj !== "DoNotEdit") {//updates permissions on properties
-					//clean up property obj
-					$propertyObj = str_replace("\'", "'", $propertyObj);
-					$propertyObj = str_replace('\"', '"', $propertyObj);
-
-					$unpackedPropertyObj = json_decode($propertyObj);
-
-					$openedPermProperties = openFile("$directory/$groupName/$userName/propertyPerm.txt", 50000);
-					$openedPermProperties = json_decode($openedPermProperties);
-
-					$outputPermProperties = array();
-
-					foreach ($unpackedPropertyObj as $pName => $pData) {
-						foreach ($openedPermProperties as $ppName => $ppData) {
-							if ($pName === $ppName) {
-								$outputPermProperties[$ppName] = $pData;
-							} else {
-								$outputPermProperties[$pName] = $pData;
-							}
-							$outputPermProperties[$ppName] = $ppData;
-						}
-					}
-
-					saveFile("$directory/$groupName/$userName/propertyPerm.txt", json_encode($outputPermProperties));
-				}
+				$permissionProperties = $clientData;
+				saveFile("$directory/$groupName/$userName/permissions.txt",$permissionProperties);
 				echo '{"cenInfo":"permissions updated"}';
 			} else {
 				echo '{"cenError":"permissions cannot be edited on default user"}';
 			}
 
-		} else if ($action === "getOfflinePerm") {
-			$openedPerm = openFile("$directory/$groupName/$userName/offlinePerm.txt", 50000);
-			echo json_encode($openedPerm);
+		} else if ($action === "getPermissions") {
+			if ($userName !== "default") {//make sure no permissions are set on default user
+				$permissionProperties = openFile("$directory/$groupName/$userName/permissions.txt",1000);
+				if ($permissionProperties === "") {
+					$permissionProperties = '{}';
+				}
+				echo $permissionProperties;
+			} else {
+				echo '{"cenError":"permissions cannot be retrieved for default user"}';
+			}
+
 		} else if ($action === "removeUser") {
 			
 			$userToRemovePass = openFile("$directory/$groupName/$userName/pass.txt", 50000);
@@ -545,14 +519,10 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 			$users = str_replace("$userName@SEPCENNYUSER@", "", $users);
 			saveFile("$directory/$groupName/userlist.txt", $users);
 
-			echo json_encode("removed user " . $userName . " in group " . $groupName);
+			echo '{"cenInfo":"removed user ' . $userName . ' from group ' . $groupName . '"}';
 			} else {
 				echo '{"cenError":"user pass incorrect"}';
 			}
-
-		} else if ($action === "setEmail") {
-
-			saveFile("$directory/$groupName/$userName/email.txt", $clientData);
 
 		} else if ($action === "userExists") {
 			if (file_exists("$directory/$groupName/$clientData/")) {
@@ -600,7 +570,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 						umask($oldmask);
 						saveFile("$directory/$groupName/$newUsername/pass.txt", $newPassword);
 						addToFile("$directory/$groupName/userlist.txt", $newUsername . "@SEPCENNYUSER@");
-						echo '{"info":"user created"}';
+						echo '{"cenInfo":"user created"}';
 					} else {
 						echo '{"cenError":"username invalid"}';
 					}
