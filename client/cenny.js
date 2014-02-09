@@ -1,4 +1,3 @@
-//used for basic tasks
 var Mg = {};
 Mg.validate = {};
 Mg.validate.username = function (username) {
@@ -79,9 +78,9 @@ Mg.convertData = function (data) {
 		return JSON.parse(data);
 	} else {
 		if (data.search("}{") !== -1) {
-			data = data.replace(/}{/g, ',');	
+			data = data.replace(/}{/g, ',');
 			if (Mg.isJSON(data) === true) {
-				return JSON.parse(data);	
+				return JSON.parse(data);
 			}
 		}
 		return data;
@@ -90,65 +89,66 @@ Mg.convertData = function (data) {
 
 //CENNY.JS ---------
 Mg.isBusy = false;
-function requestQueue(requestBody,callback,urlX) {
-    var x = setInterval(function() {
-        
-        if (Mg.isBusy === false) {
-                Mg.isBusy = true;
-                var xmlhttp;
-				xmlhttp = new XMLHttpRequest();
-				xmlhttp.onreadystatechange = function () {
-					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                        setTimeout(function() {
-                        	Mg.isBusy = false;
-						},70);
-                        
-						var data = xmlhttp.responseText;
-						if (callback !== undefined && data !== "") {
-                            
-							callback(Mg.convertData(data));
-						}
-					}
 
-				};
-				xmlhttp.open("POST", urlX, true);
-				xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                xmlhttp.send(requestBody);
-                clearInterval(x);
-        }
-    },10);
+function requestQueue(requestBody, callback, urlX) {
+	var x = setInterval(function () {
+
+		if (Mg.isBusy === false) {
+			Mg.isBusy = true;
+			var xmlhttp;
+			xmlhttp = new XMLHttpRequest();
+			xmlhttp.onreadystatechange = function () {
+				if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+					setTimeout(function () {
+						Mg.isBusy = false;
+					}, 85);
+
+					var data = xmlhttp.responseText;
+					if (callback !== undefined && data !== "") {
+
+						callback(Mg.convertData(data));
+					}
+				}
+
+			};
+			xmlhttp.open("POST", urlX, true);
+			xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			xmlhttp.send(requestBody);
+			clearInterval(x);
+		}
+	}, 10);
 };
 
-function Cenny(mainObject) {
+function Cenny(url, groupName, groupKey) {
 
 	//*** STATS ****
-		
-		this.stats = {};
-		this.stats.obj = {};
-		this.stats.getTime = function() {
-			var x = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");	
-			return x;
-		};
-		this.stats.obj.log = [];
-		this.stats.obj.totalRequests = 0;
-		this.stats.get = function() {
-			return that.stats.obj;
-		};
-    
-        this.stats.userRequestsPS = 0;
-        setInterval(function() {
-            that.stats.userRequestsPS = 0;
-        },1000);
-        this.stats.isAllowed = function() {
-            if (that.stats.userRequestsPS > 3) {
-                return false;
-            } else {
-                return true;   
-            }
-        };
-	
+
+	this.stats = {};
+	this.stats.obj = {};
+	this.stats.getTime = function () {
+		var x = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+		return x;
+	};
+	this.stats.obj.log = [];
+	this.stats.obj.totalRequests = 0;
+	this.stats.get = function () {
+		return that.stats.obj;
+	};
+
+	this.stats.userRequestsPS = 0;
+	setInterval(function () {
+		that.stats.userRequestsPS = 0;
+	}, 1000);
+	this.stats.isAllowed = function () {
+		if (that.stats.userRequestsPS > 3) {
+			return false;
+		} else {
+			return true;
+		}
+	};
+
 	//***
-	
+
 	//****
 	this.user = {};
 	this.user.clientID = Math.floor(Math.random() * 32973);
@@ -169,14 +169,9 @@ function Cenny(mainObject) {
 	this.userObject.user = "default";
 	this.userObject.pass = "default";
 
-	var temp_user_info = localStorage.getItem('cennyUser');
-	temp_user_info = JSON.parse(temp_user_info);
-	if (temp_user_info !== "null" && temp_user_info !== null) {
-		if (typeof temp_user_info === "object") {
-			this.userObject.user = temp_user_info.user;
-			this.userObject.pass = temp_user_info.pass;
-		}
-	}
+	//url to cenny.php (until set)
+	this.url = document.URL + "cenny.php";
+
 
 	//scan for new tokens (auth info) on this computer
 	this.user.scanForToken = function () { //look for token in another window
@@ -201,48 +196,43 @@ function Cenny(mainObject) {
 	};
 	this.user.scanForToken();
 
-
-	//url to cenny.php (until set)
-	this.url = document.URL + "cenny.php";
-
-	//SETUP MAIN OBJECT
-	if (mainObject instanceof Object) {
-		if (mainObject.group !== undefined && mainObject.group instanceof Array) {
-            if (Mg.validate.username(mainObject.group[0]).isValid === true) {
-                if (Mg.validate.password(mainObject.group[1]).isValid === true) {
-                    this.groupObject.group = mainObject.group[0];
-                    this.groupObject.key = mainObject.group[1];
-                } else {
-                    console.error({cenError:'group key invalid'});   
-                }
-            } else {
-                console.error({cenError:'group name invalid'});   
-            }
-
-		}
-		if (mainObject.user !== undefined && mainObject.user instanceof Array) {
-            if (Mg.validate.username(mainObject.user[0]).isValid === true) {
-                if (Mg.validate.password(mainObject.user[1]).isValid === true) {
-                    this.userObject.user = mainObject.user[0];
-                    this.userObject.pass = mainObject.user[1];
-                } else {
-                    console.error({cenError:'user password invalid'});   
-                }
-            } else {
-                console.error({cenError:'username invalid'});   
-            }
-		}
-
-		if (mainObject.url !== undefined) {
-			this.url = mainObject.url;
-		}
+	if (typeof url === "string") {
+		this.url = url;
 	} else {
-		console.warn("mainObject should be an Object.");
+		console.error({
+			cenError: 'url to cenny.php not given'
+		});
 	}
-    
-    
-	//SERVER REQUEST METHOD
 
+	if ((typeof groupName === "string") && (typeof groupKey === "string")) {
+		if (Mg.validate.username(groupName).isValid === true) {
+			if (Mg.validate.password(groupKey).isValid === true) {
+				this.groupObject.group = groupName;
+				this.groupObject.key = groupKey;
+			} else {
+				console.error({
+					cenError: 'group key invalid'
+				});
+			}
+		} else {
+			console.error({
+				cenError: 'group name invalid'
+			});
+		}
+	}
+	
+	var temp_user_info = localStorage.getItem('cennyUser');
+	temp_user_info = JSON.parse(temp_user_info);
+	if (temp_user_info !== "null" && temp_user_info !== null) {
+		if (typeof temp_user_info === "object") {
+			if (temp_user_info.group === this.groupObject.group) {
+				this.userObject.user = temp_user_info.user;
+				this.userObject.pass = temp_user_info.pass;
+			}
+		}
+	}
+
+	//SERVER REQUEST METHOD
 	this.aj = function (sendData, action, callback, optionalUserInfo) {
 		if (callback === undefined || typeof callback !== "function") {
 			callback = function (d) {
@@ -256,18 +246,18 @@ function Cenny(mainObject) {
 
 			if (optionalUserInfo !== undefined) {
 				if (Mg.validate.username(optionalUserInfo[0]).isValid === true) {
-						if (Mg.validate.password(optionalUserInfo[1]).isValid === true) {
+					if (Mg.validate.password(optionalUserInfo[1]).isValid === true) {
 
-						} else {
-							callback(Mg.validate.password(optionalUserInfo[1]));
-							shouldContinue = false;
-						}
+					} else {
+						callback(Mg.validate.password(optionalUserInfo[1]));
+						shouldContinue = false;
+					}
 				} else {
 					callback(Mg.validate.username(optionalUserInfo[0]));
 					shouldContinue = false;
 				}
 			}
-			
+
 			if (shouldContinue === true) {
 
 				if (optionalUserInfo !== undefined && optionalUserInfo instanceof Array) { //used for **.create() / .signin()**
@@ -275,37 +265,37 @@ function Cenny(mainObject) {
 					var passX = optionalUserInfo[1];
 
 					var new_request = new requestQueue("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + userX + "&userPass=" + passX, callback, that.url);
-					
-					that.stats.obj.log.push([action,sendData,that.stats.getTime()]);
+
+					that.stats.obj.log.push([action, sendData, that.stats.getTime()]);
 					if (that.stats.obj[action] === undefined) {
 						that.stats.obj[action] = {};
 						that.stats.obj[action].count = 0;
 						that.stats.obj[action].log = [];
 					}
 					that.stats.obj[action].count++;
-					that.stats.obj[action].log.push([sendData,that.stats.getTime()]);
+					that.stats.obj[action].log.push([sendData, that.stats.getTime()]);
 					that.stats.obj.totalRequests++;
 
 				} else { //otherwise, use global user info
 
 					if (Mg.validate.username(that.userObject.user).isValid === true) {
-							if (Mg.validate.password(that.userObject.pass).isValid === true || (that.userObject.user === "default" && that.userObject.pass === "default")) {
-								
-								var new_request = new requestQueue("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass, callback, that.url);
-								
-								that.stats.obj.log.push([action,sendData,that.stats.getTime()]);
-								if (that.stats.obj[action] === undefined) {
-									that.stats.obj[action] = {};
-									that.stats.obj[action].count = 0;
-									that.stats.obj[action].log = [];
-								}
-								that.stats.obj[action].count++;
-								that.stats.obj[action].log.push([sendData,that.stats.getTime()]);
-								that.stats.obj.totalRequests++;
+						if (Mg.validate.password(that.userObject.pass).isValid === true || (that.userObject.user === "default" && that.userObject.pass === "default")) {
 
-							} else {
-								callback(Mg.validate.password(that.userObject.pass));
+							var new_request = new requestQueue("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass, callback, that.url);
+
+							that.stats.obj.log.push([action, sendData, that.stats.getTime()]);
+							if (that.stats.obj[action] === undefined) {
+								that.stats.obj[action] = {};
+								that.stats.obj[action].count = 0;
+								that.stats.obj[action].log = [];
 							}
+							that.stats.obj[action].count++;
+							that.stats.obj[action].log.push([sendData, that.stats.getTime()]);
+							that.stats.obj.totalRequests++;
+
+						} else {
+							callback(Mg.validate.password(that.userObject.pass));
+						}
 					} else {
 						callback(Mg.validate.username(that.userObject.user));
 					}
@@ -314,9 +304,8 @@ function Cenny(mainObject) {
 			} //end should continue
 		} // is offline
 	};
-
 	this.get = function (callback, user) {
-        var isOnline = navigator.onLine;
+		var isOnline = navigator.onLine;
 		if (isOnline === true) {
 			if (user === undefined || user === '') {
 				that.aj("&getProperties=all", "get", callback);
@@ -331,11 +320,13 @@ function Cenny(mainObject) {
 				}
 				that.aj("&getProperties=" + propertyString, "get", callback);
 			} else {
-                if (Mg.validate.username(user).isValid === true) {
-				    that.aj("&otherUser=" + user, "getOther", callback);
-                } else {
-                    callback({cenError:'username invalid'});   
-                }
+				if (Mg.validate.username(user).isValid === true) {
+					that.aj("&otherUser=" + user, "getOther", callback);
+				} else {
+					callback({
+						cenError: 'username invalid'
+					});
+				}
 			}
 		} else if (isOnline === false) { //user offline
 			var offlineObject = that.offline.getOfflineObject();
@@ -358,7 +349,6 @@ function Cenny(mainObject) {
 			}
 		}
 	};
-
 	this.set = function (object, user, callback) {
 		var isOnline = navigator.onLine;
 		if (isOnline === true) {
@@ -369,11 +359,13 @@ function Cenny(mainObject) {
 				} else if (typeof user === "function") { //for backwards compat
 					that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "set", user);
 				} else {
-                    if (Mg.validate.username(user).isValid === true) {
-                        that.aj("&otherUser=" + user + "&data=" + encodeURIComponent(JSON.stringify(object)), "setOther", callback);
-                    } else {
-                        callback({cenError:'username invalid'});   
-                    }
+					if (Mg.validate.username(user).isValid === true) {
+						that.aj("&otherUser=" + user + "&data=" + encodeURIComponent(JSON.stringify(object)), "setOther", callback);
+					} else {
+						callback({
+							cenError: 'username invalid'
+						});
+					}
 				}
 			}
 
@@ -397,7 +389,6 @@ function Cenny(mainObject) {
 		}, 2000);
 
 	};
-	
 	this.update = function (object, user, callback) {
 		var isOnline = navigator.onLine;
 		if (isOnline === true) {
@@ -405,11 +396,13 @@ function Cenny(mainObject) {
 			if (user === undefined || user === "" || typeof user === "function") {
 				that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "update", user);
 			} else {
-                if (Mg.validate.username(user).isValid === true) {
-                    that.aj("&otherUser=" + user + "&data=" + encodeURIComponent(JSON.stringify(object)), "updateOther", callback);
-                } else {
-                    callback({cenError:'username invalid'});   
-                }
+				if (Mg.validate.username(user).isValid === true) {
+					that.aj("&otherUser=" + user + "&data=" + encodeURIComponent(JSON.stringify(object)), "updateOther", callback);
+				} else {
+					callback({
+						cenError: 'username invalid'
+					});
+				}
 			}
 		} else if (isOnline === false) { //offline
 			object['cennyJS'] = true;
@@ -422,17 +415,15 @@ function Cenny(mainObject) {
 		}, 2000);
 	};
 
-
 	//USER
-
 	this.user.remove = function (password, callback) {
 		if (callback === undefined) {
-			callback = function(d) {
-				console.log(d);	
+			callback = function (d) {
+				console.log(d);
 			}
 		}
 		if (password !== undefined) {
-			that.aj("&data=" + encodeURIComponent(password), "removeUser", function(d) {
+			that.aj("&data=" + encodeURIComponent(password), "removeUser", function (d) {
 				if (d.cenError === undefined) {
 					that.userObject.user = "default";
 					that.userObject.pass = "default";
@@ -440,14 +431,15 @@ function Cenny(mainObject) {
 				}
 				callback(d);
 			});
-			
+
 		} else {
-			callback({cenError:"provide user password"});	
+			callback({
+				cenError: "provide user password"
+			});
 		}
 	};
-
 	this.user.permissions = function (permObj, callback) {
-		that.aj("","getPermissions",function(d) {
+		that.aj("", "getPermissions", function (d) {
 			if (d.cenError !== "permissions cannot be retrieved for default user") {
 				var newPermObj = {};
 				for (key in d) {
@@ -456,9 +448,11 @@ function Cenny(mainObject) {
 				for (key in permObj) {
 					newPermObj[key] = permObj[key];
 				}
-				that.aj("&data="+ JSON.stringify(newPermObj),"setPermissions", callback);
+				that.aj("&data=" + JSON.stringify(newPermObj), "setPermissions", callback);
 			} else {
-				callback({cenError:"permissions cannot be edited on default user"});
+				callback({
+					cenError: "permissions cannot be edited on default user"
+				});
 			}
 		});
 	};
@@ -467,7 +461,8 @@ function Cenny(mainObject) {
 	this.user.remember = function () {
 		localStorage.setItem('cennyUser', JSON.stringify({
 			user: that.userObject.user,
-			pass: that.userObject.pass
+			pass: that.userObject.pass,
+			group: that.groupObject.group
 		}));
 	};
 
@@ -476,80 +471,86 @@ function Cenny(mainObject) {
 	};
 
 	this.user.password = function (newPassword, callback) {
-        if (that.stats.isAllowed() === true) {
-		if (Mg.validate.password(newPassword).isValid === true) {
-			that.aj("&newPassword=" + newPassword, "newPass", callback);
+		if (that.stats.isAllowed() === true) {
+			if (Mg.validate.password(newPassword).isValid === true) {
+				that.aj("&newPassword=" + newPassword, "newPass", callback);
+			} else {
+				callback(Mg.validate.password(newPassword));
+			}
+
+			that.stats.userRequestsPS++;
 		} else {
-			callback(Mg.validate.password(newPassword));
+			callback({
+				cenError: 'server did not respond'
+			});
 		}
-            
-        that.stats.userRequestsPS++;
-        } else {
-            callback({cenError:'server did not respond'});
-        }
 	};
 
-	this.user.signin = function (mainObject, callback) {
+	this.user.signin = function (username, password, callback) {
 		if (callback === undefined) {
-			callback = function(d) {
+			callback = function (d) {
 				console.log(d);
 			};
 		}
-        if (that.stats.isAllowed() === true) {
-		if (mainObject instanceof Object) {
-			if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
-				if (mainObject['user'][0] !== that.userObject.user) {
-				//once signed in, check if should update backend with offline data
-				that.offline.syncWithBackend();
-                
-				var userX = mainObject['user'][0];
-				var passX = mainObject['user'][1];
-                
-                if (Mg.validate.username(userX).isValid === true && Mg.validate.password(passX).isValid === true) {
-				if (typeof callback === "function") {
-					that.aj("", "generateAuthToken", function (d) {
-						if (d.cenError !== undefined) {
-							callback(d);
-						} else {
-							//set local user information
-							that.userObject.user = userX;
-							that.userObject.pass = passX;
+		if (that.stats.isAllowed() === true) {
+			if ((typeof username === "string") && (typeof password === "string")) {
+				if (username !== that.userObject.user) {
+					//once signed in, check if should update backend with offline data
+					that.offline.syncWithBackend();
 
-							that.userObject.pass = d; //set pass to token
-							localStorage.setItem('cennyToken', JSON.stringify([d, that.user.clientID, that.userObject.user])); //set token in localStorage
+					if (Mg.validate.username(username).isValid === true && Mg.validate.password(password).isValid === true) {
+						if (typeof callback === "function") {
+							that.aj("", "generateAuthToken", function (d) {
+								if (d.cenError !== undefined) {
+									callback(d);
+								} else {
+									//set local user information
+									that.userObject.user = username;
+									that.userObject.pass = password;
 
-							that.user.remember();
+									that.userObject.pass = d; //set pass to token
+									localStorage.setItem('cennyToken', JSON.stringify([d, that.user.clientID, that.userObject.user])); //set token in localStorage
 
-							callback({cenInfo:'signed in'}); //call provided callback
+									that.user.remember();
+
+									callback({
+										cenInfo: 'signed in'
+									}); //call provided callback
+								}
+							}, [username, password]);
+
 						}
-					}, [userX, passX]);
-					
-				}
-                } else {
-                    callback({cenError: 'username or password invalid'});
-                }
+					} else {
+						callback({
+							cenError: 'username or password invalid'
+						});
+					}
 				} else {
-					callback({cenError: 'already signed in'});	
+					callback({
+						cenError: 'already signed in'
+					});
 				}
+			} else {
+				callback({
+					cenError: 'first and second parameters should be username and password'
+				});
 			}
+			that.stats.userRequestsPS++;
 		} else {
-			console.warn("mainObject should be an Object.");
+			callback({
+				cenError: 'server did not respond'
+			});
 		}
-            
-        that.stats.userRequestsPS++;
-        } else {
-            callback({cenError:'server did not respond'});
-        }
 
 	};
 
 	this.user.signout = function () { //signs into default user.
-        if (that.userObject.user !== "default") {//only sign out on server if user is not default
-            that.userObject.pass = "default";
-            that.userObject.user = "default";
-            that.aj("", "generateAuthToken", function (d) {});
-            that.user.forget();
-        }
+		if (that.userObject.user !== "default") { //only sign out on server if user is not default
+			that.userObject.pass = "default";
+			that.userObject.user = "default";
+			that.aj("", "generateAuthToken", function (d) {});
+			that.user.forget();
+		}
 	};
 
 	this.user.exists = function (callback, username) {
@@ -559,101 +560,48 @@ function Cenny(mainObject) {
 			} else {
 				callback(false);
 			}
-
 		});
 	};
 
-	this.user.create = function (mainObject, callback) {
-        if (callback === undefined) {
-			callback = function(d) {
+	this.user.create = function (username, password, callback) {
+		if (callback === undefined) {
+			callback = function (d) {
 				console.log(d);
 			};
 		}
-        
-        if (that.stats.isAllowed() === true) {
-		if (mainObject instanceof Object) {
-			if (mainObject['user'] !== undefined && mainObject['user'] instanceof Array) {
-				var usrValid = Mg.validate.username(mainObject['user'][0]);
-				var passValid = Mg.validate.password(mainObject['user'][1]);
-				if (usrValid.isValid === true) {
-					if (passValid.isValid === true) {
-						var userX = mainObject['user'][0];
-						var passX = mainObject['user'][1];
-                        if (Mg.validate.username(userX).isValid === true && Mg.validate.password(passX).isValid === true) {
-                            that.aj("&data=" + JSON.stringify({username: userX, password:encodeURIComponent(passX)}), "createuser", callback);
-                        } else {
-                            callback({cenError:'username or password invalid'});   
-                        }
+
+		if (that.stats.isAllowed() === true) {
+			if ((typeof username === "string") && (typeof password === "string")) {
+				if (Mg.validate.username(username).isValid === true) {
+					if (Mg.validate.password(password).isValid === true) {
+						that.aj("&data=" + JSON.stringify({
+							username: userX,
+							password: encodeURIComponent(passX)
+						}), "createuser", callback);
 					} else {
-						callback(passValid);
+						callback(Mg.validate.password(password));
 					}
 				} else {
-					callback(usrValid);
+					callback(Mg.validate.username(username));
 				}
+			} else {
+				callback({
+					cenError: 'first and second parameters should be username and password'
+				});
 			}
+			that.stats.userRequestsPS++;
 		} else {
-			console.warn("mainObject should be an Object.");
+			callback({
+				cenError: 'server did not respond'
+			});
 		}
-        
-        that.stats.userRequestsPS++;
-        } else {
-            callback({cenError:'server did not respond'});
-        }
 	};
 
 	this.user.info = function () {
 		return [that.userObject.user, that.userObject.pass];
 	};
 
-	this.user.metadata = function (callback, user) {
-        
-        if (Knwl !== undefined) {
-            var knwl = new Knwl();
-            if (user !== undefined) {
-                that.get(function (d) {
-                    if (d.cenError === undefined) {
-                        var metaOBJ = {};
-                        for (key in d) {
-                            var str = d[key];
-                            if (typeof str === "string") {
-                                knwl.init(str);
-                                var x = knwl.get();
-                                metaOBJ[key] = x;
-                            }
-                        }
-                        callback(metaOBJ);
-                    } else {
-                        callback(d.cenError);
-                    }
-                }, user);
-            } else {
-                that.get(function (d) {
-                    if (d.cenError === undefined) {
-                        var metaOBJ = {};
-                        for (key in d) {
-                            var str = d[key];
-                            if (typeof str === "string") {
-                                knwl.init(str);
-                                var x = knwl.get();
-                                metaOBJ[key] = x;
-                            }
-                        }
-                        callback(metaOBJ);
-                    } else {
-                        callback(d.cenError);
-                    }
-                });
-            }
-            
-        } else {
-            callback({cenError:'Knwl.js must be included above Cenny.js before .user.metadata() can be called'});  
-        }
-	};
-
-
 	//END USER
-
-
 
 	//START OFFLINE - - - - - - - -
 
@@ -700,20 +648,20 @@ function Cenny(mainObject) {
 	};
 
 	this.offline.syncWithBackend = function () {
-				var isOnline = navigator.onLine;
-				if (isOnline === true) {
-					var offlineObject = localStorage.getItem('cennyOfflineUpdate');
-					var dataUsername = localStorage.getItem('cennyOfflineUsername'); //username that set data
-					if (offlineObject === undefined || offlineObject === null) {
-						offlineObject = {};
-					} else {
-						offlineObject = JSON.parse(offlineObject);
-					}
-					if (dataUsername === that.userObject.user) {
-						that.update(offlineObject);
-						localStorage.setItem('cennyOfflineUpdate', JSON.stringify({})); //clear update queue
-					}
-				}
+		var isOnline = navigator.onLine;
+		if (isOnline === true) {
+			var offlineObject = localStorage.getItem('cennyOfflineUpdate');
+			var dataUsername = localStorage.getItem('cennyOfflineUsername'); //username that set data
+			if (offlineObject === undefined || offlineObject === null) {
+				offlineObject = {};
+			} else {
+				offlineObject = JSON.parse(offlineObject);
+			}
+			if (dataUsername === that.userObject.user) {
+				that.update(offlineObject);
+				localStorage.setItem('cennyOfflineUpdate', JSON.stringify({})); //clear update queue
+			}
+		}
 	};
 
 	this.offline.getOfflineObject = function () { //used for get / modified
@@ -787,11 +735,11 @@ function Cenny(mainObject) {
 			//user offline
 		}
 	}
-	
+
 	this.offline.updateOfflineInterval = setInterval(function () {
 		that.offline.updateOfflineObject();
 	}, 40500);
-	
+
 	//END OFFLINE - - - - - - - -
 
 	function watchBackendProperty(callback, pArray) {
