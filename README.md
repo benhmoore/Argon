@@ -1,10 +1,7 @@
 #Cenny.js | The plug 'n play backend for web apps.
 
 Website: http://loadfive.com/cenny
-
-##FULL DOCUMENTATION
-http://loadfive.com/cenny/documentation
-
+Docs: http://loadfive.com/cenny/documentation
 ___
 
 1. Download the *.zip* of this respiratory.
@@ -16,7 +13,6 @@ Congratulations! Cenny.js is ready to go.
 **!Issue scout**: You may have to modify permissions for the directory in which *cenny.php* is stored, in order for *cenny.php* to create directories and files.
 
 ___
-
 
 ###Create a new instance of Cenny:
 
@@ -33,6 +29,8 @@ With group:
 var server = new Cenny(url, groupname, groupkey);
 ```
 
+##FULL DOCUMENTATION
+http://loadfive.com/cenny/documentation
 
 
 ##Security Measures
