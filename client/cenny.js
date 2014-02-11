@@ -87,12 +87,52 @@ Mg.convertData = function (data) {
 	}
 };
 
+//requests
+Mg.activeRequests = [];
+
+Mg.makeID = function () {
+	var id = "";
+	var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+	for (var i = 0; i < 15; i++)
+		id += possible.charAt(Math.floor(Math.random() * possible.length));
+
+	return id;
+}
+
+Mg.removeRequest = function (id) {
+	var remainingRequests = [];
+	for (var i = 0; i < Mg.activeRequests.length; i++) {
+		if (Mg.activeRequests[i] !== id) {
+			remainingRequests.push(Mg.activeRequests[i]);
+		}
+	}
+	Mg.activeRequests = remainingRequests;
+};
+
+Mg.requestsSent = {};
+
+Mg.requestsSentClearer = setInterval(function () {
+	Mg.requestsSent = {};
+}, 400);
+
+Mg.actualRequests = 0;
+
 //CENNY.JS ---------
 Mg.isBusy = false;
 
 function requestQueue(requestBody, callback, urlX) {
-	var x = setInterval(function () {
 
+
+	if (Mg.requestsSent[requestBody] === undefined || Mg.requestsSent[requestBody] === NaN || Mg.requestsSent[requestBody] === null) {
+		Mg.requestsSent[requestBody] = 0;
+	}
+	Mg.requestsSent[requestBody]++;
+	
+	var tries = 0;
+	var id = Mg.makeID();
+	Mg.activeRequests.push(id);
+	var x = setInterval(function () {
 		if (Mg.isBusy === false) {
 			Mg.isBusy = true;
 			var xmlhttp;
@@ -101,11 +141,10 @@ function requestQueue(requestBody, callback, urlX) {
 				if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
 					setTimeout(function () {
 						Mg.isBusy = false;
-					}, 85);
-
+						Mg.removeRequest(id);
+					}, 100);
 					var data = xmlhttp.responseText;
 					if (callback !== undefined && data !== "") {
-
 						callback(Mg.convertData(data));
 					}
 				}
@@ -114,6 +153,24 @@ function requestQueue(requestBody, callback, urlX) {
 			xmlhttp.open("POST", urlX, true);
 			xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 			xmlhttp.send(requestBody);
+			Mg.actualRequests++;
+			clearInterval(x);
+		}
+		tries++;
+		if (tries >= 1000) {
+			callback({cenError: 'request dropped: server did not respond'});
+			tries = 0;
+			Mg.removeRequest(id);
+			clearInterval(x);
+		}
+		if (Mg.activeRequests.length > 200) {
+			callback({cenError: 'request dropped: server did not respond'});
+			Mg.removeRequest(id);
+			clearInterval(x);
+		}
+		if (Mg.requestsSent[requestBody] > 100) {
+			callback({cenError: 'request dropped: server did not respond'});
+			Mg.removeRequest(id);
 			clearInterval(x);
 		}
 	}, 10);
@@ -199,9 +256,7 @@ function Cenny(url, groupName, groupKey) {
 	if (typeof url === "string") {
 		this.url = url;
 	} else {
-		console.error({
-			cenError: 'url to cenny.php not given'
-		});
+		console.error({cenError: 'url to cenny.php not given'});
 	}
 
 	if ((typeof groupName === "string") && (typeof groupKey === "string")) {
@@ -210,17 +265,13 @@ function Cenny(url, groupName, groupKey) {
 				this.groupObject.group = groupName;
 				this.groupObject.key = groupKey;
 			} else {
-				console.error({
-					cenError: 'group key invalid'
-				});
+				console.error({cenError: 'group key invalid'});
 			}
 		} else {
-			console.error({
-				cenError: 'group name invalid'
-			});
+			console.error({cenError: 'group name invalid'});
 		}
 	}
-	
+
 	var temp_user_info = localStorage.getItem('cennyUser');
 	temp_user_info = JSON.parse(temp_user_info);
 	if (temp_user_info !== "null" && temp_user_info !== null) {
@@ -266,14 +317,14 @@ function Cenny(url, groupName, groupKey) {
 
 					var new_request = new requestQueue("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + userX + "&userPass=" + passX, callback, that.url);
 
-					that.stats.obj.log.push([action, sendData, that.stats.getTime()]);
+					that.stats.obj.log.push([action, decodeURIComponent(sendData), that.stats.getTime()]);
 					if (that.stats.obj[action] === undefined) {
 						that.stats.obj[action] = {};
 						that.stats.obj[action].count = 0;
 						that.stats.obj[action].log = [];
 					}
 					that.stats.obj[action].count++;
-					that.stats.obj[action].log.push([sendData, that.stats.getTime()]);
+					that.stats.obj[action].log.push([decodeURIComponent(sendData), that.stats.getTime()]);
 					that.stats.obj.totalRequests++;
 
 				} else { //otherwise, use global user info
@@ -283,14 +334,15 @@ function Cenny(url, groupName, groupKey) {
 
 							var new_request = new requestQueue("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass, callback, that.url);
 
-							that.stats.obj.log.push([action, sendData, that.stats.getTime()]);
+							that.stats.obj.log.push([action, decodeURIComponent(sendData), that.stats.getTime()]);
 							if (that.stats.obj[action] === undefined) {
 								that.stats.obj[action] = {};
 								that.stats.obj[action].count = 0;
 								that.stats.obj[action].log = [];
 							}
+
 							that.stats.obj[action].count++;
-							that.stats.obj[action].log.push([sendData, that.stats.getTime()]);
+							that.stats.obj[action].log.push([decodeURIComponent(sendData), that.stats.getTime()]);
 							that.stats.obj.totalRequests++;
 
 						} else {
@@ -416,27 +468,20 @@ function Cenny(url, groupName, groupKey) {
 	};
 
 	//USER
-	this.user.remove = function (password, callback) {
+	this.user.remove = function (callback) {
 		if (callback === undefined) {
 			callback = function (d) {
 				console.log(d);
 			}
 		}
-		if (password !== undefined) {
-			that.aj("&data=" + encodeURIComponent(password), "removeUser", function (d) {
-				if (d.cenError === undefined) {
-					that.userObject.user = "default";
-					that.userObject.pass = "default";
-					that.user.forget();
-				}
-				callback(d);
-			});
-
-		} else {
-			callback({
-				cenError: "provide user password"
-			});
-		}
+		that.aj("", "removeUser", function (d) {
+			if (d.cenError === undefined) {
+				that.userObject.user = "default";
+				that.userObject.pass = "default";
+				that.user.forget();
+			}
+			callback(d);
+		});
 	};
 	this.user.permissions = function (permObj, callback) {
 		that.aj("", "getPermissions", function (d) {
@@ -450,9 +495,7 @@ function Cenny(url, groupName, groupKey) {
 				}
 				that.aj("&data=" + JSON.stringify(newPermObj), "setPermissions", callback);
 			} else {
-				callback({
-					cenError: "permissions cannot be edited on default user"
-				});
+				callback({cenError: "permissions cannot be edited on default user"});
 			}
 		});
 	};
@@ -575,8 +618,8 @@ function Cenny(url, groupName, groupKey) {
 				if (Mg.validate.username(username).isValid === true) {
 					if (Mg.validate.password(password).isValid === true) {
 						that.aj("&data=" + JSON.stringify({
-							username: userX,
-							password: encodeURIComponent(passX)
+							username: username,
+							password: encodeURIComponent(password)
 						}), "createuser", callback);
 					} else {
 						callback(Mg.validate.password(password));
@@ -714,9 +757,11 @@ function Cenny(url, groupName, groupKey) {
 	setInterval(function () {
 		if (navigator.onLine !== that.offline.lastState) {
 			if (navigator.onLine === true) {
+				console.log({cenInfo:"came back online : syncing"});
 				that.offline.syncWithBackend();
 				localStorage.setItem('lastOffline', "false");
 			} else {
+				console.log({cenInfo:"went offline"});
 				localStorage.setItem('lastOffline', "true");
 			}
 			that.offline.lastState = navigator.onLine;

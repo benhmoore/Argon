@@ -509,8 +509,6 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 
 		} else if ($action === "removeUser") {
 			
-			$userToRemovePass = openFile("$directory/$groupName/$userName/pass.txt", 50000);
-			if ($userToRemovePass === $clientData) {
 			//remove user directory
 			delete_files("$directory/$groupName/$userName/");
 
@@ -520,10 +518,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 			saveFile("$directory/$groupName/userlist.txt", $users);
 
 			echo '{"cenInfo":"removed user ' . $userName . ' from group ' . $groupName . '"}';
-			} else {
-				echo '{"cenError":"user pass incorrect"}';
-			}
-
+				
 		} else if ($action === "userExists") {
 			if (file_exists("$directory/$groupName/$clientData/")) {
 				echo 'true';
