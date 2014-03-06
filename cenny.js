@@ -1,4 +1,5 @@
 var Mg = {};
+
 Mg.validate = {};
 Mg.validate.username = function (username) {
 
@@ -63,6 +64,21 @@ Mg.validate.password = function (password) {
 
 };
 
+Mg.validate.object = function(object) {
+	var isValid = true;
+	var leng = 0;
+	for (key in object) {
+		leng++;
+		if (key.length > 100) {
+			isValid = false;
+		}
+	}
+	if (leng > 5000) {
+		isValid = false;
+	}
+	return isValid;
+};
+
 Mg.isJSON = function (str) {
 	try {
 		JSON.parse(str);
@@ -86,9 +102,31 @@ Mg.convertData = function (data) {
 		return data;
 	}
 };
+Mg.countObj = function (obj) {
+	var c = 0;
+	for (key in obj) {
+		c++;
+	}
+	return c;
+};
+Mg.getTime = function () {
+	var obj = {};
 
-//requests
-Mg.activeRequests = [];
+	var now = new Date();
+	var start = new Date(now.getFullYear(), 0, 0);
+	var diff = now - start;
+	var oneDay = 1000 * 60 * 60 * 24;
+	var day = Math.floor(diff / oneDay);
+
+	var x = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
+	x = x.split(":");
+	obj.second = parseInt(x[2]);
+	obj.minute = parseInt(x[1]);
+	obj.hour = parseInt(x[0]);
+	obj.day = day;
+	obj.year = now.getFullYear();
+	return obj;
+};
 
 Mg.makeID = function () {
 	var id = "";
@@ -98,85 +136,102 @@ Mg.makeID = function () {
 		id += possible.charAt(Math.floor(Math.random() * possible.length));
 
 	return id;
-}
-
-Mg.removeRequest = function (id) {
-	var remainingRequests = [];
-	for (var i = 0; i < Mg.activeRequests.length; i++) {
-		if (Mg.activeRequests[i] !== id) {
-			remainingRequests.push(Mg.activeRequests[i]);
-		}
-	}
-	Mg.activeRequests = remainingRequests;
 };
 
-Mg.requestsSent = {};
 
-Mg.requestsSentClearer = setInterval(function () {
-	Mg.requestsSent = {};
-}, 400);
+Mg.requests = {};
 
-Mg.actualRequests = 0;
-
-//CENNY.JS ---------
-Mg.isBusy = false;
-
-function requestQueue(requestBody, callback, urlX) {
-
-
-	if (Mg.requestsSent[requestBody] === undefined || Mg.requestsSent[requestBody] === NaN || Mg.requestsSent[requestBody] === null) {
-		Mg.requestsSent[requestBody] = 0;
+Mg.requests.removeRequest = function (index) {
+	var newQueue = [];
+	var newQueue_callbacks = [];
+	for (var i = 0; i < Mg.requests.queue.length; i++) {
+		if (i !== index) {
+			newQueue.push(Mg.requests.queue[i]);
+		}
 	}
-	Mg.requestsSent[requestBody]++;
-	
-	var tries = 0;
-	var id = Mg.makeID();
-	Mg.activeRequests.push(id);
-	var x = setInterval(function () {
-		if (Mg.isBusy === false) {
-			Mg.isBusy = true;
-			var xmlhttp;
-			xmlhttp = new XMLHttpRequest();
-			xmlhttp.onreadystatechange = function () {
-				if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-					setTimeout(function () {
-						Mg.isBusy = false;
-						Mg.removeRequest(id);
-					}, 100);
-					var data = xmlhttp.responseText;
-					if (callback !== undefined && data !== "") {
-						callback(Mg.convertData(data));
+	for (var i = 0; i < Mg.requests.queue_callbacks.length; i++) {
+		if (i !== index) {
+			newQueue_callbacks.push(Mg.requests.queue_callbacks[i]);
+		}
+	}
+	Mg.requests.queue = newQueue;
+	Mg.requests.queue_callbacks = newQueue_callbacks;
+};
+
+Mg.requests.url = "";
+Mg.requests.auth = [];
+Mg.requests.queue = [];
+Mg.requests.queue_callbacks = [];
+
+Mg.requests.total = 0;
+
+Mg.requests.isBusy = false;
+Mg.requests.add = function (request, auth, callback, url) {
+	Mg.requests.auth = auth;
+	Mg.requests.url = url;
+	var shouldAdd = true;
+	for (var i = 0; i < Mg.requests.queue.length; i++) {
+		if (JSON.stringify(request) === JSON.stringify(Mg.requests.queue[i])) {
+			shouldAdd = false;
+			Mg.requests.queue_callbacks[i].push(callback);
+		}
+	}
+	if (shouldAdd === true) {
+		Mg.requests.queue.push(request);
+		Mg.requests.queue_callbacks.push([callback]);
+	}
+
+};
+
+Mg.requests.send = function () {
+	if (Mg.requests.isBusy === false) {
+		var xmlhttp;
+		xmlhttp = new XMLHttpRequest();
+		xmlhttp.onreadystatechange = function () {
+			if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+				setTimeout(function () {
+					Mg.requests.isBusy = false;
+				}, 70);
+
+				var temp_callbacks = Mg.requests.queue_callbacks;
+				var temp_queue = Mg.requests.queue;
+
+				var data = xmlhttp.responseText; //pass this to callbacks
+				data = Mg.convertData(data);
+
+				for (var e = data.length; e + 1 > 0; e--) {
+					Mg.requests.removeRequest(e);
+				}
+
+				for (var e = 0; e < data.length; e++) {
+					var request_callbacks = temp_callbacks[e];
+					if (request_callbacks !== undefined) {
+						for (var i = 0; i < request_callbacks.length; i++) {
+							request_callbacks[i](Mg.convertData(data[e]));
+						}
 					}
 				}
 
-			};
-			xmlhttp.open("POST", urlX, true);
-			xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-			xmlhttp.send(requestBody);
-			Mg.actualRequests++;
-			clearInterval(x);
-		}
-		tries++;
-		if (tries >= 1000) {
-			callback({cenError: 'request dropped: server did not respond'});
-			tries = 0;
-			Mg.removeRequest(id);
-			clearInterval(x);
-		}
-		if (Mg.activeRequests.length > 200) {
-			callback({cenError: 'request dropped: server did not respond'});
-			Mg.removeRequest(id);
-			clearInterval(x);
-		}
-		if (Mg.requestsSent[requestBody] > 100) {
-			callback({cenError: 'request dropped: server did not respond'});
-			Mg.removeRequest(id);
-			clearInterval(x);
-		}
-	}, 10);
+			}
+
+		};
+		var requests = Mg.requests.queue;
+		xmlhttp.open("POST", Mg.requests.url, true);
+		xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		xmlhttp.send("requests=" + JSON.stringify(requests) + "&groupName=" + Mg.requests.auth[0] + "&userName=" + Mg.requests.auth[1] + "&userPass=" + Mg.requests.auth[2]);
+		Mg.requests.total++;
+		Mg.requests.isBusy === true;
+	}
 };
 
-function Cenny(url, groupName, groupKey) {
+Mg.requests.sender = setInterval(function () {
+	if (Mg.countObj(Mg.requests.queue) > 0) {
+// 		console.log(JSON.stringify(Mg.requests.queue));
+		Mg.requests.send();
+	}
+}, 200);
+
+function Cenny(url, group) {
 
 	//*** STATS ****
 
@@ -195,9 +250,9 @@ function Cenny(url, groupName, groupKey) {
 	this.stats.userRequestsPS = 0;
 	setInterval(function () {
 		that.stats.userRequestsPS = 0;
-	}, 1000);
+	}, 10000);
 	this.stats.isAllowed = function () {
-		if (that.stats.userRequestsPS > 3) {
+		if (that.stats.userRequestsPS > 10) {
 			return false;
 		} else {
 			return true;
@@ -208,7 +263,7 @@ function Cenny(url, groupName, groupKey) {
 
 	//****
 	this.user = {};
-	this.user.clientID = Math.floor(Math.random() * 32973);
+	this.user.clientID = Mg.makeID();
 
 	this.group = {};
 	this.secure = {};
@@ -218,7 +273,6 @@ function Cenny(url, groupName, groupKey) {
 
 	//group definitions
 	this.groupObject.group = "default";
-	this.groupObject.key = "default";
 
 	this.userObject = {};
 
@@ -256,19 +310,18 @@ function Cenny(url, groupName, groupKey) {
 	if (typeof url === "string") {
 		this.url = url;
 	} else {
-		console.error({cenError: 'url to cenny.php not given'});
+		console.error({
+			cenError: 'url to cenny.php not given'
+		});
 	}
 
-	if ((typeof groupName === "string") && (typeof groupKey === "string")) {
-		if (Mg.validate.username(groupName).isValid === true) {
-			if (Mg.validate.password(groupKey).isValid === true) {
-				this.groupObject.group = groupName;
-				this.groupObject.key = groupKey;
-			} else {
-				console.error({cenError: 'group key invalid'});
-			}
+	if (typeof group === "string") {
+		if (Mg.validate.username(group).isValid === true) {
+			this.groupObject.group = group;
 		} else {
-			console.error({cenError: 'group name invalid'});
+			console.error({
+				cenError: 'group invalid'
+			});
 		}
 	}
 
@@ -284,7 +337,7 @@ function Cenny(url, groupName, groupKey) {
 	}
 
 	//SERVER REQUEST METHOD
-	this.aj = function (sendData, action, callback, optionalUserInfo) {
+	this.aj = function (sendData, callback, optionalUserInfo) {
 		if (callback === undefined || typeof callback !== "function") {
 			callback = function (d) {
 				console.info(d);
@@ -315,34 +368,33 @@ function Cenny(url, groupName, groupKey) {
 					var userX = optionalUserInfo[0];
 					var passX = optionalUserInfo[1];
 
-					var new_request = new requestQueue("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + userX + "&userPass=" + passX, callback, that.url);
+					Mg.requests.add(sendData, [that.groupObject.group, userX, passX], callback, that.url);
 
-					that.stats.obj.log.push([action, decodeURIComponent(sendData), that.stats.getTime()]);
-					if (that.stats.obj[action] === undefined) {
-						that.stats.obj[action] = {};
-						that.stats.obj[action].count = 0;
-						that.stats.obj[action].log = [];
+					that.stats.obj.log.push([sendData.action, sendData, that.stats.getTime()]);
+					if (that.stats.obj[sendData.action] === undefined) {
+						that.stats.obj[sendData.action] = {};
+						that.stats.obj[sendData.action].count = 0;
+						that.stats.obj[sendData.action].log = [];
 					}
-					that.stats.obj[action].count++;
-					that.stats.obj[action].log.push([decodeURIComponent(sendData), that.stats.getTime()]);
+					that.stats.obj[sendData.action].count++;
+					that.stats.obj[sendData.action].log.push([sendData, that.stats.getTime()]);
 					that.stats.obj.totalRequests++;
 
 				} else { //otherwise, use global user info
 
 					if (Mg.validate.username(that.userObject.user).isValid === true) {
 						if (Mg.validate.password(that.userObject.pass).isValid === true || (that.userObject.user === "default" && that.userObject.pass === "default")) {
+							Mg.requests.add(sendData, [that.groupObject.group, that.userObject.user, that.userObject.pass], callback, that.url);
 
-							var new_request = new requestQueue("action=" + action + sendData + "&groupName=" + that.groupObject.group + "&groupKey=" + that.groupObject.key + "&userName=" + that.userObject.user + "&userPass=" + that.userObject.pass, callback, that.url);
-
-							that.stats.obj.log.push([action, decodeURIComponent(sendData), that.stats.getTime()]);
-							if (that.stats.obj[action] === undefined) {
-								that.stats.obj[action] = {};
-								that.stats.obj[action].count = 0;
-								that.stats.obj[action].log = [];
+							that.stats.obj.log.push([sendData.action, sendData, that.stats.getTime()]);
+							if (that.stats.obj[sendData.action] === undefined) {
+								that.stats.obj[sendData.action] = {};
+								that.stats.obj[sendData.action].count = 0;
+								that.stats.obj[sendData.action].log = [];
 							}
 
-							that.stats.obj[action].count++;
-							that.stats.obj[action].log.push([decodeURIComponent(sendData), that.stats.getTime()]);
+							that.stats.obj[sendData.action].count++;
+							that.stats.obj[sendData.action].log.push([sendData, that.stats.getTime()]);
 							that.stats.obj.totalRequests++;
 
 						} else {
@@ -357,10 +409,21 @@ function Cenny(url, groupName, groupKey) {
 		} // is offline
 	};
 	this.get = function (callback, user) {
+
+		//if user var is set to current username, set user var to ''
+		if (typeof user === "string") {
+			if (user === that.userObject.user) {
+				user = '';
+			}
+		}
+
 		var isOnline = navigator.onLine;
 		if (isOnline === true) {
 			if (user === undefined || user === '') {
-				that.aj("&getProperties=all", "get", callback);
+				that.aj({
+					data: "all",
+					action: "get"
+				}, callback);
 			} else if (user instanceof Array) {
 				var propertyString = "";
 				for (var i = 0; i < user.length; i++) {
@@ -370,10 +433,16 @@ function Cenny(url, groupName, groupKey) {
 						propertyString += user[i];
 					}
 				}
-				that.aj("&getProperties=" + propertyString, "get", callback);
+				that.aj({
+					data: propertyString,
+					action: "get"
+				}, callback);
 			} else {
 				if (Mg.validate.username(user).isValid === true) {
-					that.aj("&otherUser=" + user, "getOther", callback);
+					that.aj({
+						action: "getOther",
+						data: user
+					}, callback);
 				} else {
 					callback({
 						cenError: 'username invalid'
@@ -401,55 +470,31 @@ function Cenny(url, groupName, groupKey) {
 			}
 		}
 	};
-	this.set = function (object, user, callback) {
-		var isOnline = navigator.onLine;
-		if (isOnline === true) {
-			if (object instanceof Object) {
-				object['cennyJS'] = true;
-				if (user === undefined || user === '') {
-					that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "set", callback);
-				} else if (typeof user === "function") { //for backwards compat
-					that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "set", user);
-				} else {
-					if (Mg.validate.username(user).isValid === true) {
-						that.aj("&otherUser=" + user + "&data=" + encodeURIComponent(JSON.stringify(object)), "setOther", callback);
-					} else {
-						callback({
-							cenError: 'username invalid'
-						});
-					}
-				}
-			}
 
-		} else if (isOnline === false) { //user offline
-			if (object instanceof Object) {
+	this.update = function (object, user, callback) {
 
-				object['cennyJS'] = true;
-
-				if (user === undefined || user === '') {
-					that.offline.set(object);
-				} else if (typeof user === "function") { //for backwards compat
-					that.offline.set(object);
-					user("updated (offline)");
-				}
+		//if user var is set to current username, set user var to ''
+		if (typeof user === "string") {
+			if (user === that.userObject.user) {
+				user = '';
 			}
 		}
 
-
-		setTimeout(function () {
-			that.offline.updateOfflineObject();
-		}, 2000);
-
-	};
-	this.update = function (object, user, callback) {
 		var isOnline = navigator.onLine;
 		if (isOnline === true) {
 			object['cennyJS'] = true;
 			if (user === undefined || user === "" || typeof user === "function") {
-				that.aj("&data=" + encodeURIComponent(JSON.stringify(object)), "update", user);
+				that.aj({
+					data: object,
+					action: "update"
+				}, user);
 			} else {
 				if (Mg.validate.username(user).isValid === true) {
-					that.aj("&otherUser=" + user + "&data=" + encodeURIComponent(JSON.stringify(object)), "updateOther", callback);
+					that.aj({
+						otherUser: user,
+						data: object,
+						action: "updateOther"
+					}, callback);
 				} else {
 					callback({
 						cenError: 'username invalid'
@@ -464,7 +509,62 @@ function Cenny(url, groupName, groupKey) {
 		}
 		setTimeout(function () {
 			that.offline.updateOfflineObject();
-		}, 2000);
+		}, 10);
+	};
+
+	this.set = function (object, user, callback) {
+
+		//if user var is set to current username, set user var to ''
+		if (typeof user === "string") {
+			if (user === that.userObject.user) {
+				user = '';
+			}
+		}
+
+		var isOnline = navigator.onLine;
+		if (isOnline === true) {
+			if (object instanceof Object) {
+				object['cennyJS'] = true;
+				if (user === undefined || user === '') {
+					that.aj({
+						data: object,
+						action: "set"
+					}, callback);
+				} else if (typeof user === "function") { //for backwards compat
+					that.aj({
+						data: object,
+						action: "set"
+					}, user);
+				} else {
+					if (Mg.validate.username(user).isValid === true) {
+						that.aj({
+							data: object,
+							action: "setOther",
+							otherUser: user
+						}, callback);
+					} else {
+						callback({
+							cenError: 'username invalid'
+						});
+					}
+				}
+			}
+
+		} else if (isOnline === false) { //user offline
+			if (object instanceof Object) {
+
+				object['cennyJS'] = true;
+				if (user === undefined || user === '') {
+					that.offline.set(object);
+				} else if (typeof user === "function") { //for backwards compat
+					that.offline.set(object);
+					user("updated (offline)");
+				}
+			}
+		}
+		setTimeout(function () {
+			that.offline.updateOfflineObject();
+		}, 10);
 	};
 
 	//USER
@@ -472,9 +572,12 @@ function Cenny(url, groupName, groupKey) {
 		if (callback === undefined) {
 			callback = function (d) {
 				console.log(d);
-			}
+			};
 		}
-		that.aj("", "removeUser", function (d) {
+		that.aj({
+			data: "",
+			action: "removeUser"
+		}, function (d) {
 			if (d.cenError === undefined) {
 				that.userObject.user = "default";
 				that.userObject.pass = "default";
@@ -484,7 +587,16 @@ function Cenny(url, groupName, groupKey) {
 		});
 	};
 	this.user.permissions = function (permObj, callback) {
-		that.aj("", "getPermissions", function (d) {
+		if (callback === undefined) {
+			callback = function (d) {
+				console.log(d);
+			};
+		}
+		that.aj({
+			data: "",
+			action: "getPermissions"
+		}, function (d) {
+			console.log(d);
 			if (d.cenError !== "permissions cannot be retrieved for default user") {
 				var newPermObj = {};
 				for (key in d) {
@@ -493,9 +605,15 @@ function Cenny(url, groupName, groupKey) {
 				for (key in permObj) {
 					newPermObj[key] = permObj[key];
 				}
-				that.aj("&data=" + JSON.stringify(newPermObj), "setPermissions", callback);
+				console.log(d);
+				that.aj({
+					data: JSON.stringify(newPermObj),
+					action: "setPermissions"
+				}, callback);
 			} else {
-				callback({cenError: "permissions cannot be edited on default user"});
+				callback({
+					cenError: "permissions cannot be edited on default user"
+				});
 			}
 		});
 	};
@@ -514,9 +632,17 @@ function Cenny(url, groupName, groupKey) {
 	};
 
 	this.user.password = function (newPassword, callback) {
+		if (callback === undefined) {
+			callback = function (d) {
+				console.log(d);
+			};
+		}
 		if (that.stats.isAllowed() === true) {
 			if (Mg.validate.password(newPassword).isValid === true) {
-				that.aj("&newPassword=" + newPassword, "newPass", callback);
+				that.aj({
+					data: newPassword,
+					action: "changePass"
+				}, callback);
 			} else {
 				callback(Mg.validate.password(newPassword));
 			}
@@ -543,7 +669,10 @@ function Cenny(url, groupName, groupKey) {
 
 					if (Mg.validate.username(username).isValid === true && Mg.validate.password(password).isValid === true) {
 						if (typeof callback === "function") {
-							that.aj("", "generateAuthToken", function (d) {
+							that.aj({
+								data: "",
+								action: "generateAuthToken"
+							}, function (d) {
 								if (d.cenError !== undefined) {
 									callback(d);
 								} else {
@@ -578,26 +707,37 @@ function Cenny(url, groupName, groupKey) {
 					cenError: 'first and second parameters should be username and password'
 				});
 			}
-			that.stats.userRequestsPS++;
 		} else {
 			callback({
 				cenError: 'server did not respond'
 			});
 		}
+		that.stats.userRequestsPS++;
 
 	};
 
-	this.user.signout = function () { //signs into default user.
+	this.user.signout = function (callback) { //signs into default user.
+		if (callback !== undefined) {
+			callback = function(d) {
+			};
+		}
 		if (that.userObject.user !== "default") { //only sign out on server if user is not default
 			that.userObject.pass = "default";
 			that.userObject.user = "default";
-			that.aj("", "generateAuthToken", function (d) {});
+			that.aj({
+				data: "",
+				action: "generateAuthToken"
+			}, function (d) {});
 			that.user.forget();
 		}
+		callback({cenInfo:'success'});
 	};
 
 	this.user.exists = function (callback, username) {
-		that.aj("&data=" + username, "userExists", function (d) {
+		that.aj({
+			data: username,
+			action: "userExists"
+		}, function (d) {
 			if (d === true) {
 				callback(true);
 			} else {
@@ -612,15 +752,17 @@ function Cenny(url, groupName, groupKey) {
 				console.log(d);
 			};
 		}
-
 		if (that.stats.isAllowed() === true) {
 			if ((typeof username === "string") && (typeof password === "string")) {
 				if (Mg.validate.username(username).isValid === true) {
 					if (Mg.validate.password(password).isValid === true) {
-						that.aj("&data=" + JSON.stringify({
-							username: username,
-							password: encodeURIComponent(password)
-						}), "createuser", callback);
+						that.aj({
+							action: "createuser",
+							data: {
+								username: username,
+								password: encodeURIComponent(password)
+							}
+						}, callback);
 					} else {
 						callback(Mg.validate.password(password));
 					}
@@ -640,7 +782,10 @@ function Cenny(url, groupName, groupKey) {
 		}
 	};
 
-	this.user.info = function () {
+	this.user.info = function (callback) {
+		if (callback !== undefined) {
+			callback([that.userObject.user, that.userObject.pass]);
+		}
 		return [that.userObject.user, that.userObject.pass];
 	};
 
@@ -757,11 +902,15 @@ function Cenny(url, groupName, groupKey) {
 	setInterval(function () {
 		if (navigator.onLine !== that.offline.lastState) {
 			if (navigator.onLine === true) {
-				console.log({cenInfo:"came back online : syncing"});
+				console.log({
+					cenInfo: "came back online : syncing"
+				});
 				that.offline.syncWithBackend();
 				localStorage.setItem('lastOffline', "false");
 			} else {
-				console.log({cenInfo:"went offline"});
+				console.log({
+					cenInfo: "went offline"
+				});
 				localStorage.setItem('lastOffline', "true");
 			}
 			that.offline.lastState = navigator.onLine;
@@ -779,11 +928,11 @@ function Cenny(url, groupName, groupKey) {
 		} else {
 			//user offline
 		}
-	}
+	};
 
-	this.offline.updateOfflineInterval = setInterval(function () {
-		that.offline.updateOfflineObject();
-	}, 40500);
+//	this.offline.updateOfflineInterval = setInterval(function () {
+//		that.offline.updateOfflineObject();
+//	}, 40500);
 
 	//END OFFLINE - - - - - - - -
 
@@ -810,9 +959,8 @@ function Cenny(url, groupName, groupKey) {
 			}, pArray);
 		}, 1500);
 	}
-
-
-
+	
+	
 	this.modified = function (callback, pArray) {
 		var x = new watchBackendProperty(callback, pArray);
 	};
