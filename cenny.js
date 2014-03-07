@@ -263,7 +263,7 @@ function Cenny(url, group) {
 
 	//****
 	this.user = {};
-	this.user.clientID = Mg.makeID();
+	this.user.clientID = Math.floor(Math.random() * 329733);
 
 	this.group = {};
 	this.secure = {};
