@@ -949,7 +949,6 @@ function Cenny(url, group) {
 				} else {
 					output = d;
 				}
-
 				var vexput = JSON.stringify(output); //for comparing.
 
 				if (vexput !== lastData) {

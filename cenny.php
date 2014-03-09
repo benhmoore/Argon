@@ -597,7 +597,6 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 		}//for loop
 		
 		echo json_encode($main_output);
-		
 	} else {
 		//**********************************************
 		$requests = json_decode($_POST['requests'],true);
