@@ -46,6 +46,54 @@ function openFile($url, $prop=null) {
 
 }
 
+function actionIsAllowed($actionX,$groupNameX,$userNameX) {
+	$config_file = array();
+	if (file_exists("backend/config.json")) {
+		$config_file = openFile("backend/config.json");
+		$config_file = json_decode($config_file,true);
+	} else {
+		return true;
+	}
+	if ($groupNameX !== "") {
+		if (array_key_exists($groupNameX, $config_file)) {
+			$gSettings = $config_file[$groupNameX];
+			if (array_key_exists($actionX, $gSettings)) {
+				if ($gSettings[$actionX] === true) {
+					return true;
+				} else if (is_array($gSettings[$actionX]) === true) {
+					$isThere = false;
+					for ($i = 0; $i < count($gSettings[$actionX]); $i++) {
+						if ($gSettings[$actionX][$i] === $userNameX) {
+							$isThere = true;
+						}
+					}
+					return $isThere;
+				} else {
+					return false;
+				}
+			} else {
+				return true;
+			}
+		} else {
+			return true;
+		}
+	} else {
+		if (array_key_exists($actionX, $config_file)) {
+			if (is_Array($config_file[$actionX]) === false) {
+				if ($config_file[$actionX] === false) {
+					return false;
+				} else {
+					return true;
+				} 
+			} else {
+				return true;
+			}
+		} else {
+			return true;
+		}
+	}
+}
+
 function endsWith($haystack, $needle)
 {
     return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
@@ -173,10 +221,12 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 	if (file_exists("$directory/$groupName/")) {
 		$group_loggedin = true;
 	} else {
-		$oldmask = umask(0);
-		mkdir("$directory/$groupName/", 0777);
-		umask($oldmask);
-		$group_loggedin = true;
+		if (actionIsAllowed("creategroup","",$userName) === true) {
+			$oldmask = umask(0);
+			mkdir("$directory/$groupName/", 0777);
+			umask($oldmask);
+			$group_loggedin = true;
+		}
 	}
 
 	// users
@@ -221,18 +271,18 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 		//**********************************************
 
 		// - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - /
-		if ($action === "set") {
+		if ($action === "set" && actionIsAllowed($action,$groupName,$userName) === true) {
 
 			saveFile("$directory/$groupName/$userName.json", $data,"data");
 			$main_output[$k] = json_decode('{"cenInfo":"set"}');
 
-		} else if ($action === "setOther") {
+		} else if ($action === "setOther" && actionIsAllowed($action,$groupName,$userName) === true) {
 
 			$otherUser = $request['otherUser'];
 
 			if (file_exists("$directory/$groupName/$otherUser.json")) {
 				$openedWrite = openFile("$directory/$groupName/$otherUser.json", "permissions");
-				$permissionProperties = json_decode($openedWrite,true);
+				$permissionProperties = $openedWrite;
 				
 				$dotSet_permissions = false;
 				$userFoundInP = false;
@@ -250,7 +300,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 					}
 				}
 				if ($userFoundInP === true || $dotSet_permissions === true) {
-					saveFile("$directory/$groupName/$otherUser.json", json_encode($data),"data");
+					saveFile("$directory/$groupName/$otherUser.json", $data,"data");
 					$main_output[$k] = json_decode('{"cenInfo":"set"}');
 				} else {
 					$main_output[$k] = json_decode('{"cenError":".set() permission not granted."}');
@@ -259,7 +309,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 				$main_output[$k] = json_decode('{"cenError":"user does not exist."}');
 			}
 
-		} else if ($action === "get") {
+		} else if ($action === "get" && actionIsAllowed($action,$groupName,$userName) === true) {
 
 			$openedData = openFile("$directory/$groupName/$userName.json", "data");
 			$getProperties = $data;
@@ -274,7 +324,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 			} else {
 				$getProperties = splitString($getProperties, "@n@");
 				if ($openedData !== "") {
-					$openedData = json_decode($openedData);
+					$openedData = $openedData;
 					$outputObj = array();
 
 					foreach ($openedData as $pName => $pData) {
@@ -285,7 +335,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 						}
 					}
 
-					$outputObj = json_encode($outputObj);
+					$outputObj = $outputObj;
 					//encode output obj to json
 					$main_output[$k] = $outputObj;
 
@@ -297,12 +347,18 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 
 		} else if ($action === "generateAuthToken") {
 			if ($userName !== "default") {
-				$token = genToken();
-				saveFile("$directory/$groupName/$userName.json", $token,"token");
-				$main_output[$k] = $token;
+				if (actionIsAllowed($action,$groupName,$userName) === true) {
+					$token = genToken();
+					saveFile("$directory/$groupName/$userName.json", $token,"token");
+					$main_output[$k] = $token;
+				} else {
+					$main_output[$k] = "not_allowed";
+				}
+			} else {
+				$main_output[$k] = "not_allowed";
 			}
 
-		} else if ($action === "changePass") {
+		} else if ($action === "changePass" && actionIsAllowed($action,$groupName,$userName) === true) {
 			if ($userName !== "default") {
 				$newPass = $data;
 				saveFile("$directory/$groupName/$userName.json", $newPass,"pass");
@@ -310,13 +366,14 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 			} else {
 				$main_output[$k] = json_decode('{"cenError":"cannot modify default user password"}');
 			}
-		} else if ($action === "getOther") {
+		} else if ($action === "getOther" && actionIsAllowed($action,$groupName,$userName) === true) {
 
 			$otherUser = $data;
 
 			if (file_exists("$directory/$groupName/$otherUser.json")) {
 				$openedRead = openFile("$directory/$groupName/$otherUser.json","permissions");
-				$permissionProperties = json_decode($openedRead,true);
+				$permissionProperties = json_encode($openedRead);
+				$permissionProperties = json_decode($permissionProperties,true);
 				
 				$dotGet_permissions = false;
 				$userFoundInP = false;
@@ -344,8 +401,9 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 					$openedPropertyPerm = openFile("$directory/$groupName/$otherUser.json", "permissions");
 					$openedData = openFile("$directory/$groupName/$otherUser.json", "data");
 					//actual data
-					$openedData = json_decode($openedData);
-					$permissionProperties = json_decode($openedPropertyPerm);
+					$openedData = $openedData;
+					$permissionProperties = json_encode($openedPropertyPerm);
+					$permissionProperties = json_decode($permissionProperties);
 
 					$isThere = false;
 					if ($permissionProperties !== null && $permissionProperties !== "") {//make sure permissions are set
@@ -387,7 +445,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 					}
 
 					if ($isThere === true) {//if $userName is found in properties do this
-						$outputObj = json_encode($outputObj);
+						$outputObj = $outputObj;
 						//encode output obj to json
 						$main_output[$k] = $outputObj;
 					} else {//otherwise, present error
@@ -398,13 +456,13 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 			} else {
 				$main_output[$k] = json_decode('{"cenError":"user does not exist"}');
 			}
-		} else if ($action === "updateOther") {
+		} else if ($action === "updateOther" && actionIsAllowed($action,$groupName,$userName) === true) {
 
 			$otherUser = $request['otherUser'];
 
 			if (file_exists("$directory/$groupName/$otherUser.json")) {
 				$openedWrite = openFile("$directory/$groupName/$otherUser.json", "permissions");
-				$permissionProperties = json_decode($openedWrite,true);
+				$permissionProperties = $openedWrite;
 				
 				$dotUpdate_permissions = false;
 				$userFoundInP = false;
@@ -468,7 +526,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 				$main_output[$k] = json_decode('{"cenError":"user does not exist."}');
 			}
 
-		} else if ($action === "update") {
+		} else if ($action === "update" && actionIsAllowed($action,$groupName,$userName) === true) {
 
 			$openedData = openFile("$directory/$groupName/$userName.json", "data");
 			if ($openedData === "") {
@@ -508,7 +566,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 			saveFile("$directory/$groupName/$userName.json", $outputData,"data");
 
 			$main_output[$k] = json_decode('{"cenInfo":"updated"}');
-		} else if ($action === "setPermissions") {
+		} else if ($action === "setPermissions" && actionIsAllowed($action,$groupName,$userName) === true) {
 			if ($userName !== "default") {//make sure no permissions are set on default user
 				$permissionProperties = $data;
 				saveFile("$directory/$groupName/$userName.json",$permissionProperties,"permissions");
@@ -517,7 +575,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 				$main_output[$k] = json_decode('{"cenError":"permissions cannot be edited on default user"}');
 			}
 
-		} else if ($action === "getPermissions") {
+		} else if ($action === "getPermissions" && actionIsAllowed($action,$groupName,$userName) === true) {
 			if ($userName !== "default") {//make sure no permissions are set on default user
 				$permissionProperties = openFile("$directory/$groupName/$userName.json","permissions");
 				if ($permissionProperties === "") {
@@ -528,19 +586,19 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 				$main_output[$k] = json_decode('{"cenError":"permissions cannot be retrieved for default user"}');
 			}
 
-		} else if ($action === "removeUser") {
+		} else if ($action === "removeUser" && actionIsAllowed($action,$groupName,$userName) === true) {
 		    
 			//remove user file
 			unlink("$directory/$groupName/$userName.json");
 			$main_output[$k] = json_decode('{"cenInfo":"removed user ' . $userName . ' from group ' . $groupName . '"}');
 				
-		} else if ($action === "userExists") {
+		} else if ($action === "userExists" && actionIsAllowed($action,$groupName,$userName) === true) {
 			if (file_exists("$directory/$groupName/$data.json")) {
 				$main_output[$k] = json_decode('true');
 			} else {
 				$main_output[$k] = json_decode('false');
 			}
-		} else if ($action === "createuser") {
+		} else if ($action === "createuser" && actionIsAllowed($action,$groupName,$userName) === true) {
 			$info = $data;
 
 			foreach ($info as $pName => $pData) {

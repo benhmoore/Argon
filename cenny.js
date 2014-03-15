@@ -161,6 +161,7 @@ Mg.requests.removeRequest = function (index) {
 Mg.requests.url = "";
 Mg.requests.auth = [];
 Mg.requests.queue = [];
+Mg.offlineIsAllowed = true;
 Mg.requests.queue_callbacks = [];
 
 Mg.requests.processing = false; //used to prevent sending of a request multible times
@@ -524,7 +525,9 @@ function Cenny(url, group) {
 			}
 		}
 		setTimeout(function () {
-			that.offline.updateOfflineObject();
+			if (Mg.offlineIsAllowed === true) {
+				that.offline.updateOfflineObject();
+			}
 		}, 10);
 	};
 
@@ -579,7 +582,9 @@ function Cenny(url, group) {
 			}
 		}
 		setTimeout(function () {
-			that.offline.updateOfflineObject();
+			if (Mg.offlineIsAllowed === true) {
+				that.offline.updateOfflineObject();
+			}
 		}, 10);
 	};
 
@@ -599,7 +604,9 @@ function Cenny(url, group) {
 				that.userObject.pass = "default";
 				that.user.forget();
 			}
-			callback(d);
+			if (callback !== undefined) {
+				callback(d);
+			}
 		});
 	};
 	this.user.permissions = function (permObj, callback) {
@@ -615,15 +622,17 @@ function Cenny(url, group) {
 			console.log(d);
 			if (d.cenError !== "permissions cannot be retrieved for default user") {
 				var newPermObj = {};
-				for (key in d) {
-					newPermObj[key] = d[key];
+				if (typeof d === "object") {
+					for (key in d) {
+						newPermObj[key] = d[key];
+					}
 				}
 				for (key in permObj) {
 					newPermObj[key] = permObj[key];
 				}
 				console.log(d);
 				that.aj({
-					data: JSON.stringify(newPermObj),
+					data: newPermObj,
 					action: "setPermissions"
 				}, callback);
 			} else {
@@ -695,10 +704,13 @@ function Cenny(url, group) {
 									//set local user information
 									that.userObject.user = username;
 									that.userObject.pass = password;
-
-									that.userObject.pass = d; //set pass to token
-									localStorage.setItem('cennyToken', JSON.stringify([d, that.user.clientID, that.userObject.user])); //set token in localStorage
-
+									if (d !== "not_allowed") {
+										that.userObject.pass = d; //set pass to token
+										Mg.offlineIsAllowed = true;
+									} else {
+										Mg.offlineIsAllowed = false;
+									}
+									localStorage.setItem('cennyToken', JSON.stringify([that.userObject.pass, that.user.clientID, that.userObject.user])); //set token in localStorage
 									that.user.remember();
 
 									callback({
@@ -733,8 +745,9 @@ function Cenny(url, group) {
 	};
 
 	this.user.signout = function (callback) { //signs into default user.
-		if (callback !== undefined) {
+		if (callback === undefined) {
 			callback = function(d) {
+				console.log(d);
 			};
 		}
 		if (that.userObject.user !== "default") { //only sign out on server if user is not default
@@ -746,7 +759,9 @@ function Cenny(url, group) {
 			}, function (d) {});
 			that.user.forget();
 		}
-		callback({cenInfo:'success'});
+		if (callback !== undefined) {
+			callback({cenInfo:'success'});
+		}
 	};
 
 	this.user.exists = function (callback, username) {
@@ -756,8 +771,10 @@ function Cenny(url, group) {
 		}, function (d) {
 			if (d === true) {
 				callback(true);
-			} else {
+			} else if (d === false) {
 				callback(false);
+			} else {
+				callback(d);
 			}
 		});
 	};
@@ -852,18 +869,20 @@ function Cenny(url, group) {
 	};
 
 	this.offline.syncWithBackend = function () {
-		var isOnline = navigator.onLine;
-		if (isOnline === true) {
-			var offlineObject = localStorage.getItem('cennyOfflineUpdate');
-			var dataUsername = localStorage.getItem('cennyOfflineUsername'); //username that set data
-			if (offlineObject === undefined || offlineObject === null) {
-				offlineObject = {};
-			} else {
-				offlineObject = JSON.parse(offlineObject);
-			}
-			if (dataUsername === that.userObject.user) {
-				that.update(offlineObject);
-				localStorage.setItem('cennyOfflineUpdate', JSON.stringify({})); //clear update queue
+		if (Mg.offlineIsAllowed === true) {
+			var isOnline = navigator.onLine;
+			if (isOnline === true) {
+				var offlineObject = localStorage.getItem('cennyOfflineUpdate');
+				var dataUsername = localStorage.getItem('cennyOfflineUsername'); //username that set data
+				if (offlineObject === undefined || offlineObject === null) {
+					offlineObject = {};
+				} else {
+					offlineObject = JSON.parse(offlineObject);
+				}
+				if (dataUsername === that.userObject.user) {
+					that.update(offlineObject);
+					localStorage.setItem('cennyOfflineUpdate', JSON.stringify({})); //clear update queue
+				}
 			}
 		}
 	};
@@ -896,53 +915,59 @@ function Cenny(url, group) {
 
 	//check if should sync with backend
 	setTimeout(function () {
-		var updateData = JSON.parse(localStorage.getItem('cennyOfflineUpdate'));
-		if (updateData !== {}) {
-			var shouldSync = true;
-			var x = localStorage.getItem('lastOffline');
-			if (x !== null) {
-				if (x === "false") {
+		if (Mg.offlineIsAllowed === true) {
+			var updateData = JSON.parse(localStorage.getItem('cennyOfflineUpdate'));
+			if (updateData !== {}) {
+				var shouldSync = true;
+				var x = localStorage.getItem('lastOffline');
+				if (x !== null) {
+					if (x === "false") {
+						shouldSync = false;
+					}
+				} else {
 					shouldSync = false;
 				}
-			} else {
-				shouldSync = false;
-			}
-			if (shouldSync === true) {
-				localStorage.setItem("lastOffline", "false");
-				that.offline.syncWithBackend();
+				if (shouldSync === true) {
+					localStorage.setItem("lastOffline", "false");
+					that.offline.syncWithBackend();
+				}
 			}
 		}
 	}, 100);
 
 	this.offline.lastState = navigator.onLine;
 	setInterval(function () {
-		if (navigator.onLine !== that.offline.lastState) {
-			if (navigator.onLine === true) {
-				console.log({
-					cenInfo: "came back online : syncing"
-				});
-				that.offline.syncWithBackend();
-				localStorage.setItem('lastOffline', "false");
-			} else {
-				console.log({
-					cenInfo: "went offline"
-				});
-				localStorage.setItem('lastOffline', "true");
+		if (Mg.offlineIsAllowed === true) {
+			if (navigator.onLine !== that.offline.lastState) {
+				if (navigator.onLine === true) {
+					console.log({
+						cenInfo: "came back online : syncing"
+					});
+					that.offline.syncWithBackend();
+					localStorage.setItem('lastOffline', "false");
+				} else {
+					console.log({
+						cenInfo: "went offline"
+					});
+					localStorage.setItem('lastOffline', "true");
+				}
+				that.offline.lastState = navigator.onLine;
 			}
-			that.offline.lastState = navigator.onLine;
 		}
 
 	}, 300);
 
 	this.offline.updateOfflineObject = function () {
-		var isOnline = navigator.onLine;
-		if (isOnline === true) {
-			that.get(function (d) {
-				var offlineObject = d;
-				localStorage.setItem('cennyOffline', JSON.stringify(offlineObject));
-			});
-		} else {
-			//user offline
+		if (Mg.offlineIsAllowed === true) {
+			var isOnline = navigator.onLine;
+			if (isOnline === true) {
+				that.get(function (d) {
+					var offlineObject = d;
+					localStorage.setItem('cennyOffline', JSON.stringify(offlineObject));
+				});
+			} else {
+				//user offline
+			}
 		}
 	};
 
