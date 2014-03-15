@@ -163,6 +163,12 @@ Mg.requests.auth = [];
 Mg.requests.queue = [];
 Mg.requests.queue_callbacks = [];
 
+Mg.requests.processing = false; //used to prevent sending of a request multible times
+
+//for sent requests
+Mg.requests.sent_queue = [];
+Mg.requests.sent_queue_callbacks = [];
+
 Mg.requests.total = 0;
 
 Mg.requests.isBusy = false;
@@ -191,6 +197,7 @@ Mg.requests.send = function () {
 			if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
 				setTimeout(function () {
 					Mg.requests.isBusy = false;
+					Mg.requests.processing = false;
 				}, 70);
 
 				var temp_callbacks = Mg.requests.queue_callbacks;
@@ -207,7 +214,7 @@ Mg.requests.send = function () {
 					var request_callbacks = temp_callbacks[e];
 					if (request_callbacks !== undefined) {
 						for (var i = 0; i < request_callbacks.length; i++) {
-							request_callbacks[i](Mg.convertData(data[e]));
+							request_callbacks[i](data[e]);
 						}
 					}
 				}
@@ -215,7 +222,12 @@ Mg.requests.send = function () {
 			}
 
 		};
+
+		
 		var requests = Mg.requests.queue;
+		
+		Mg.requests.processing = true;
+
 		xmlhttp.open("POST", Mg.requests.url, true);
 		xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		xmlhttp.send("requests=" + JSON.stringify(requests) + "&groupName=" + Mg.requests.auth[0] + "&userName=" + Mg.requests.auth[1] + "&userPass=" + Mg.requests.auth[2]);
@@ -226,10 +238,14 @@ Mg.requests.send = function () {
 
 Mg.requests.sender = setInterval(function () {
 	if (Mg.countObj(Mg.requests.queue) > 0) {
-// 		console.log(JSON.stringify(Mg.requests.queue));
+		if (Mg.requests.processing !== true) {
+		// console.log(JSON.stringify(Mg.requests.queue));
 		Mg.requests.send();
+		} else {
+			//waiting on response to last request
+		}
 	}
-}, 200);
+}, 300);
 
 function Cenny(url, group) {
 
