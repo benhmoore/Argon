@@ -1,20 +1,8 @@
 <?php
 
-/* * * * * * * * * * * * * * * * * *
- *
- * <- Backend for Cenny.js ->
- *
- * How data is stored:
- *   Backend (root) directory
- *      v
- *    Group directory
- *      v
- *     User directory
- *      v
- *      Data.txt
- *
- *
- /* * * * * * * * * * * * * * * * * */
+// Add this file to a server that supports PHP
+
+header('Access-Control-Allow-Origin: *');
 
 $IP = $_SERVER['REMOTE_ADDR'];
 
@@ -54,12 +42,14 @@ function actionIsAllowed($actionX,$groupNameX,$userNameX) {
 	} else {
 		return true;
 	}
+	$return_val = false;
+
 	if ($groupNameX !== "") {
-		if (array_key_exists($groupNameX, $config_file)) {
+		if (array_key_exists($groupNameX, $config_file)) { //group config
 			$gSettings = $config_file[$groupNameX];
 			if (array_key_exists($actionX, $gSettings)) {
 				if ($gSettings[$actionX] === true) {
-					return true;
+					$return_val = true;
 				} else if (is_array($gSettings[$actionX]) === true) {
 					$isThere = false;
 					for ($i = 0; $i < count($gSettings[$actionX]); $i++) {
@@ -67,31 +57,53 @@ function actionIsAllowed($actionX,$groupNameX,$userNameX) {
 							$isThere = true;
 						}
 					}
-					return $isThere;
+					$return_val = $isThere;
 				} else {
-					return false;
+					$return_val = false;
 				}
 			} else {
-				return true;
+				$return_val = true;
 			}
-		} else {
-			return true;
+		} else { //global config
+			if (array_key_exists("*", $config_file)) { //if global exists
+				$gSettings = $config_file["*"];
+				if (array_key_exists($actionX, $gSettings)) {
+					if ($gSettings[$actionX] === true) {
+						$return_val = true;
+					} else if (is_array($gSettings[$actionX]) === true) {
+						$isThere = false;
+						for ($i = 0; $i < count($gSettings[$actionX]); $i++) {
+							if ($gSettings[$actionX][$i] === $userNameX) {
+								$isThere = true;
+							}
+						}
+						$return_val = $isThere;
+					} else {
+						$return_val = false;
+					}
+				} else {
+					$return_val = true;
+				}
+			} else {
+				$return_val = true;
+			}
 		}
 	} else {
 		if (array_key_exists($actionX, $config_file)) {
 			if (is_Array($config_file[$actionX]) === false) {
 				if ($config_file[$actionX] === false) {
-					return false;
+					$return_val = false;
 				} else {
-					return true;
+					$return_val = true;
 				} 
 			} else {
-				return true;
+				$return_val = true;
 			}
 		} else {
-			return true;
+			$return_val = true;
 		}
 	}
+	return $return_val;
 }
 
 function endsWith($haystack, $needle)
