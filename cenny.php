@@ -2,8 +2,6 @@
 
 // Add this file to a server that supports PHP
 
-header('Access-Control-Allow-Origin: *');
-
 $IP = $_SERVER['REMOTE_ADDR'];
 
 function is_assoc($var) {
@@ -47,42 +45,62 @@ function actionIsAllowed($actionX,$groupNameX,$userNameX) {
 	if ($groupNameX !== "") {
 		if (array_key_exists($groupNameX, $config_file)) { //group config
 			$gSettings = $config_file[$groupNameX];
-			if (array_key_exists($actionX, $gSettings)) {
-				if ($gSettings[$actionX] === true) {
-					$return_val = true;
-				} else if (is_array($gSettings[$actionX]) === true) {
-					$isThere = false;
-					for ($i = 0; $i < count($gSettings[$actionX]); $i++) {
-						if ($gSettings[$actionX][$i] === $userNameX) {
-							$isThere = true;
-						}
-					}
-					$return_val = $isThere;
-				} else {
-					$return_val = false;
-				}
-			} else {
-				$return_val = true;
-			}
-		} else { //global config
-			if (array_key_exists("*", $config_file)) { //if global exists
-				$gSettings = $config_file["*"];
-				if (array_key_exists($actionX, $gSettings)) {
-					if ($gSettings[$actionX] === true) {
+			if (array_key_exists($userNameX, $gSettings)) {
+				$uSettings = $gSettings[$userNameX];
+				if (array_key_exists($actionX, $uSettings)) {
+					if ($uSettings[$actionX] === true) {
 						$return_val = true;
-					} else if (is_array($gSettings[$actionX]) === true) {
-						$isThere = false;
-						for ($i = 0; $i < count($gSettings[$actionX]); $i++) {
-							if ($gSettings[$actionX][$i] === $userNameX) {
-								$isThere = true;
-							}
-						}
-						$return_val = $isThere;
 					} else {
 						$return_val = false;
 					}
 				} else {
 					$return_val = true;
+				}
+			} else { //global username
+				if (array_key_exists("*", $gSettings)) {
+					$uSettings = $gSettings["*"];
+					if (array_key_exists($actionX, $uSettings)) {
+						if ($uSettings[$actionX] === true) {
+							$return_val = true;
+						} else {
+							$return_val = false;
+						}
+					} else {
+						$return_val = true;
+					}
+				} else {
+					$return_val = true;
+				}
+			}
+		} else { //global group
+			if (array_key_exists("*", $config_file)) { //group config
+				$gSettings = $config_file["*"];
+				if (array_key_exists($userNameX, $gSettings)) {
+					$uSettings = $gSettings[$userNameX];
+					if (array_key_exists($actionX, $uSettings)) {
+						if ($uSettings[$actionX] === true) {
+							$return_val = true;
+						} else {
+							$return_val = false;
+						}
+					} else {
+						$return_val = true;
+					}
+				} else { //global username
+					if (array_key_exists("*", $gSettings)) {
+						$uSettings = $gSettings["*"];
+						if (array_key_exists($actionX, $uSettings)) {
+							if ($uSettings[$actionX] === true) {
+								$return_val = true;
+							} else {
+								$return_val = false;
+							}
+						} else {
+							$return_val = true;
+						}
+					} else {
+						$return_val = true;
+					}
 				}
 			} else {
 				$return_val = true;
@@ -659,7 +677,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 			}
 
 		} else {
-			$main_output[$k] = json_decode('{"cenError":"' . $action . ' is not a valid action"}');
+			$main_output[$k] = json_decode('{"cenError":"blocked action"}');
 		}
 		// - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - /
 
