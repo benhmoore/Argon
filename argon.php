@@ -2,11 +2,8 @@
 
 // Add this file to a server that supports PHP
 
-$IP = $_SERVER['REMOTE_ADDR'];
-
-function is_assoc($var) {
-	return is_array($var) && array_diff_key($var, array_keys(array_keys($var)));
-}
+//*****uncomment the line below to enable cross-domain access to Argon.*****
+// header('Access-Control-Allow-Origin: *');
 
 function openFile($url, $prop=null) {
 	if (file_exists($url)) {
@@ -24,12 +21,8 @@ function openFile($url, $prop=null) {
 				$dataToReturn = "";	
 			}
 		}
-	} // } else {
-	// 	saveFile($url, "");
-	// 	$dataToReturn = "";
-	// }
+	}
 	return $dataToReturn;
-
 }
 
 function actionIsAllowed($actionX,$groupNameX,$userNameX) {
@@ -123,12 +116,6 @@ function actionIsAllowed($actionX,$groupNameX,$userNameX) {
 	}
 	return $return_val;
 }
-
-function endsWith($haystack, $needle)
-{
-    return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
-}
-
 function genToken() {
 	$length = 67;
 	$chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-.!,";
@@ -139,21 +126,6 @@ function genToken() {
 
 	}
 	return $final_rand;
-}
-function delete_files($dir) {
-	if (is_dir($dir)) {
-		$objects = scandir($dir);
-		foreach ($objects as $object) {
-			if ($object != "." && $object != "..") {
-				if (filetype($dir . "/" . $object) == "dir")
-					rrmdir($dir . "/" . $object);
-				else
-					unlink($dir . "/" . $object);
-			}
-		}
-		reset($objects);
-		rmdir($dir);
-	}
 }
 
 function splitString($stringX, $by) {
@@ -177,15 +149,8 @@ function saveFile($url, $dataToSave,$prop=null) {
 			file_put_contents($file, $dataToSave);
 		}
 	} else {
-		echo '{"cenError":"not enough available storage"}';
+		echo '{"argonError":"not enough available storage"}';
 	}
-}
-
-function addToFile($url, $dataToSave) {
-	$myFile = $url;
-	$fh = fopen($myFile, 'a') or die($myFile);
-	fwrite($fh, $dataToSave);
-	fclose($fh);
 }
 
 //***********************************************************
@@ -207,7 +172,7 @@ if (file_exists("backend/")) {
 
 }
 
-//security 
+//.htaccess file to prevent unauthorized access
 $data_for_htaccess = "Order deny,allow" . "\n" . "Deny from all";
 file_put_contents("$directory/.htaccess", $data_for_htaccess);
 
@@ -270,10 +235,10 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 			if ($token === $userPass) {
 				$user_loggedin = true;
 			} else {
-				$output_error = json_decode('{"cenError":"user incorrect"}');
+				$output_error = json_decode('{"argonError":"user incorrect"}');
 			}
 		} else {
-			$output_error = json_decode('{"cenError":"user incorrect"}');
+			$output_error = json_decode('{"argonError":"user incorrect"}');
 		}
 
 	} else if ($userName === "default") {
@@ -281,7 +246,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 		saveFile("$directory/$groupName/default.json", "default","pass");
 		$user_loggedin = true;
 	} else {
-		$output_error = json_decode('{"cenError":"user does not exist"}');
+		$output_error = json_decode('{"argonError":"user does not exist"}');
 	}
 
 	//########################################################################################################################
@@ -304,7 +269,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 		if ($action === "set" && actionIsAllowed($action,$groupName,$userName) === true) {
 
 			saveFile("$directory/$groupName/$userName.json", $data,"data");
-			$main_output[$k] = json_decode('{"cenInfo":"set"}');
+			$main_output[$k] = json_decode('{"argonInfo":"set"}');
 
 		} else if ($action === "setOther" && actionIsAllowed($action,$groupName,$userName) === true) {
 
@@ -331,12 +296,12 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 				}
 				if ($userFoundInP === true || $dotSet_permissions === true) {
 					saveFile("$directory/$groupName/$otherUser.json", $data,"data");
-					$main_output[$k] = json_decode('{"cenInfo":"set"}');
+					$main_output[$k] = json_decode('{"argonInfo":"set"}');
 				} else {
-					$main_output[$k] = json_decode('{"cenError":".set() permission not granted."}');
+					$main_output[$k] = json_decode('{"argonError":".set() permission not granted."}');
 				}
 			} else {
-				$main_output[$k] = json_decode('{"cenError":"user does not exist."}');
+				$main_output[$k] = json_decode('{"argonError":"user does not exist."}');
 			}
 
 		} else if ($action === "get" && actionIsAllowed($action,$groupName,$userName) === true) {
@@ -348,7 +313,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 				if ($openedData !== "") {
 					$main_output[$k] = $openedData;
 				} else {
-					$main_output[$k] = json_decode('{"cenError":"user is empty"}');
+					$main_output[$k] = json_decode('{"argonError":"user is empty"}');
 				}
 
 			} else {
@@ -370,31 +335,35 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 					$main_output[$k] = $outputObj;
 
 				} else {//opened data is empty
-					$main_output[$k] = json_decode('{"cenError":"user is empty"}');
+					$main_output[$k] = json_decode('{"argonError":"user is empty"}');
 				}
 
 			}
-
 		} else if ($action === "generateAuthToken") {
-			if ($userName !== "default") {
-				if (actionIsAllowed($action,$groupName,$userName) === true) {
-					$token = genToken();
-					saveFile("$directory/$groupName/$userName.json", $token,"token");
-					$main_output[$k] = $token;
+			if ($data['user'] !== "default") {
+				$_username = $data['user'];
+				$_password = $data['pass'];
+				if (openFile("$directory/$groupName/$_username.json",'pass') === $_password || openFile("$directory/$groupName/$_username.json",'token') === $_password) {
+					if (actionIsAllowed($action,$groupName,$_username) === true) {
+						$token = genToken();
+						saveFile("$directory/$groupName/$_username.json", $token,"token");
+						$main_output[$k] = $token;
+					} else {
+						$main_output[$k] = "not_allowed";
+					}
 				} else {
-					$main_output[$k] = "not_allowed";
+					$main_output[$k] = json_decode('{"argonError":"user incorrect"}');
 				}
 			} else {
 				$main_output[$k] = "not_allowed";
 			}
-
 		} else if ($action === "changePass" && actionIsAllowed($action,$groupName,$userName) === true) {
 			if ($userName !== "default") {
 				$newPass = $data;
 				saveFile("$directory/$groupName/$userName.json", $newPass,"pass");
-				$main_output[$k] = json_decode('{"cenInfo":"password changed"}');
+				$main_output[$k] = json_decode('{"argonInfo":"password changed"}');
 			} else {
-				$main_output[$k] = json_decode('{"cenError":"cannot modify default user password"}');
+				$main_output[$k] = json_decode('{"argonError":"cannot modify default user password"}');
 			}
 		} else if ($action === "getOther" && actionIsAllowed($action,$groupName,$userName) === true) {
 
@@ -425,7 +394,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 					if ($openedData !== "") {
 						$main_output[$k] = $openedData;
 					} else {
-						$main_output[$k] = json_decode('{"cenError":"user is empty"}');
+						$main_output[$k] = json_decode('{"argonError":"user is empty"}');
 					}
 				} else {//check if any property allows $userName read access
 					$openedPropertyPerm = openFile("$directory/$groupName/$otherUser.json", "permissions");
@@ -479,12 +448,12 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 						//encode output obj to json
 						$main_output[$k] = $outputObj;
 					} else {//otherwise, present error
-						$main_output[$k] = json_decode('{"cenError":".get() permission not granted."}');
+						$main_output[$k] = json_decode('{"argonError":".get() permission not granted."}');
 					}
 
 				}
 			} else {
-				$main_output[$k] = json_decode('{"cenError":"user does not exist"}');
+				$main_output[$k] = json_decode('{"argonError":"user does not exist"}');
 			}
 		} else if ($action === "updateOther" && actionIsAllowed($action,$groupName,$userName) === true) {
 
@@ -540,20 +509,20 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 						}
 					}//end $openData foreach
 
-					foreach ($clientData as $cpName => $cpData) {//push all clientData (from cenny.js) properties to output object
+					foreach ($clientData as $cpName => $cpData) {//push all clientData (from argon.js) properties to output object
 						if ($cpName !== 'DELETE') {//do not store 'DELETE' property
 							$outputData[$cpName] = $cpData;
 						}
 					}
 					saveFile("$directory/$groupName/$otherUser.json", $outputData,"data");
 
-					$main_output[$k] = json_decode('{"cenInfo":"updated"}');
+					$main_output[$k] = json_decode('{"argonInfo":"updated"}');
 
 				} else {
-					$main_output[$k] = json_decode('{"cenError":".update() permission not granted."}');
+					$main_output[$k] = json_decode('{"argonError":".update() permission not granted."}');
 				}
 			} else {
-				$main_output[$k] = json_decode('{"cenError":"user does not exist."}');
+				$main_output[$k] = json_decode('{"argonError":"user does not exist."}');
 			}
 
 		} else if ($action === "update" && actionIsAllowed($action,$groupName,$userName) === true) {
@@ -588,21 +557,21 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 				}
 			}//end $openData foreach
 
-			foreach ($clientData as $cpName => $cpData) {//push all clientData (from cenny.js) properties to output object
+			foreach ($clientData as $cpName => $cpData) {//push all clientData (from argon.js) properties to output object
 				if ($cpName !== 'DELETE') {//do not store 'DELETE' property
 					$outputData[$cpName] = $cpData;
 				}
 			}
 			saveFile("$directory/$groupName/$userName.json", $outputData,"data");
 
-			$main_output[$k] = json_decode('{"cenInfo":"updated"}');
+			$main_output[$k] = json_decode('{"argonInfo":"updated"}');
 		} else if ($action === "setPermissions" && actionIsAllowed($action,$groupName,$userName) === true) {
 			if ($userName !== "default") {//make sure no permissions are set on default user
 				$permissionProperties = $data;
 				saveFile("$directory/$groupName/$userName.json",$permissionProperties,"permissions");
-				$main_output[$k] = json_decode('{"cenInfo":"permissions updated"}');
+				$main_output[$k] = json_decode('{"argonInfo":"permissions updated"}');
 			} else {
-				$main_output[$k] = json_decode('{"cenError":"permissions cannot be edited on default user"}');
+				$main_output[$k] = json_decode('{"argonError":"permissions cannot be edited on default user"}');
 			}
 
 		} else if ($action === "getPermissions" && actionIsAllowed($action,$groupName,$userName) === true) {
@@ -613,21 +582,15 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 				}
 				$main_output[$k] = $permissionProperties;
 			} else {
-				$main_output[$k] = json_decode('{"cenError":"permissions cannot be retrieved for default user"}');
+				$main_output[$k] = json_decode('{"argonError":"permissions cannot be retrieved for default user"}');
 			}
 
 		} else if ($action === "removeUser" && actionIsAllowed($action,$groupName,$userName) === true) {
 		    
 			//remove user file
 			unlink("$directory/$groupName/$userName.json");
-			$main_output[$k] = json_decode('{"cenInfo":"removed user ' . $userName . ' from group ' . $groupName . '"}');
+			$main_output[$k] = json_decode('{"argonInfo":"removed user ' . $userName . ' from group ' . $groupName . '"}');
 				
-		} else if ($action === "userExists" && actionIsAllowed($action,$groupName,$userName) === true) {
-			if (file_exists("$directory/$groupName/$data.json")) {
-				$main_output[$k] = json_decode('true');
-			} else {
-				$main_output[$k] = json_decode('false');
-			}
 		} else if ($action === "createuser" && actionIsAllowed($action,$groupName,$userName) === true) {
 			$info = $data;
 
@@ -640,7 +603,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 			}
 
 			if (file_exists("$directory/$groupName/$newUsername.json")) {
-				$main_output[$k] = json_decode('{"cenError":"user ' . $newUsername . ' already exists"}');
+				$main_output[$k] = json_decode('{"argonError":"user ' . $newUsername . ' already exists"}');
 			} else {
 
 				$newPasswordValid = true;
@@ -667,17 +630,17 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 						saveFile("$directory/$groupName/$newUsername.json","{}");
 						saveFile("$directory/$groupName/$newUsername.json", $newPassword,"pass");
 						
-						$main_output[$k] = json_decode('{"cenInfo":"user created"}');
+						$main_output[$k] = json_decode('{"argonInfo":"user created"}');
 					} else {
-						$main_output[$k] = json_decode('{"cenError":"username invalid"}');
+						$main_output[$k] = json_decode('{"argonError":"username invalid"}');
 					}
 				} else {
-					$main_output[$k] = json_decode('{"cenError":"password invalid"}');
+					$main_output[$k] = json_decode('{"argonError":"password invalid"}');
 				}
 			}
 
 		} else {
-			$main_output[$k] = json_decode('{"cenError":"blocked action"}');
+			$main_output[$k] = json_decode('{"argonError":"' . $action . ' is not a valid action"}');
 		}
 		// - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - / - /
 
@@ -699,7 +662,7 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 	$requests = json_decode($_POST['requests'],true);
 	$main_output = array();
 	for ($k = 0; $k < count($requests); $k++) {
-		$main_output[$k] = json_decode('{"cenError":"username or groupname invalid"}');
+		$main_output[$k] = json_decode('{"argonError":"username or groupname invalid"}');
 	}
 	echo json_encode($main_output);
 }
