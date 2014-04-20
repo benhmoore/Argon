@@ -343,13 +343,17 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 			if ($data['user'] !== "default") {
 				$_username = $data['user'];
 				$_password = $data['pass'];
-				if (openFile("$directory/$groupName/$_username.json",'pass') === $_password || openFile("$directory/$groupName/$_username.json",'token') === $_password) {
-					if (actionIsAllowed($action,$groupName,$_username) === true) {
-						$token = genToken();
-						saveFile("$directory/$groupName/$_username.json", $token,"token");
-						$main_output[$k] = $token;
+				if (file_exists("$directory/$groupName/$_username.json")) {
+					if (openFile("$directory/$groupName/$_username.json",'pass') === $_password || openFile("$directory/$groupName/$_username.json",'token') === $_password) {
+						if (actionIsAllowed($action,$groupName,$_username) === true) {
+							$token = genToken();
+							saveFile("$directory/$groupName/$_username.json", $token,"token");
+							$main_output[$k] = $token;
+						} else {
+							$main_output[$k] = "not_allowed";
+						}
 					} else {
-						$main_output[$k] = "not_allowed";
+						$main_output[$k] = json_decode('{"argonError":"user incorrect"}');
 					}
 				} else {
 					$main_output[$k] = json_decode('{"argonError":"user incorrect"}');
@@ -506,12 +510,20 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 						}//end $clientData foreach
 						if ($shouldBeDeleted === false) {//only push to output object if it should stay
 							$outputData[$opName] = $opData;
+						} else {
+							if (actionIsAllowed("updateOther:removeProp",$groupName,$userName) === true) {
+								$outputData[$opName] = $opData;
+							}
 						}
 					}//end $openData foreach
 
 					foreach ($clientData as $cpName => $cpData) {//push all clientData (from argon.js) properties to output object
 						if ($cpName !== 'DELETE') {//do not store 'DELETE' property
 							$outputData[$cpName] = $cpData;
+						} else {
+							if (actionIsAllowed("updateOther:updateExistingProp",$groupName,$userName) === false) {
+								$outputData[$opName] = $opData;
+							}
 						}
 					}
 					saveFile("$directory/$groupName/$otherUser.json", $outputData,"data");
@@ -554,12 +566,22 @@ if ($groupNameValid === true && $userNameValid === true && $userPassValid === tr
 				}//end $clientData foreach
 				if ($shouldBeDeleted === false) {//only push to output object if it should stay
 					$outputData[$opName] = $opData;
+				} else {
+					if (actionIsAllowed("update:removeProp",$groupName,$userName) === false) {
+						$outputData[$opName] = $opData;
+					}
 				}
 			}//end $openData foreach
 
 			foreach ($clientData as $cpName => $cpData) {//push all clientData (from argon.js) properties to output object
 				if ($cpName !== 'DELETE') {//do not store 'DELETE' property
-					$outputData[$cpName] = $cpData;
+					if (array_key_exists($cpName,$outputData) === true) {
+						if (actionIsAllowed("update:updateExistingProp",$groupName,$userName) === true) {
+							$outputData[$cpName] = $cpData;
+						}
+					} else {
+						$outputData[$cpName] = $cpData;
+					}
 				}
 			}
 			saveFile("$directory/$groupName/$userName.json", $outputData,"data");

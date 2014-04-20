@@ -451,11 +451,14 @@ function Argon(url, group) {
 			callback(Mg.validate.password(newPassword));
 		}
 	};
-	this.user.signin = function (username, password, callback) {
+	this.user.signin = function (username, password, callback,remember_creds) {
 		if (typeof callback !== "function") {
 			callback = function (d) {
 				console.log(d);
 			};
+		}
+		if (remember_creds === undefined) {
+			remember_creds = true;
 		}
 		if ((typeof username === "string") && (typeof password === "string")) {
 			if (username !== that.userObject.user) {
@@ -475,8 +478,10 @@ function Argon(url, group) {
 							} else {
 								console.log(d);
 							}
-							localStorage.setItem('argonToken', JSON.stringify([that.userObject.pass, that.user.clientID, that.userObject.user])); //set token in localStorage
-							that.user.remember();
+							if (remember_creds === true) {
+								localStorage.setItem('argonToken', JSON.stringify([that.userObject.pass, that.user.clientID, that.userObject.user])); //set token in localStorage
+								that.user.remember();
+							}
 							callback({
 								argonInfo: 'signed in'
 							});
@@ -548,6 +553,8 @@ function Argon(url, group) {
 	this.user.info = function (callback) {//passes info on current user to the callback
 		if (callback !== undefined) {
 			callback([that.userObject.user, that.userObject.pass]);
+		} else {
+			return [that.userObject.user, that.userObject.pass]
 		}
 	};
 	//END USER METHODS
