@@ -1,9 +1,6 @@
 #The Argon Project
 Argon is an open source JS and PHP based backend that just works. Sets up in seconds and runs on almost any server. Argon makes it easy for anyone to create interactive, multi-user web apps, without the need for a third-party backend.
 
-##Demo
-http://loadfive.com/writer
-
 ##Let's do this. 
 We're looking for awesome developers who want to contribute to Argon. Go ahead and experiment with Argon, if you see something you don't like or think could be better, fix it and submit a pull request! Or if you're not comfortable with PHP and Javascript, just let us know and we'll try and fix it. Thanks! 
 
