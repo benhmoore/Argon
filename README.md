@@ -1,9 +1,6 @@
 #Argon
 *The plug and play backend*
 ____
-=======
-#The Argon Project
-Argon is an open source JS and PHP based backend that just works. Sets up in seconds and runs on almost any server. Argon makes it easy for anyone to create interactive, multi-user web apps, without the need for a third-party backend.
 
 Argon enables web apps to seamlessly store and sync user data across multiple devices. It offers a complete backend solution for web apps. Argon can store anything from the data of a simple text editor, to the position of a player in game -- and keeps it in sync across a user's devices.
 
