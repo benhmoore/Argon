@@ -21,7 +21,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
-
 function Argon(url, temp) {
 
     this.temp = false;
@@ -174,6 +173,9 @@ function Argon(url, temp) {
             xmlhttp.onreadystatechange = function() {
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                     argon.requests.busy = false;
+
+                     // console.info(xmlhttp.responseText);
+
                     try {
                         var return_data = JSON.parse(xmlhttp.responseText);
                     } catch (err) {
@@ -913,9 +915,6 @@ function Argon(url, temp) {
 
         if (navigator.onLine === true) {
             argon.time.get();
-            setInterval(function() { //periodically update time
-                argon.time.get();
-            }, 20000);
         }
     }
 
