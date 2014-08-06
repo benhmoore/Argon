@@ -1,10 +1,9 @@
 <?php
+
 //*****uncomment the line below to enable cross-domain access to Argon.*****
-header('Access-Control-Allow-Origin: *');
+// header('Access-Control-Allow-Origin: *');
 
-//MUNDANE METHODS * * * * * * * * * * * * * * * * * * * * * *
-
-function getTime() { //2 hours = 7200000 ms
+function getTime() {
     date_default_timezone_set('America/Chicago'); // CDT
     $milliseconds = round(microtime(true) * 1000);
     return $milliseconds;
@@ -86,7 +85,7 @@ function genToken() {
 
 function saveFile($url, $dataToSave,$prop=null) {
     $file = $url;
-    if (strlen(json_encode($dataToSave)) < 1572864000) { //maxiumum file size
+    if (strlen(json_encode($dataToSave)) < 15728640000) { //maxiumum file size
         if ($prop !== null) {
             $opened_data = file_get_contents($file);
             if ($opened_data !== "") {
