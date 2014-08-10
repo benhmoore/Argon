@@ -562,7 +562,7 @@ function Argon(url, temp) {
         var last_value = undefined;
         var first = true;
         var check_interval = setInterval(function() {
-            argon.pool.get(function(d) {
+            argon.pool.get([prop],function(d) {
                 if (d[prop] !== last_value) {
                     if (first === false) {
                         if (action(d[prop], last_value) === true) { //if action is observed
