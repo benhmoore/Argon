@@ -1,39 +1,74 @@
 <?php
 
+/*
+
+Copyright (c) 2013 - 2014 LoadFive
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+
 //*****uncomment the line below to enable cross-domain access to Argon.*****
 // header('Access-Control-Allow-Origin: *');
 
-function getTime() {
+function getTime() { //2 hours = 7200000 ms
     date_default_timezone_set('America/Chicago'); // CDT
     $milliseconds = round(microtime(true) * 1000);
     return $milliseconds;
 }
 
-function openFile($url, $prop=null) {
-    if (file_exists($url)) {
-        $file = $url;
-        $dataToReturn = file_get_contents($file);
-        if ($prop !== null) {
-            if ($dataToReturn !== "") {
-                $dataToReturn = json_decode($dataToReturn,true);
-            } else {
-                $dataToReturn = array();
-            }
-            if (array_key_exists($prop,$dataToReturn)) {
-                $dataToReturn = $dataToReturn["$prop"];
-            } else {
-                $dataToReturn = null;   
-            }
-        }
-    } else {
-        $dataToReturn = false;
+function generateRequestCode() {
+    $length = 64;
+    $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-.!,";
+    $final_rand = '';
+    for ($i = 0; $i < $length; $i++) {
+        $final_rand .= $chars[rand(0, strlen($chars) - 1)];
+
     }
-    return $dataToReturn;
+    return $final_rand;
+}
+
+function openFile($url, $prop=null) {
+	if (file_exists($url)) {
+		$file = $url;
+		$dataToReturn = file_get_contents($file);
+		if ($prop !== null) {
+			if ($dataToReturn !== "") {
+				$dataToReturn = json_decode($dataToReturn,true);
+			} else {
+				$dataToReturn = array();
+			}
+			if (array_key_exists($prop,$dataToReturn)) {
+				$dataToReturn = $dataToReturn["$prop"];
+			} else {
+				$dataToReturn = null;	
+			}
+		}
+	} else {
+	    $dataToReturn = false;
+	}
+	return $dataToReturn;
 }
 
 function validate_password($password) {
     $valid_chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890.,?!-';
-    if (strlen($password) > 3) {
+    if (strlen($password) > 5) {
         for ($i = 0; $i < strlen($password); $i++) {
             $isThere = false;
             for ($e = 0; $e < strlen($valid_chars); $e++) {
@@ -72,33 +107,32 @@ function validate_username($username) {
 }
 
 function genToken() {
-    $length = 256;
-    $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-.!,";
-    //length:36
-    $final_rand = '';
-    for ($i = 0; $i < $length; $i++) {
-        $final_rand .= $chars[rand(0, strlen($chars) - 1)];
+	$length = 240;
+	$chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-.!,";
+	$final_rand = '';
+	for ($i = 0; $i < $length; $i++) {
+		$final_rand .= $chars[rand(0, strlen($chars) - 1)];
 
-    }
-    return $final_rand;
+	}
+	return $final_rand;
 }
 
 function saveFile($url, $dataToSave,$prop=null) {
-    $file = $url;
-    if (strlen(json_encode($dataToSave)) < 15728640000) { //maxiumum file size
-        if ($prop !== null) {
-            $opened_data = file_get_contents($file);
-            if ($opened_data !== "") {
-                $opened_data = json_decode($opened_data,true);
-            } else {
-                $opened_data = array();
-            }
-            $opened_data[$prop] = $dataToSave;
-            file_put_contents($file, json_encode($opened_data));
-        } else {
-            file_put_contents($file, $dataToSave);
-        }
-    }
+	$file = $url;
+	if (strlen(json_encode($dataToSave)) < 15728640000) { //maxiumum file size
+		if ($prop !== null) {
+			$opened_data = file_get_contents($file);
+			if ($opened_data !== "") {
+				$opened_data = json_decode($opened_data,true);
+			} else {
+				$opened_data = array();
+			}
+			$opened_data[$prop] = $dataToSave;
+			file_put_contents($file, json_encode($opened_data));
+		} else {
+			file_put_contents($file, $dataToSave);
+		}
+	}
 }
 
 function action_allowed($action,$auth_state) {
@@ -146,9 +180,9 @@ function is_allowed($action,$username,$permissions) { // for pool permissions
 $directory = "argon_backend";
 if (file_exists($directory . "/")) {
 } else {
-    $oldmask = umask(0);
-    mkdir($directory . "/", 0777);
-    umask($oldmask);
+	$oldmask = umask(0);
+	mkdir($directory . "/", 0777);
+	umask($oldmask);
 
 }
 //.htaccess file to prevent unauthorized access
@@ -156,17 +190,17 @@ $data_for_htaccess = "Order deny,allow" . "\n" . "Deny from all";
 file_put_contents("$directory/.htaccess", $data_for_htaccess);
 
 if (file_exists("$directory/users/") === false) {
-    $oldmask = umask(0);
-    mkdir("$directory/users/", 0777);
-    umask($oldmask);
+	$oldmask = umask(0);
+	mkdir("$directory/users/", 0777);
+	umask($oldmask);
 }
 //.htaccess file to prevent unauthorized access
 $data_for_htaccess = "Order deny,allow" . "\n" . "Deny from all";
 file_put_contents("$directory/users/.htaccess", $data_for_htaccess);
 if (file_exists("$directory/pools/") === false) {
-    $oldmask = umask(0);
-    mkdir("$directory/pools/", 0777);
-    umask($oldmask);
+	$oldmask = umask(0);
+	mkdir("$directory/pools/", 0777);
+	umask($oldmask);
 }
 //.htaccess file to prevent unauthorized access
 $data_for_htaccess = "Order deny,allow" . "\n" . "Deny from all";
@@ -184,7 +218,10 @@ $CLIENT_IP = $_SERVER['REMOTE_ADDR'];
 
 //USERNAME & PASSWORD COULD ALSO BE POOL NAME AND PASSWORD.
 $USERNAME = $FROM_CLIENT['username'];
-$PASSWORD = $FROM_CLIENT['password'];
+$PASSWORD = $FROM_CLIENT['token'];
+
+$CLIENT_ID = $FROM_CLIENT['client'];
+$CLIENT_CODE = $FROM_CLIENT['request code'];
 
 //ARRAY OF REQUEST OBJECTS
 $REQUESTS = $FROM_CLIENT['requests'];
@@ -194,8 +231,33 @@ $user_authenticated = 0;
 
 if (file_exists("$directory/users/$USERNAME.json")) {
     $token = openFile("$directory/users/$USERNAME.json","token");
-    if ($PASSWORD === $token['token']) {
-        $user_authenticated = 1;   
+    $user_ips = openFile("$directory/users/$USERNAME.json","login-ips"); //login ips
+
+    /* Steps to authenticate a request:
+        1. User token from client is compared to version on server to see if they match.
+        2. Checks wether user has been logged into from the client's IP.
+        3. Checks wether a client with the current client's id has logged into the user before.
+        4. Checks wether the request code is valid.
+
+        If all four checks are passed, the request is authenticated.
+
+    */
+
+    if ($PASSWORD === $token['token']) { //if token is correct
+        foreach ($user_ips as $ip => $clients) {
+            if ($ip === $CLIENT_IP) {
+                foreach($user_ips[$ip] as $client => $cval) {
+                    if ($client === $CLIENT_ID) {
+                        $cde = $cval['code'];
+                        if ($cde === $CLIENT_CODE) {
+                            $user_authenticated = 1;
+                        } else {
+                            $user_authenticated = 0;
+                        }
+                    }
+                }
+            }
+        }
     }
 } else if ($USERNAME === "default" && $PASSWORD === "default") { //create default user
     $user_authenticated = 2;
@@ -215,6 +277,31 @@ if (validate_username($USERNAME) === true && validate_password($PASSWORD) === tr
 //MAIN ACTIONS * * * * * * * * * * * * * * * * * * * *
 if ($user_authenticated > 0 && $validation_success === true) {
 $RETURN = array();
+$RETURN['requests'] = array();
+$RETURN['code'] = "";
+//generate code for next request
+
+if ($user_authenticated === 1) {
+    $t_CODE = generateRequestCode();
+    $RETURN['code'] = $t_CODE;
+
+    $login_ips = openFile("$directory/users/$USERNAME.json","login-ips");
+    if (is_array($login_ips) !== true) {
+        $login_ips = array();
+    }
+
+    $already_present = false; //if user has already been logged in from ip
+    foreach ($login_ips as $ip => $clients) {
+        if ($CLIENT_IP === $ip) {
+            $already_present = true;
+        }
+    }
+    if ($already_present === true) {
+        $login_ips[$CLIENT_IP][$CLIENT_ID]['code'] = $t_CODE;
+    }
+    saveFile("$directory/users/$USERNAME.json", $login_ips, "login-ips");
+}
+
 for ($r = 0; $r < count($REQUESTS); $r++) {
     $REQUEST = $REQUESTS[$r];
     if ($REQUEST['action'] === "create user" && action_allowed($REQUEST['action'],$user_authenticated)) {
@@ -224,12 +311,12 @@ for ($r = 0; $r < count($REQUESTS); $r++) {
             if (file_exists("$directory/users/$username.json") === false) {
                 saveFile("$directory/users/$username.json","{}");
                 saveFile("$directory/users/$username.json",$password,"password");
-                $RETURN[$r] = json_decode('{"argonInfo":"user created"}');
+                $RETURN['requests'][$r] = json_decode('{"argonInfo":"user created"}');
             } else {
-                $RETURN[$r] = json_decode('{"argonError":"user already exists"}');
+                $RETURN['requests'][$r] = json_decode('{"argonError":"user already exists"}');
             }
         } else {
-            $RETURN[$r] = json_decode('{"argonError":"invalid username or password"}');
+            $RETURN['requests'][$r] = json_decode('{"argonError":"invalid username or password"}');
         }
     } else if ($REQUEST['action'] === "login user" && action_allowed($REQUEST['action'],$user_authenticated)) {
         $username = $REQUEST['username'];
@@ -262,7 +349,7 @@ for ($r = 0; $r < count($REQUESTS); $r++) {
                     $user_data = openFile("$directory/users/$username.json","data");
                     if ($user_data === null) {
                         $user_data = array();
-                        $user_data['argonInfo'] = json_decode('{"data":"true","time":0}',true);
+                        $user_data['argonInfo'] = json_decode('{"data":true,"time":0}',true);
                     }
 
                     if (array_key_exists('data', $REQUEST)) {
@@ -290,41 +377,53 @@ for ($r = 0; $r < count($REQUESTS); $r++) {
                             $user_data[$dName] = $client_data[$dName];
                         }
                     }
-
-                    //add client ip to login log of user
+                    
+                    //add client ip and id to login log of user
                     $login_ips = openFile("$directory/users/$username.json","login-ips");
                     if (is_array($login_ips) !== true) {
                         $login_ips = array();
                     }
-                    $already_present = false; //if client as already logged in from ip
-                    for ($i = 0; $i < count($login_ips); $i++) {
-                        if ($login_ips[$i] === $CLIENT_IP) {
+                    $already_present = false; //if user has already been logged in from ip
+                    foreach ($login_ips as $ip => $clients) {
+                        if ($CLIENT_IP === $ip) {
                             $already_present = true;
                         }
                     }
-                    if ($already_present === false) { //only add ip to login-ip property of user if ip does not already exist
-                        array_push($login_ips, $CLIENT_IP);
+                    $t_CODE = generateRequestCode();
+                    if ($already_present === true) {
+                        $login_ips[$CLIENT_IP][$CLIENT_ID] = array();
+                        $login_ips[$CLIENT_IP][$CLIENT_ID]['valid'] = true;
+                        $login_ips[$CLIENT_IP][$CLIENT_ID]['code'] = $t_CODE;
+                    } else {
+                        $login_ips[$CLIENT_IP] = array();
+                        $login_ips[$CLIENT_IP][$CLIENT_ID] = array();
+                        $login_ips[$CLIENT_IP][$CLIENT_ID]['valid'] = true;
+                        $login_ips[$CLIENT_IP][$CLIENT_ID]['code'] = $t_CODE;
                     }
-                    
+
+                    $RETURN['code'] = $t_CODE;
              
                     $return_array = array();
                     $return_array['data'] = $user_data;
                     $return_array['token'] = $nToken;
 
-                    $RETURN[$r] = $return_array;
+                    $RETURN['requests'][$r] = $return_array;
 
                     saveFile("$directory/users/$username.json", $login_ips, "login-ips");
 
                 } else {
-                    $RETURN[$r] = json_decode('{"argonError":"password incorrect"}');
+                    $RETURN['requests'][$r] = json_decode('{"argonError":"password incorrect"}');
                 }
             } else {
-                $RETURN[$r] = json_decode('{"argonError":"user does not exist"}');
+                $RETURN['requests'][$r] = json_decode('{"argonError":"user does not exist"}');
             }
         } else {
-            $RETURN[$r] = json_decode('{"argonError":"invalid username or password"}');
+            $RETURN['requests'][$r] = json_decode('{"argonError":"invalid username or password"}');
         }
     } else if ($REQUEST['action'] === "sync" && action_allowed($REQUEST['action'],$user_authenticated)) {
+
+        $last_synced = $REQUEST['last synced'];
+
         $USER_DATA = openFile("$directory/users/$USERNAME.json","data");
         if ($USER_DATA === null) {
             $USER_DATA = array();
@@ -353,21 +452,67 @@ for ($r = 0; $r < count($REQUESTS); $r++) {
                 $USER_DATA[$dName] = $client_data[$dName];
             }
         }
+
+        $changed_data = array();
+        $changed_data['argonInfo'] = json_decode('{"data":true,"time":0}');
+        foreach ($USER_DATA as $property => $data) {
+            if ($USER_DATA[$property]['time'] > $last_synced) {
+                $changed_data[$property] = $USER_DATA[$property];
+            }
+        }
         
         if ($USER_DATA === null) {
             $USER_DATA = array();
-            $USER_DATA['argonInfo'] = json_decode('{"data":"true","time":0}');
+            $USER_DATA['argonInfo'] = json_decode('{"data":true,"time":0}');
         }
         
         saveFile("$directory/users/$USERNAME.json",$USER_DATA,'data');
-        $RETURN[$r] = $USER_DATA;
+
+        $RETURN['requests'][$r] = $changed_data; //sync only changes to client
+
     } else if ($REQUEST['action'] === "remove user" && action_allowed($REQUEST['action'],$user_authenticated)) {
-        unlink("$directory/users/$USERNAME.json");
-        $RETURN[$r] = json_decode('{"argonInfo":"removed user"}');
+        if (array_key_exists('password', $REQUEST) !== false) {
+            $password = $REQUEST['password'];
+        } else {
+            $password = "";
+        }
+        $user_password = openFile("$directory/users/$USERNAME.json","password");
+        if ($password === $user_password) {
+            unlink("$directory/users/$USERNAME.json");
+            $RETURN['requests'][$r] = json_decode('{"argonInfo":"removed user"}');
+        } else {
+            $RETURN['requests'][$r] = json_decode('{"argonError":"user password incorrect"}');
+        }
+    } else if ($REQUEST['action'] === "get top level property" && action_allowed($REQUEST['action'],$user_authenticated)) {
+
+        $propName = null;
+        if (array_key_exists('property', $REQUEST)) {
+            $propName = $REQUEST['property'];
+        }
+
+        if ($propName !== null) {
+            if ($propName !== "password") {
+                $property = openFile("$directory/users/$USERNAME.json", $propName);
+                $RETURN['requests'][$r] = $property;
+            } else {
+                $RETURN['requests'][$r] = json_decode('{"argonInfo":"cannot retrieve user password"}');
+            }
+        } else {
+            $RETURN['requests'][$r] = json_decode('{"argonInfo":"no property provided to retrieve"}');
+        }
     } else if ($REQUEST['action'] === "change user password" && action_allowed($REQUEST['action'],$user_authenticated)) {
+        
         $password = $REQUEST['password'];
-        saveFile("$directory/users/$USERNAME.json",$password,"password");
-        $RETURN[$r] = json_decode('{"argonInfo":"changed user password"}');
+        $new_password = $REQUEST['new password'];
+
+        $user_password = openFile("$directory/users/$USERNAME.json","password");
+        if ($password === $user_password) {
+            saveFile("$directory/users/$USERNAME.json",$new_password,"password");
+            $RETURN['requests'][$r] = json_decode('{"argonInfo":"changed user password"}');
+        } else {
+            $RETURN['requests'][$r] = json_decode('{"argonError":"user password incorrect"}');
+        }
+
     } else if ($REQUEST['action'] === "get pool" && action_allowed($REQUEST['action'],$user_authenticated)) { // POOLS * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
         $name = $REQUEST['name'];
         $password = $REQUEST['password'];
@@ -394,15 +539,15 @@ for ($r = 0; $r < count($REQUESTS); $r++) {
                         }
                     }
 
-                    $RETURN[$r] = $final_return;
+                    $RETURN['requests'][$r] = $final_return;
                 } else {
-                    $RETURN[$r] = json_decode('{"argonError":"action not allowed"}');
+                    $RETURN['requests'][$r] = json_decode('{"argonError":"action not allowed"}');
                 }
             } else {
-                $RETURN[$r] = json_decode('{"argonError":"pool not authenticated"}');
+                $RETURN['requests'][$r] = json_decode('{"argonError":"pool not authenticated"}');
             }
         } else {
-            $RETURN[$r] = json_decode('{"argonError":"pool does not exist"}');
+            $RETURN['requests'][$r] = json_decode('{"argonError":"pool does not exist"}');
         }
     } else if ($REQUEST['action'] === "update pool" && action_allowed($REQUEST['action'],$user_authenticated)) {
         $name = $REQUEST['name'];
@@ -438,16 +583,16 @@ for ($r = 0; $r < count($REQUESTS); $r++) {
                         }
                     }
                     saveFile("$directory/pools/$name.json",$pool_data,'data');
-                    $RETURN[$r] = json_decode('{"argonInfo":"updated"}');                    
+                    $RETURN['requests'][$r] = json_decode('{"argonInfo":"updated"}');                    
                     //*** ACTION ***
                 } else {
-                    $RETURN[$r] = json_decode('{"argonError":"action not allowed"}'); 
+                    $RETURN['requests'][$r] = json_decode('{"argonError":"action not allowed"}'); 
                 }
             } else {
-                $RETURN[$r] = json_decode('{"argonError":"pool not authenticated"}');
+                $RETURN['requests'][$r] = json_decode('{"argonError":"pool not authenticated"}');
             }
         } else {
-            $RETURN[$r] = json_decode('{"argonError":"pool does not exist"}');
+            $RETURN['requests'][$r] = json_decode('{"argonError":"pool does not exist"}');
         }
     } else if ($REQUEST['action'] === "create pool" && action_allowed($REQUEST['action'],$user_authenticated)) {
         $name = $REQUEST['name'];
@@ -459,14 +604,14 @@ for ($r = 0; $r < count($REQUESTS); $r++) {
                 saveFile("$directory/pools/$name.json","{}");
                 saveFile("$directory/pools/$name.json",$password,"password");
                 saveFile("$directory/pools/$name.json",$USERNAME,"owner");
-                $RETURN[$r] = json_decode('{"argonInfo":"pool created"}');                    
+                $RETURN['requests'][$r] = json_decode('{"argonInfo":"pool created"}');                    
                 //*** ACTION ***
                 
             } else {
-                $RETURN[$r] = json_decode('{"argonError":"pool already exists"}');
+                $RETURN['requests'][$r] = json_decode('{"argonError":"pool already exists"}');
             }
         } else {
-            $RETURN[$r] = json_decode('{"argonError":"invalid name or password"}');
+            $RETURN['requests'][$r] = json_decode('{"argonError":"invalid name or password"}');
         }
     } else if ($REQUEST['action'] === "join pool" && action_allowed($REQUEST['action'],$user_authenticated)) {
         $name = $REQUEST['name'];
@@ -476,17 +621,17 @@ for ($r = 0; $r < count($REQUESTS); $r++) {
                 if (openFile("$directory/pools/$name.json","password") === $password) {
                     
                     //*** ACTION ***
-                    $RETURN[$r] = json_decode('{"argonInfo":"pool joined"}');                    
+                    $RETURN['requests'][$r] = json_decode('{"argonInfo":"pool joined"}');                    
                     //*** ACTION ***
                     
                 } else {
-                    $RETURN[$r] = json_decode('{"argonError":"pool not authenticated"}');
+                    $RETURN['requests'][$r] = json_decode('{"argonError":"pool not authenticated"}');
                 }
             } else {
-                $RETURN[$r] = json_decode('{"argonError":"pool does not exist"}');
+                $RETURN['requests'][$r] = json_decode('{"argonError":"pool does not exist"}');
             }
         } else {
-            $RETURN[$r] = json_decode('{"argonError":"invalid name or password"}');
+            $RETURN['requests'][$r] = json_decode('{"argonError":"invalid name or password"}');
         }
     } else if ($REQUEST['action'] === "remove pool" && action_allowed($REQUEST['action'],$user_authenticated)) {
         $name = $REQUEST['name'];
@@ -496,15 +641,15 @@ for ($r = 0; $r < count($REQUESTS); $r++) {
                 $owner = openFile("$directory/pools/$name.json",'owner');
                 if ($owner === $USERNAME) {
                     unlink("$directory/pools/$name.json");
-                    $RETURN[$r] = json_decode('{"argonError":"removed pool"}');
+                    $RETURN['requests'][$r] = json_decode('{"argonError":"removed pool"}');
                 } else {
-                    $RETURN[$r] = json_decode('{"argonError":"the owner must remove a pool"}');  
+                    $RETURN['requests'][$r] = json_decode('{"argonError":"the owner must remove a pool"}');  
                 }
             } else {
-                $RETURN[$r] = json_decode('{"argonError":"pool not authenticated"}');
+                $RETURN['requests'][$r] = json_decode('{"argonError":"pool not authenticated"}');
             }
         } else {
-            $RETURN[$r] = json_decode('{"argonError":"pool does not exist"}');
+            $RETURN['requests'][$r] = json_decode('{"argonError":"pool does not exist"}');
         }
     } else if ($REQUEST['action'] === "set pool permissions" && action_allowed($REQUEST['action'],$user_authenticated)) {
         $name = $REQUEST['name'];
@@ -524,20 +669,20 @@ for ($r = 0; $r < count($REQUESTS); $r++) {
                         $prev_permissions[$permission] = $permissions[$permission];
                     }
                     saveFile("$directory/pools/$name.json",$prev_permissions,"permissions");
-                    $RETURN[$r] = json_decode('{"argonError":"updated permissions for pool"}');
+                    $RETURN['requests'][$r] = json_decode('{"argonError":"updated permissions for pool"}');
                 } else {
-                    $RETURN[$r] = json_decode('{"argonError":"the owner must update permissions for a pool"}');  
+                    $RETURN['requests'][$r] = json_decode('{"argonError":"the owner must update permissions for a pool"}');  
                 }
                 //*** ACTION ***
                 
             } else {
-                $RETURN[$r] = json_decode('{"argonError":"pool not authenticated"}');
+                $RETURN['requests'][$r] = json_decode('{"argonError":"pool not authenticated"}');
             }
         } else {
-            $RETURN[$r] = json_decode('{"argonError":"pool does not exist"}');
+            $RETURN['requests'][$r] = json_decode('{"argonError":"pool does not exist"}');
         }
     } else {
-        $RETURN[$r] = json_decode('{"argonError":"action does not exist or is not allowed"}');
+        $RETURN['requests'][$r] = json_decode('{"argonError":"action does not exist or is not allowed"}');
     }
     
 } //end main for loop

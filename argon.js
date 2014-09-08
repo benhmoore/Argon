@@ -21,6 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 */
+
 function Argon(url, temp) {
 
     this.temp = false;
@@ -29,7 +30,7 @@ function Argon(url, temp) {
 
     this.time = {};
     this.time.current = 0;
-    this.time.DATA = {}; //data that is changed BEFORE a reliable time is retrieved from server
+    this.time.DATA = {}; //data that is changed before a time is retrieved from server
     this.time.updater = undefined;
 
     this.time.dataUpdater = function(offset) { //syncs data (argon.time.DATA) that was modified before time was retrieved from server
@@ -45,7 +46,7 @@ function Argon(url, temp) {
                 argon.DATA[key] = argon.time.DATA[key];
             }
             argon.ls.user.update(argon.time.DATA);
-            console.info("Synced locally");
+            // console.info("Synced locally");
         }
     }
 
@@ -90,13 +91,12 @@ function Argon(url, temp) {
 
                 clearInterval(argon.time.updater);
                 argon.time.updater = setInterval(function() {
-                    argon.time.current += 100;
-                }, 100);
+                    argon.time.current += 40;
+                }, 40);
             }
 
         };
 
-        //set current time to 1
         argon.time.current = 1;
 
         xmlhttp.open("POST", argon.url + "/time.php", true);
@@ -112,7 +112,7 @@ function Argon(url, temp) {
 
     this.validate.password = function(password) {
         var valid_chars = 'abcdefghijklmnopqrstuvwxyz1234567890.,?!';
-        if (password.length > 3 && password.length < 17) {
+        if (password.length > 5 && password.length < 20) {
             for (var i = 0; i < password.length; i++) {
                 var isThere = false;
                 for (var e = 0; e < valid_chars.length; e++) {
@@ -124,7 +124,6 @@ function Argon(url, temp) {
                     return false;
                 }
             }
-            //if password is valid length and does not contain invalid characters
             return true;
         }
         return false;
@@ -143,7 +142,6 @@ function Argon(url, temp) {
                     return false;
                 }
             }
-            //if username is valid length and does not contain invalid characters
             return true;
         }
         return false;
@@ -173,11 +171,11 @@ function Argon(url, temp) {
             xmlhttp.onreadystatechange = function() {
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
                     argon.requests.busy = false;
-
-                     // console.info(xmlhttp.responseText);
-
                     try {
                         var return_data = JSON.parse(xmlhttp.responseText);
+                        /*
+                            Format: {requests:[], code:''}
+                        */
                     } catch (err) {
                         var error = {
                             "argonError": "Server responded with error",
@@ -190,6 +188,14 @@ function Argon(url, temp) {
                         }
                         return 0; //cancel function call
                     }
+
+                    if (typeof return_data === "object") {
+                        if (return_data.code !== undefined)
+                            argon.client.saveRqCode(return_data.code); //get request code for next request
+                        if (return_data.requests !== undefined)
+                            return_data = return_data.requests;
+                    }
+
                     if (return_data instanceof Array) { //array === normal response
                         for (var i = 0; i < return_data.length; i++) {
                             callbacks[i](return_data[i]);
@@ -213,13 +219,30 @@ function Argon(url, temp) {
             var request_object = {
                 'requests': requests,
                 'username': argon.user.username,
-                'password': argon.user.password
+                'token': argon.user.password,
+                'client': argon.client.id(),
+                'request code': argon.client.getRqCode()
             };
-            // console.log(JSON.stringify(request_object));
-            xmlhttp.open("POST", argon.url + "/argon.php", true);
-            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xmlhttp.send("FROM_CLIENT=" + JSON.stringify(request_object));
-            argon.requests.busy = true;
+            // console.log(request_object);
+
+            var isError = false;
+
+            try {
+                xmlhttp.open("POST", argon.url + "/argon.php", true);
+                xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xmlhttp.send("FROM_CLIENT=" + JSON.stringify(request_object));
+                argon.requests.busy = true;
+            } catch(err) {
+                isError = true;
+                console.log("ERROR SENDING REQUEST");
+            }
+
+            if (isError === false) {
+                argon.requests.queue = {
+                    callbacks: [],
+                    requests: []
+                };
+            }
 
         }
     };
@@ -229,15 +252,11 @@ function Argon(url, temp) {
             if (argon.requests.queue.requests.length > 0) {
                 if (navigator.onLine === true) {
                     argon.requests.send(argon.requests.queue);
-                    argon.requests.queue = {
-                        callbacks: [],
-                        requests: []
-                    };
                 }
             }
         }
     }
-    setInterval(this.requests.sender, 400);
+    setInterval(this.requests.sender, 500);
 
     this.requests.add = function(request, callback) {
         var is_valid = {
@@ -265,6 +284,9 @@ function Argon(url, temp) {
     };
 
     this.ls = {};
+
+    this.ls.last_sync = 0; //time of last successful sync (used to only sync changes to server)
+
     this.ls.get = function() {
         if (argon.temp === false) { //if instance of Argon is not temporary
             var x = localStorage.getItem('argonObject');
@@ -335,31 +357,45 @@ function Argon(url, temp) {
 
     this.ls.sync = function(callback) {
 
-        if (navigator.onLine === true) {
-            argon.requests.add({
-                'action': 'sync',
-                'data': argon.encode(argon.DATA)
-            }, function(d) {
-                if (d.argonError === undefined) {
-                    if (typeof d !== "object") {
-                        d = {};
-                    }
-                    argon.DATA = d;
+        if (navigator.onLine === false)
+            return 0;
 
-                    //update localStorage again if received response from server
-                    if (argon.user.username !== "default" && argon.temp === false) { //is not temp user
-                        var argonObject = argon.ls.get();
-                        if (argonObject.users[argon.user.username] !== undefined) {
-                            argonObject.users[argon.user.username].data = d;
-                        }
-                        argon.ls.update(argonObject);
-                    }
-                }
-                if (callback !== undefined) {
-                    callback(true);
-                }
-            });
+        var changes_obj = {}; //properties that have been changed since last sync
+        for (key in argon.DATA) {
+            if (argon.DATA[key].time > argon.ls.last_sync) {
+                changes_obj[key] = argon.DATA[key];
+            }
         }
+
+        argon.requests.add({
+            'action': 'sync',
+            'data':argon.encode(changes_obj),
+            'last synced': argon.ls.last_sync
+        }, function(d) {
+            // console.info(d);
+            argon.ls.last_sync = argon.time.current;
+
+            if (d.argonError === undefined) {
+                if (typeof d !== "object") {
+                    d = {};
+                }
+                for (key in d) { //merge changes with local DATA object
+                    argon.DATA[key] = d[key];
+                }
+
+                //update localStorage again if received response from server
+                if (argon.user.username !== "default" && argon.temp === false) { //is not temp user
+                    var argonObject = argon.ls.get();
+                    if (argonObject.users[argon.user.username] !== undefined) {
+                        argonObject.users[argon.user.username].data = argon.DATA;
+                    }
+                    argon.ls.update(argonObject);
+                }
+            }
+            if (callback !== undefined) {
+                callback(true);
+            }
+        });
 
         //update localStorage initially with argon.DATA
         if (argon.temp === false) { //if instance of Argon is not temporary
@@ -377,21 +413,28 @@ function Argon(url, temp) {
 
     //sync quickly after change is made:
     this.ls.lastData = {};
+    this.ls.lastSyncedInt = 0; //when is equal to 7, sync regardless of if data has changed
     setInterval(function() {
         if (argon.user.username !== "default") {
-            if (JSON.stringify(argon.DATA) !== JSON.stringify(argon.ls.lastData)) {
+            var alreadySynced = false;
+            if (JSON.stringify(argon.DATA) !== argon.ls.lastData) {
+                argon.ls.lastData = JSON.stringify(argon.DATA);
                 argon.ls.sync();
-                argon.ls.lastData = argon.DATA;
+                alreadySynced = true;
+            }
+            
+            argon.ls.lastSyncedInt++;
+
+            if (alreadySynced === false) {
+                if (argon.ls.lastSyncedInt === 7) {
+                    argon.ls.sync();
+                    argon.ls.lastSyncedInt = 0;
+                }
+            } else {
+                argon.ls.lastSyncedInt = 0; //if already synced because of client data change, go ahead and wait another 7 seconds
             }
         }
-    }, 400);
-
-    //sync periodically to make sure data is in sync across clients logged into user
-    setInterval(function() {
-        if (argon.user.username !== "default") {
-            argon.ls.sync();
-        }
-    }, 5000);
+    }, 950);
 
     //ACCESSIBLE METHODS * * * * * * * * * * * * * * * * * *
 
@@ -500,9 +543,13 @@ function Argon(url, temp) {
     };
     this.pool.get = function(properties, callback, auth) {
         if (!(properties instanceof Array)) {
-            return {
-                argonError: "no properties to retrieve were specified as an Array in the first parameter"
-            };
+            if (typeof properties === "string") {
+                properties = [properties];
+            } else {
+                return {
+                    argonError: "no properties to retrieve were specified in the first parameter"
+                };
+            }
         }
         if (auth === undefined) {
             argon.requests.add({
@@ -520,7 +567,9 @@ function Argon(url, temp) {
             }, callback);
         }
     }
-    this.pool.update = function(obj, callback, auth) {
+    this.pool.update = function(property, value, callback, auth) {
+        var obj = {};
+        obj[property] = value;
         if (typeof callback !== "function")
             callback = function(d) {
                 console.info(d)
@@ -626,7 +675,12 @@ function Argon(url, temp) {
             };
         }
     }
-    this.user.update = function(obj) {
+
+
+    this.user.update = function(property, value) {
+        var obj = {};
+        obj[property] = value;
+
         if (argon.user.username !== "default") {
             if (argon.time.current < 100) {
                 var date = new Date();
@@ -647,7 +701,7 @@ function Argon(url, temp) {
             } else if (argon.time.current === 0) { //user is offline
 
                 return {
-                    argonInfo: "Eror updating: unable to connect with time server."
+                    argonInfo: "Error updating: unable to connect with time server."
                 };
 
             } else {
@@ -702,11 +756,32 @@ function Argon(url, temp) {
             return false;
         }
     }
+
+    this.user.dev = {}; //lower level methods * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    this.user.dev.getTopLevelProp = function(property, callback) {
+        if (typeof callback !== "function")
+            callback = function(d) {
+                console.info(d)
+            }
+        argon.requests.add({
+            'action': 'get top level property',
+            'property': property
+        },function(d) {
+            callback(d);
+        });
+    }
+
+
     this.user.login = function(username, password, callback) {
         if (typeof callback !== "function")
             callback = function(d) {
                 console.info(d)
             };
+
+        if (password === undefined || username === undefined)
+            callback({
+                'argonError': 'username or password not provided'
+            })
         if (argon.validate.password(password) === true && password.length > 5) {
             if (argon.validate.username(username) === true && username.length > 5) {
 
@@ -714,9 +789,7 @@ function Argon(url, temp) {
 
                 var argonObject = argon.ls.get();
                 if (argonObject.users[username] !== undefined) {
-                    if (argonObject.users[username].password === password) {
-                        client_data = argonObject.users[username].data;
-                    }
+                    client_data = argonObject.users[username].data;
                 }
 
                 argon.requests.add({
@@ -732,7 +805,6 @@ function Argon(url, temp) {
                         if (argonObject.users[username] === undefined)
                             argonObject.users[username] = {};
 
-                        argonObject.users[username].password = password; //store password...
                         argonObject.users[username].token = data.token; //... and token.
                         argonObject.users[username].data = data.data;
                         argonObject.users[username].active = true;
@@ -769,7 +841,7 @@ function Argon(url, temp) {
             })
         }
     }
-    this.user.changePassword = function(new_password, callback) {
+    this.user.changePassword = function(password, new_password, callback) {
         if (argon.user.username !== "default") {
             if (typeof callback !== "function")
                 callback = function(d) {
@@ -778,7 +850,8 @@ function Argon(url, temp) {
             if (argon.validate.password(new_password) === true && new_password.length > 5) {
                 argon.requests.add({
                     'action': 'change user password',
-                    'password': new_password
+                    'new password': new_password,
+                    'password': password
                 }, callback)
             } else {
                 callback({
@@ -828,21 +901,24 @@ function Argon(url, temp) {
         }
     }
 
-    this.user.remove = function(callback) {
+    this.user.remove = function(password, callback) {
         if (typeof callback !== "function")
             callback = function(d) {
                 console.info(d)
             };
         if (argon.user.username !== "default") {
             argon.requests.add({
-                'action': 'remove user'
+                'action': 'remove user',
+                'password': password
             }, function(d) {
-                argon.user.forget();
-                //set back to default user after removing
-                argon.user.username = "default";
-                argon.user.password = "default";
-                argon.DATA = {};
-                callback(d)
+                if (d.argonError === undefined) {
+                    argon.user.forget();
+                    //set back to default user after removing
+                    argon.user.username = "default";
+                    argon.user.password = "default";
+                    argon.DATA = {};
+                }
+                callback(d);
             });
         } else {
             return {
@@ -892,6 +968,93 @@ function Argon(url, temp) {
             });
         }
     }
+
+    //CLIENT METHODS
+    /*
+        These methods are geared towards storing data on the current client specifically. This data is not synced to the server.
+    */
+
+    this.client = {};
+    this.client.ls = {};
+    this.client.ls.get = function() {
+        var obj = {};
+        var temp = localStorage.getItem('argonClient');
+        if (temp !== null) {
+            try {
+                obj = JSON.parse(temp);
+            } catch (err) {
+
+            }
+        }
+
+        return obj;
+    }
+    this.client.ls.set = function(obj) {
+        localStorage.setItem('argonClient', JSON.stringify(obj));
+    }
+    this.client.get = function() {
+        if (argon.client.ls.get().data === undefined)
+            return {};
+
+        return argon.client.ls.get().data;
+    }
+    this.client.update = function(property, value) {
+        var obj = {};
+        obj[property] = value;
+
+        var client_data = argon.client.ls.get();
+        if (client_data.data === undefined)
+            client_data.data = {};
+
+        for (key in obj) {
+            client_data.data[key] = obj[key];
+            if (obj[key] === null)
+                delete client_data.data[key];
+        }
+        argon.client.ls.set(client_data);
+        return {
+            argonInfo: "updated"
+        };
+    }
+
+    this.client.makeID = function() {
+        var text = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.";
+
+        for( var i=0; i < 150; i++ )
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+        return text;
+    }
+
+    this.client.id = function() {
+        var client_data = argon.client.ls.get();
+        var id = client_data.id;
+        if (id === undefined) {
+            id = argon.client.makeID();
+            client_data.id = id;
+            argon.client.ls.set(client_data);
+        }
+        return id;
+    }
+
+    /** Used for request sender **/
+    this.client.saveRqCode = function(rqCode) {
+        var client_data = argon.client.ls.get();
+        client_data.rqCode = rqCode;
+        argon.client.ls.set(client_data);
+        return true;
+    }
+
+    this.client.getRqCode = function() {
+        var client_data = argon.client.ls.get();
+        var rqCode = client_data.rqCode;
+        if (rqCode === undefined)
+            rqCode = "";
+
+        return rqCode;
+    }
+    /** ** **/
 
     this.setup = function() {
         if (argon.temp === false) { //if instance of Argon is not temporary, get user from LS
