@@ -53,7 +53,7 @@ This method logs into a user, which in this case, is the user 'username'. A call
 This method logs out of the current user. *Note: It does not remove the user's credentials or data from localStorage -- see `.user.forget()`.*
 
 ####.user.update()
-    .user.update({property:value})
+    .user.update('property', value)
 
 This method updates the property 'property' with the value 'value'. If the property already exists, its value will be updated. Otherwise, the property will be created.
 
@@ -96,7 +96,7 @@ This method joins an existing pool, which, in this case, is 'poolname'. A callba
 This method removes authentication data for the pool from the client, thus logging out of the pool.
 ####.pool.update()
 
-    .pool.update({property:value}, callback);
+    .pool.update('property', value, callback);
 This method updates the property 'property' with the value 'value' in the pool. If the property already exists, its value will be updated. Otherwise, the property will be created. A callback is optional, but recommended.
 
 Properties may be removed by setting their values to `null`.
@@ -182,12 +182,9 @@ ___
 ##Help
 If you have any further questions, or if you can't quite figure something out, send us an email at [argon@loadfive.com][3] or tweet us [@loadfive][4].
 
-___
-##Examples
-Writer: [loadfive.com/writer][5]
 ____
 
-![enter image description here][6]  This project is developed and maintained by LoadFive. 
+This project is developed and maintained by LoadFive. 
 
 ____
 ____
