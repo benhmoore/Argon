@@ -31,7 +31,7 @@ Unzip and upload `argon.php`, `argon.js`, and `time.php` to your server or local
 Make sure permissions are set to '0777' on the directory you upload Argon files.* Add this snippet to the header of any webpage you want Argon to operate : 
 
 ```html
- <script src = "http://URL.TO/argon.js"></script> 
+ <script src ="http://URL.TO/argon.js"></script> 
 ```
 ___
 
