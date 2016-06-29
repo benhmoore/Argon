@@ -7,8 +7,6 @@ Argon enables web apps to seamlessly store and sync user data across multiple de
 
 Argon is based on Javascript and PHP -- there are no dependencies, no plugins to install, no commands to run, and no database! Just drag and drop onto your server and you're set.
 
-Argon is the result of countless hours of brainstorming, rethinking, and development. We've started over, rethought, and rebuilt; we've been working on this for over a year, and we're just getting started. 
-
 1. [Getting Started](https://github.com/loadfive/Argon/blob/master/README.md#getting-started)
 2. [Documentation](https://github.com/loadfive/Argon/blob/master/README.md#documentation)
 3. [Stuffs You Should Know](https://github.com/loadfive/Argon/blob/master/README.md#stuff-you-should-know)
@@ -56,7 +54,7 @@ If everything is setup correctly, you should get a success message :
 argonInfo: "user created"
 ```
 
-If you didn't get that message, make sure the permissions for the directory you uploaded Argon are set to '0777'. Also, check the console for any error messages. If the problem still persists, you can send us an email at [argon@loadfive.com][2].
+If you didn't get that message, make sure the permissions for the directory you uploaded Argon are set to '0777'. Also, check the console for any error messages. If the problem still persists, you can send me an email at [moore.h.ben@gmail.com][2].
 
 Argon setup is now complete!
 ___
@@ -278,24 +276,20 @@ ___
 
 ##Help
 
-If you have any further questions, or if you can not quite figure something out, send us an email at [argon@loadfive.com][3] or tweet us [@loadfive][4].
-We are on [Google Plus][7] too.
+If you have any further questions, or if you can't quite figure something out, send me an email personally at [moore.h.ben@gmail.com][3] or tweet me [@benmooredaily][4].
+Argon is on [Google Plus][7], as well.
 
 ____
 
-This project is developed and maintained by LoadFive. 
-
-![LoadFive][img-src]
-
-[img-src]: https://avatars2.githubusercontent.com/u/5818776?v=2&s=100 "LoadFive Logo"
+This project is developed and maintained by Ben Moore.
 
 ____
 
 
   [1]: https://github.com/loadfive/Argon/archive/master.zip
-  [2]: mailto:argon@loadfive.com
-  [3]: mailto:argon@loadfive.com
-  [4]: http://twitter.com/loadfive
+  [2]: mailto:moore.h.ben@gmail.com
+  [3]: mailto:moore.h.ben@gmail.com
+  [4]: http://twitter.com/benmooredaily
   [5]: http://loadfive.com/writer
   [6]: http://loadfive.com/styles/logo.svg
   [7]: https://plus.google.com/112470566873602878232/posts
