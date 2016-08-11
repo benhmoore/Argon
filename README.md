@@ -4,7 +4,8 @@
 ____
 
 **This project is no longer recieving updates.**
-It is not recommended to use this project in production.
+
+It is not recommended to use this project in production environments.
 
 Argon enables web apps to seamlessly store and sync user data across multiple devices. It offers a complete backend solution for web apps. Argon can store anything from the data of a simple text editor, to the position of a player in game -- and keeps it in sync across a user's devices.
 
