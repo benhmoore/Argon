@@ -3,6 +3,9 @@
 *The plug and play backend*
 ____
 
+**This project is no longer recieving updates.**
+It is not recommended to use this project in production.
+
 Argon enables web apps to seamlessly store and sync user data across multiple devices. It offers a complete backend solution for web apps. Argon can store anything from the data of a simple text editor, to the position of a player in game -- and keeps it in sync across a user's devices.
 
 Argon is based on Javascript and PHP -- there are no dependencies, no plugins to install, no commands to run, and no database! Just drag and drop onto your server and you're set.
