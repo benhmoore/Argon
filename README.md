@@ -3,7 +3,7 @@
 *The plug and play backend*
 ____
 
-**This project is no longer recieving updates.**
+**This project is no longer receiving updates.**
 
 It is not recommended to use this project in production environments.
 ____
