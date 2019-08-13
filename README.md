@@ -1,4 +1,4 @@
-#Argon ![Argon](https://lh5.googleusercontent.com/-2b028rSLkx0/AAAAAAAAAAI/AAAAAAAAArE/CX3OacUNcyc/s46-c-k-no/photo.jpg "Argon")
+#Argon
 
 *The plug and play backend*
 ____
